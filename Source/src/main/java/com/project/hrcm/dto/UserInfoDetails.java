@@ -1,10 +1,12 @@
-package com.project.hrcm.models.userInfo;
+package com.project.hrcm.dto;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.project.hrcm.utils.InitialLoad;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,17 +15,18 @@ import com.project.hrcm.entities.UserInfo;
 
 public class UserInfoDetails implements UserDetails {
 
-    private final String username; // Changed from 'name' to 'email' for clarity
+    private final String username;
+
     @SuppressWarnings("unused")
     private final String password;
+
     private final List<GrantedAuthority> authorities;
 
     public UserInfoDetails(UserInfo userInfo) {
         this.username = userInfo.getEmail(); // Use email as username
         this.password = userInfo.getPassword();
-        this.authorities = Stream.of(userInfo.getRoleId().toString().split(","))
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+
+        this.authorities = userInfo.getRoles();
     }
 
     @Override

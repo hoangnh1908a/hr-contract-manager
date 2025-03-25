@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.project</groupId>
-	<artifactId>hrm</artifactId>
+	<artifactId>hrcm</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>hr contract manager</name>
 	<description>Web api hr contract manager</description>

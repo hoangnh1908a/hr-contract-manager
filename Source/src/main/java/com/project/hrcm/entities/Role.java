@@ -1,41 +1,28 @@
 package com.project.hrcm.entities;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "users")
-public class UserInfo {
+@Table(name = "roles")
+public class Role {
     
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(nullable = false)
     private Integer id;
 
-    @Column(nullable = false)
-    private String fullName;
-
     @Column(unique = true, length = 100, nullable = false)
-    private String email;
-
-    @Column(nullable = false)
-    private String password;
-
-    @Column(nullable = false)
-    private Integer roleId;
+    private String name;
 
     @Column(name = "created_by")
     private Integer createdBy;
@@ -50,7 +37,4 @@ public class UserInfo {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    @Transient
-    private List<GrantedAuthority> roles;
 }
