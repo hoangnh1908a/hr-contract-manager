@@ -12,7 +12,7 @@ spring:
 server:
   port: 8005
 scheduling:
-  autoload: 10000
+  autoload: 60000
 logging:
   file:
     name: logs/app.log
@@ -20,5 +20,8 @@ logging:
     root: INFO
     com:
       example: DEBUG
+    org:
+      springframework:
+        security: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} [%X{requestId}] [%X{username}] - %msg%n"

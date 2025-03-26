@@ -33,28 +33,29 @@ public class UserInfoService implements UserDetailsService {
     private InitialLoad initialLoad;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        log.info(" Load user : {}", username);
-        Optional<UserInfo> userInfo = userRepository.findByEmail(username);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        log.info(" Load user : {}", email);
+        Optional<UserInfo> userInfo = userRepository.findByEmail(email);
         /**
          * get role
-        * */
+         * */
         if (userInfo.isPresent()) {
-            List<GrantedAuthority> authorities = Stream
-                    .of(initialLoad.getRoleNameById(userInfo.get().getRoleId()).split(","))
-                    .map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList());
+            List<GrantedAuthority> authorities = Stream.of(initialLoad.getRoleNameById(userInfo.get().getRoleId()).split(",")).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
             userInfo.get().setRoles(authorities);
         }
 
         // Converting UserInfo to UserDetails
-        return userInfo.map(UserInfoDetails::new).orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        return userInfo.map(UserInfoDetails::new).orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
     }
 
-    public String addUser(UserInfo userInfo) {
+    public UserInfo addUser(UserInfo userInfo) {
+
         // Encode password before saving the user
         userInfo.setPassword(passwordEncoder.encode(userInfo.getPassword()));
-        userRepository.save(userInfo);
-        return "User Added Successfully";
+
+        userInfo = userRepository.save(userInfo);
+        log.info("User Added Successfully : {} ", userInfo.getEmail());
+
+        return userInfo;
     }
 }
