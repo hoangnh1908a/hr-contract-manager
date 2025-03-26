@@ -5,6 +5,7 @@ import com.project.hrcm.models.requests.AuthRequest;
 import com.project.hrcm.services.JwtService;
 import com.project.hrcm.models.requests.UserInfoRequest;
 import com.project.hrcm.services.userInfo.UserInfoService;
+import com.project.hrcm.utils.Constants;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -38,15 +39,9 @@ public class UserController {
     }
 
     @GetMapping("/user/userProfile")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
     public String userProfile() {
         return "Welcome to User Profile";
-    }
-
-    @GetMapping("/admin/adminProfile")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public String adminProfile() {
-        return "Welcome to Admin Profile";
     }
 
     @PostMapping("/generateToken")
