@@ -1,15 +1,14 @@
 package com.project.hrcm.entities;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @Entity
 @Data
@@ -18,57 +17,52 @@ import java.time.LocalTime;
 @Table(name = "employees")
 public class Employee {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
-    private Integer id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(nullable = false)
+  private Integer id;
 
-    @Column(nullable = false)
-    private String fullName;
+  @Column(nullable = false)
+  private String fullName;
 
-    @Column(nullable = false)
-    private String numberId;
+  @Column(nullable = false)
+  private String numberId;
 
-    @Column(nullable = false)
-    private LocalTime dateOfBirth;
+  @Column(nullable = false)
+  private LocalTime dateOfBirth;
 
-    @Column(nullable = false)
-    private String sex;
+  @Column(nullable = false)
+  private String sex;
 
-    @Column(nullable = false)
-    private String nationality; // Quoc tich
+  @Column(nullable = false)
+  private String nationality; // Quoc tich
 
-    @Column
-    private String placeOfOrigin; // Que quan
+  @Column private String placeOfOrigin; // Que quan
 
-    @Column
-    private String placeOfResidence; // Nguyen quan
+  @Column private String placeOfResidence; // Nguyen quan
 
-    @Column(nullable = false)
-    private String email;
+  @Column(nullable = false)
+  private String email;
 
-    @Column(nullable = false)
-    private String phone;
+  @Column(nullable = false)
+  private String phone;
 
-    @Column(nullable = false)
-    private LocalDate hireDate;
+  @Column(nullable = false)
+  private LocalDate hireDate;
 
-    @Column(nullable = false)
-    private String status;
+  @Column(nullable = false)
+  private String status;
 
-    @CreationTimestamp
-    @Column(updatable = false)
-    private LocalDateTime createdAt;
+  @CreationTimestamp
+  @Column(updatable = false)
+  private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column
-    private LocalDateTime updatedAt;
+  @UpdateTimestamp @Column private LocalDateTime updatedAt;
 
+  // Key
+  @Column(nullable = false)
+  private String departmentId;
 
-    // Key
-    @Column(nullable = false)
-    private String departmentId;
-
-    @Column(nullable = false)
-    private String positionId;
+  @Column(nullable = false)
+  private String positionId;
 }

@@ -1,13 +1,12 @@
 package com.project.hrcm.entities;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -16,19 +15,17 @@ import java.time.LocalDateTime;
 @Table(name = "cities")
 public class City {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
-    private Integer id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(nullable = false)
+  private Integer id;
 
-    @Column(unique = true, nullable = false)
-    private String name;
+  @Column(unique = true, nullable = false)
+  private String name;
 
-    @CreationTimestamp
-    @Column(updatable = false)
-    private LocalDateTime createdAt;
+  @CreationTimestamp
+  @Column(updatable = false)
+  private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column
-    private LocalDateTime updatedAt;
+  @UpdateTimestamp @Column private LocalDateTime updatedAt;
 }

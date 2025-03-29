@@ -1,16 +1,12 @@
 package com.project.hrcm.controllers;
 
-import org.springframework.web.bind.annotation.RestController;
-
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.Locale;
-
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.context.MessageSource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController

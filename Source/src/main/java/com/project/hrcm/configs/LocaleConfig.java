@@ -11,31 +11,31 @@ import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 @Configuration
 public class LocaleConfig implements WebMvcConfigurer {
 
-    @Bean
-    public LocaleResolver localeResolver(){
-        return new CustomLocaleResolve();
-    }
+  @Bean
+  public LocaleResolver localeResolver() {
+    return new CustomLocaleResolve();
+  }
 
-    @Bean
-    public LocaleChangeInterceptor localeChangeInterceptor(){
-        LocaleChangeInterceptor interceptor = new LocaleChangeInterceptor();
-        interceptor.setParamName("lang");
-        return interceptor;
-    }
+  @Bean
+  public LocaleChangeInterceptor localeChangeInterceptor() {
+    LocaleChangeInterceptor interceptor = new LocaleChangeInterceptor();
+    interceptor.setParamName("lang");
+    return interceptor;
+  }
 
-    @Bean
-    public MessageSource messageSource() {
-        ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-        messageSource.setBasename("messages");
-        messageSource.setDefaultEncoding("UTF-8");
-        return messageSource;
-    }
+  @Bean
+  public MessageSource messageSource() {
+    ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+    messageSource.setBasename("messages");
+    messageSource.setDefaultEncoding("UTF-8");
+    return messageSource;
+  }
 
-    @Bean
-    public MessageSource customizedMessageSource() {
-        ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-        messageSource.setBasename("customized.messages");
-        messageSource.setDefaultEncoding("UTF-8");
-        return messageSource;
-    }
+  @Bean
+  public MessageSource customizedMessageSource() {
+    ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+    messageSource.setBasename("customized.messages");
+    messageSource.setDefaultEncoding("UTF-8");
+    return messageSource;
+  }
 }

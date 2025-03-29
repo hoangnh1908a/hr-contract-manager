@@ -9,18 +9,19 @@ import lombok.Data;
 @Data
 public class UserInfoRequest {
 
-    @NotBlank(message = "The fullName is required.")
-    private String fullName;
+  @NotBlank(message = "The fullName is required.")
+  private String fullName;
 
-    @NotBlank(message = "The email is required.")
-    @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-            message = "The email address format is invalid.")
-    private String email;
+  @NotBlank(message = "The email is required.")
+  @Pattern(
+      regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+      message = "The email address format is invalid.")
+  private String email;
 
-    @NotBlank(message = "The password is required.")
-    @Size(min = 8, message = "Password must be at least 3 characters long!")
-    private String password;
+  @NotBlank(message = "The password is required.")
+  @Size(min = 8, message = "Password must be at least 3 characters long!")
+  private String password;
 
-    @NotNull(message = "The roleId is required.")
-    private Integer roleId;
+  @NotNull(message = "The roleId is required.")
+  private Integer roleId;
 }

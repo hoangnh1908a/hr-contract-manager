@@ -1,13 +1,11 @@
 package com.project.hrcm.configs;
 
 
-import java.util.Locale;
-
-import org.springframework.util.StringUtils;
-import org.springframework.web.servlet.LocaleResolver;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Locale;
+import org.springframework.util.StringUtils;
+import org.springframework.web.servlet.LocaleResolver;
 
 public class CustomLocaleResolve implements LocaleResolver {
 

@@ -1,6 +1,5 @@
 package com.project.hrcm.services;
 
-import com.project.hrcm.dto.UserInfoDetails;
 import com.project.hrcm.entities.AuditLog;
 import com.project.hrcm.repository.AuditLogRepository;
 import com.project.hrcm.services.userInfo.UserInfoService;
@@ -13,21 +12,22 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class AuditLogService {
 
-    private final AuditLogRepository auditLogRepository;
+  private final AuditLogRepository auditLogRepository;
 
-    @Async
-    @Transactional
-    public void saveAuditLog(String action, String tableName, Integer recordId, String oldValue, String newValue){
-        AuditLog auditLog = AuditLog.builder()
-                .action(action)
-                .tableName(tableName)
-                .recordId(recordId)
-                .oldValue(oldValue)
-                .newValue(newValue)
-                .userId(UserInfoService.getCurrentUserId())
-                .build();
+  @Async
+  @Transactional
+  public void saveAuditLog(
+      String action, String tableName, Integer recordId, String oldValue, String newValue) {
+    AuditLog auditLog =
+        AuditLog.builder()
+            .action(action)
+            .tableName(tableName)
+            .recordId(recordId)
+            .oldValue(oldValue)
+            .newValue(newValue)
+            .userId(UserInfoService.getCurrentUserId())
+            .build();
 
-        auditLogRepository.save(auditLog);
-    }
-
+    auditLogRepository.save(auditLog);
+  }
 }

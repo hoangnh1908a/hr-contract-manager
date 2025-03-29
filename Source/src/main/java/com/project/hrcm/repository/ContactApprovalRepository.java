@@ -5,6 +5,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ContactApprovalRepository extends JpaRepository<ContactApproval, Integer> {
-
-}
+public interface ContactApprovalRepository extends JpaRepository<ContactApproval, Integer> {}

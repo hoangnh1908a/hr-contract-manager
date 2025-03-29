@@ -7,6 +7,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class BaseDto {
 
-    private Integer id;
-    private String name;
+  private Integer id;
+  private String name;
 }

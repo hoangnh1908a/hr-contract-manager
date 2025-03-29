@@ -11,10 +11,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class Autoload {
 
-    private final InitialLoad initialLoad;
+  private final InitialLoad initialLoad;
 
-    @Scheduled(fixedRateString = "${scheduling.autoload}")
-    public void loadData() {
-        initialLoad.load();
-    }
+  @Scheduled(fixedRateString = "${scheduling.autoload}")
+  public void loadData() {
+    initialLoad.load();
+  }
 }
