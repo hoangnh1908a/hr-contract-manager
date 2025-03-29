@@ -12,7 +12,7 @@ spring:
 server:
   port: 8005
 scheduling:
-  autoload: 60000
+  load-data: 60000
 logging:
   file:
     name: logs/app.log

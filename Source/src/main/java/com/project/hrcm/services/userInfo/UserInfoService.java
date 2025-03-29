@@ -79,6 +79,6 @@ public class UserInfoService implements UserDetailsService {
                 return ((UserInfo) principal).getId();
             }
         }
-        return null; // Or throw an exception if userId is required.
+        return 1;
     }
 }

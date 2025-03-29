@@ -11,7 +11,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -35,7 +34,7 @@ public class UserController {
 
     userInfo = service.addUser(userInfo);
 
-    return new ResponseEntity<>(userInfo, HttpStatus.CREATED);
+    return new ResponseEntity<>(userInfo, HttpStatus.OK);
   }
 
   @PostMapping("/generateToken")
@@ -54,7 +53,7 @@ public class UserController {
   }
 
   @GetMapping("/user/userProfile")
-  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
+//  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<String> userProfile() {
     return ResponseEntity.ok(Constants.SUCCESS);
   }

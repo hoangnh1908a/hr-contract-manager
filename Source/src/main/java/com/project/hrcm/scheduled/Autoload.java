@@ -13,7 +13,7 @@ public class Autoload {
 
   private final InitialLoad initialLoad;
 
-  @Scheduled(fixedRateString = "${scheduling.autoload}")
+  @Scheduled(fixedRateString = "${scheduling.load-data}")
   public void loadData() {
     initialLoad.load();
   }
