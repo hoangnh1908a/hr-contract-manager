@@ -2,39 +2,47 @@ package com.project.hrcm.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "audit_logs")
-public class AuditLogs {
-    
+public class AuditLog {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Integer id;
 
     @Column(nullable = false)
-    private String name;
+    private String action;
 
-    @Column(name = "created_by")
-    private Integer createdBy;
+    @Column(nullable = false)
+    private String tableName;
 
-    @Column(name = "updated_by")
-    private Integer updatedBy;
+    @Column(nullable = false)
+    private Integer recordId;
+
+    @Column
+    private String oldValue;
+
+    @Column
+    private String newValue;
+
 
     @CreationTimestamp
-    @Column(updatable = false, name = "created_at")
-    private LocalDateTime createdAt;
+    @Column(nullable = false)
+    private LocalDateTime timestamp;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    // Key
+    @Column(nullable = false)
+    private Integer userId;
 }

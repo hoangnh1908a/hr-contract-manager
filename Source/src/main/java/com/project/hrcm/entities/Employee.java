@@ -7,22 +7,54 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "cities")
-public class City {
-    
+@Table(name = "employees")
+public class Employee {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Integer id;
 
-    @Column(unique = true, nullable = false)
-    private String name;
+    @Column(nullable = false)
+    private String fullName;
+
+    @Column(nullable = false)
+    private String numberId;
+
+    @Column(nullable = false)
+    private LocalTime dateOfBirth;
+
+    @Column(nullable = false)
+    private String sex;
+
+    @Column(nullable = false)
+    private String nationality; // Quoc tich
+
+    @Column
+    private String placeOfOrigin; // Que quan
+
+    @Column
+    private String placeOfResidence; // Nguyen quan
+
+    @Column(nullable = false)
+    private String email;
+
+    @Column(nullable = false)
+    private String phone;
+
+    @Column(nullable = false)
+    private LocalDate hireDate;
+
+    @Column(nullable = false)
+    private String status;
 
     @CreationTimestamp
     @Column(updatable = false)
@@ -31,4 +63,12 @@ public class City {
     @UpdateTimestamp
     @Column
     private LocalDateTime updatedAt;
+
+
+    // Key
+    @Column(nullable = false)
+    private String departmentId;
+
+    @Column(nullable = false)
+    private String positionId;
 }

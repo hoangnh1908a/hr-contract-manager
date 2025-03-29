@@ -2,6 +2,7 @@ package com.project.hrcm.controllers;
 
 import com.project.hrcm.entities.UserInfo;
 import com.project.hrcm.models.requests.AuthRequest;
+import com.project.hrcm.services.AuditLogService;
 import com.project.hrcm.services.JwtService;
 import com.project.hrcm.models.requests.UserInfoRequest;
 import com.project.hrcm.services.userInfo.UserInfoService;
@@ -38,20 +39,20 @@ public class UserController {
         return new ResponseEntity<>(userInfo, HttpStatus.CREATED);
     }
 
-    @GetMapping("/user/userProfile")
-    @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-    public String userProfile() {
-        return "Welcome to User Profile";
-    }
-
     @PostMapping("/generateToken")
-    public String authenticateAndGetToken(@Valid @RequestBody AuthRequest authRequest) {
+    public ResponseEntity<String> authenticateAndGetToken(@Valid @RequestBody AuthRequest authRequest) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword()));
         if (authentication.isAuthenticated()) {
-            return jwtService.generateToken(authRequest.getEmail());
+            return ResponseEntity.ok(jwtService.generateToken(authRequest.getEmail()));
         } else {
             throw new UsernameNotFoundException("Invalid user request!");
         }
+    }
+
+    @GetMapping("/user/userProfile")
+    @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
+    public ResponseEntity<String> userProfile() {
+        return ResponseEntity.ok(Constants.SUCCESS);
     }
 
 }

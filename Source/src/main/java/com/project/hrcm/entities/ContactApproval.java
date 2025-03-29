@@ -13,28 +13,35 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "contact_statuses")
-public class ContactStatus {
-    
+@Table(name = "contact_approvals")
+public class ContactApproval {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Integer id;
 
-    @Column(nullable = false)
-    private String name;
+    @Column
+    private String comment;
 
-    @Column(name = "created_by")
-    private Integer createdBy;
+    @Column(updatable = false)
+    private Integer approvedBy;
 
-    @Column(name = "updated_by")
-    private Integer updatedBy;
+    @Column(updatable = false)
+    private Integer approvedDate;
 
     @CreationTimestamp
-    @Column(updatable = false, name = "created_at")
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
+    @Column
     private LocalDateTime updatedAt;
+
+    // Key
+    @Column(nullable = false)
+    private Integer contactId;
+
+    @Column(nullable = false)
+    private Integer contactStatusId;
 }

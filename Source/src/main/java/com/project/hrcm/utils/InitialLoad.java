@@ -5,6 +5,7 @@ import com.project.hrcm.repository.CityRepository;
 import com.project.hrcm.repository.DistrictRepository;
 import com.project.hrcm.repository.RoleRepository;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

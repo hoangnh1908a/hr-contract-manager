@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Table(name = "roles")
 public class Role {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
@@ -24,17 +24,17 @@ public class Role {
     @Column(unique = true, length = 100, nullable = false)
     private String name;
 
-    @Column(name = "created_by")
+    @Column
     private Integer createdBy;
 
-    @Column(name = "updated_by")
+    @Column
     private Integer updatedBy;
 
     @CreationTimestamp
-    @Column(updatable = false, name = "created_at")
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
+    @Column
     private LocalDateTime updatedAt;
 }

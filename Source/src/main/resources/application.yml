@@ -4,7 +4,7 @@ spring:
   datasource:
     url: "jdbc:mysql://localhost:3306/hr_contract_manager?serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false"
     username: root
-    password: hrm123456
+    password: hrcm123456!@#
   jpa:
     hibernate:
       ddl-auto: none
