@@ -126,6 +126,9 @@ CREATE TABLE `districts` (
   `updated_at` TIMESTAMP
 );
 
+# pass = 12345678
+INSERT INTO hr_contract_manager.users (id, full_name, email, password, role_id, created_by, updated_by, created_at, updated_at) VALUES (1, 'admin', 'admin@company.com', '$2a$10$3OCVxm2GfbqcyWTOu3GxQe2dZKNeA/ZegR0r/XSCYy1u2vBIbBiRK', 1, null, null, NOW(), NOW());
+
 INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Software Development', NULL, NULL, NOW(), NOW());
 INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('IT Infrastructure & Support', NULL, NULL, NOW(), NOW());
 INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Cybersecurity', NULL, NULL, NOW(), NOW());

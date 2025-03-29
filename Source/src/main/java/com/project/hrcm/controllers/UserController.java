@@ -7,14 +7,15 @@ import com.project.hrcm.services.JwtService;
 import com.project.hrcm.services.userInfo.UserInfoService;
 import com.project.hrcm.utils.Constants;
 import jakarta.validation.Valid;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
@@ -38,22 +39,33 @@ public class UserController {
   }
 
   @PostMapping("/generateToken")
-  public ResponseEntity<String> authenticateAndGetToken(
-      @Valid @RequestBody AuthRequest authRequest) {
-    Authentication authentication =
-        authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                authRequest.getEmail(), authRequest.getPassword()));
+  public ResponseEntity<?> authenticateAndGetToken(@Valid @RequestBody AuthRequest authRequest) {
+    try {
+      Authentication authentication =
+          authenticationManager.authenticate(
+              new UsernamePasswordAuthenticationToken(
+                  authRequest.getEmail(), authRequest.getPassword()));
 
-    if (authentication.isAuthenticated()) {
-      return ResponseEntity.ok(jwtService.generateToken(authRequest.getEmail()));
-    } else {
-      throw new UsernameNotFoundException("Invalid user request!");
+      // Check if authentication was successful
+      if (authentication.isAuthenticated()) {
+        String token = jwtService.generateToken(authRequest.getEmail());
+        return ResponseEntity.ok(Map.of("token", token));
+      }
+
+    } catch (BadCredentialsException e) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+          .body(Map.of(Constants.ERROR, "Invalid username or password"));
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body(Map.of(Constants.ERROR, "Authentication failed"));
     }
+
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+          .body(Map.of(Constants.ERROR, "Invalid login attempt"));
   }
 
   @GetMapping("/user/userProfile")
-//  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
+  //  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<String> userProfile() {
     return ResponseEntity.ok(Constants.SUCCESS);
   }
