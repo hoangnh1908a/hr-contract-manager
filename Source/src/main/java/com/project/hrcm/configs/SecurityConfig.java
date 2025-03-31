@@ -4,6 +4,7 @@ import com.project.hrcm.services.JwtService;
 import com.project.hrcm.services.userInfo.UserInfoService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -25,10 +26,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 public class SecurityConfig {
 
-  @Bean
-  @Primary
-  public UserDetailsService userDetailsService() {
-    return new UserInfoService();
+  private final UserInfoService userInfoService;
+
+  public SecurityConfig(@Lazy UserInfoService userInfoService) {
+    this.userInfoService = userInfoService;
   }
 
   @Bean
@@ -57,7 +58,7 @@ public class SecurityConfig {
   @Bean
   public AuthenticationProvider authenticationProvider() {
     DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-    authenticationProvider.setUserDetailsService(userDetailsService());
+    authenticationProvider.setUserDetailsService(userInfoService);
     authenticationProvider.setPasswordEncoder(passwordEncoder());
     return authenticationProvider;
   }

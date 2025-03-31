@@ -3,8 +3,9 @@ package com.project.hrcm.utils;
 public class Constants {
 
   // RESPONSE
-  public static final String SUCCESS = "SUCCESS";
-  public static final String ERROR = "ERROR";
+  public static final String SUCCESS = "success";
+  public static final String ERROR = "error";
+  public static final String MESSAGE = "message";
 
   // ROLE
   /*
@@ -23,4 +24,6 @@ public class Constants {
   public static final String ADD = "ADD";
   public static final String UPDATE = "UPDATE";
   public static final String DELETE = "DELETE";
+  public static final String GET_ID = "GET_ID";
+
 }

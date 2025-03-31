@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,6 +29,7 @@ public class UserController {
   private final AuthenticationManager authenticationManager;
 
   @PostMapping("/addNewUser")
+  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<UserInfo> addNewUser(@Valid @RequestBody UserInfoRequest userInfoRequest) {
     UserInfo userInfo = new UserInfo();
 
@@ -60,8 +62,8 @@ public class UserController {
           .body(Map.of(Constants.ERROR, "Authentication failed"));
     }
 
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-          .body(Map.of(Constants.ERROR, "Invalid login attempt"));
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        .body(Map.of(Constants.ERROR, "Invalid login attempt"));
   }
 
   @GetMapping("/user/userProfile")

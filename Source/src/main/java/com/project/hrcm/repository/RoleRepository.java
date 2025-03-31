@@ -12,4 +12,6 @@ public interface RoleRepository extends JpaRepository<Role, Integer> {
 
   @Query("SELECT new com.project.hrcm.dto.BaseDto(u.id, u.name) FROM Role u")
   List<BaseDto> findAllRoleDto();
+
+  boolean existsByName(String name);
 }
