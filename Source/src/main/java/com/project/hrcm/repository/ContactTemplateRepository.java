@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ContactTemplateRepository extends JpaRepository<ContactTemplate, Integer> {
-    boolean existsByName(String name);
+  boolean existsByName(String name);
 }

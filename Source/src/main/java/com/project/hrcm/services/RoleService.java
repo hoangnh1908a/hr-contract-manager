@@ -6,6 +6,7 @@ import com.project.hrcm.models.requests.BaseRequest;
 import com.project.hrcm.models.requests.NameRequest;
 import com.project.hrcm.repository.RoleRepository;
 import com.project.hrcm.utils.Constants;
+import com.project.hrcm.utils.Utils;
 import java.util.List;
 import java.util.Locale;
 import lombok.AllArgsConstructor;
@@ -17,8 +18,6 @@ import org.springframework.stereotype.Service;
 public class RoleService {
 
   private final String TABLE_NAME = "ROLE";
-  private final String ROLE_NOT_FOUND = "role_not_found";
-  private final String ROLE_NAME_EXISTS = "role_name_exists";
 
   private final RoleRepository roleRepository;
   private final MessageSource messageSource;
@@ -33,7 +32,10 @@ public class RoleService {
         roleRepository
             .findById(id)
             .orElseThrow(
-                () -> new CustomException(messageSource.getMessage(ROLE_NOT_FOUND, null, locale)));
+                () ->
+                    new CustomException(
+                        Utils.formatMessage(
+                            messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND)));
 
     auditLogService.saveAuditLog(Constants.GET_ID, TABLE_NAME, role.getId(), "", "");
 
@@ -55,7 +57,10 @@ public class RoleService {
               return role;
             })
         .orElseThrow(
-            () -> new CustomException(messageSource.getMessage(ROLE_NOT_FOUND, null, locale)));
+            () ->
+                new CustomException(
+                    Utils.formatMessage(
+                        messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND)));
   }
 
   public void deleteRole(Integer id, Locale locale) {
@@ -64,7 +69,9 @@ public class RoleService {
         .ifPresentOrElse(
             roleRepository::delete,
             () -> {
-              throw new CustomException(messageSource.getMessage(ROLE_NOT_FOUND, null, locale));
+              throw new CustomException(
+                  Utils.formatMessage(
+                      messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND));
             });
 
     auditLogService.saveAuditLog(Constants.DELETE, TABLE_NAME, id, "", "");
@@ -72,7 +79,9 @@ public class RoleService {
 
   public Role createRole(NameRequest nameRequest, Locale locale) {
     if (roleRepository.existsByName(nameRequest.getName())) {
-      throw new CustomException(messageSource.getMessage(ROLE_NAME_EXISTS, null, locale));
+      throw new CustomException(
+          Utils.formatMessage(
+              messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NAME_EXISTS));
     }
     Role role = Role.builder().name(nameRequest.getName()).build();
     role = roleRepository.save(role);

@@ -26,4 +26,8 @@ public class Constants {
   public static final String DELETE = "DELETE";
   public static final String GET_ID = "GET_ID";
 
+  //  MESSAGE LANGUAGE
+  public static final String NOT_FOUND = "not_found";
+  public static final String NAME_EXISTS = "name_exists";
+
 }

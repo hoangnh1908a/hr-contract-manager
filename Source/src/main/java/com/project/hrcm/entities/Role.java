@@ -18,30 +18,27 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Table(name = "roles")
 public class Role {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
-    private Integer id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(nullable = false)
+  private Integer id;
 
-    @Column(unique = true, length = 100, nullable = false)
-    private String name;
+  @Column(unique = true, length = 100, nullable = false)
+  private String name;
 
-    @Column
-    private Integer createdBy;
+  @Column private Integer createdBy;
 
-    @Column
-    private Integer updatedBy;
+  @Column private Integer updatedBy;
 
-    @Column
-    private Integer status;
+  @Column @Builder.Default private Integer status = 1;
 
-    @CreationTimestamp
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss")
-    @Column(updatable = false)
-    private LocalDateTime createdAt;
+  @CreationTimestamp
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss")
+  @Column(updatable = false)
+  private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss")
-    @Column
-    private LocalDateTime updatedAt;
+  @UpdateTimestamp
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss")
+  @Column
+  private LocalDateTime updatedAt;
 }

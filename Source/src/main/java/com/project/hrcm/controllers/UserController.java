@@ -38,6 +38,11 @@ public class UserController {
     return new ResponseEntity<>(users, HttpStatus.OK);
   }
 
+  @GetMapping("/user/userProfile")
+  public ResponseEntity<String> userProfile() {
+    return ResponseEntity.ok(Constants.SUCCESS);
+  }
+
   @PostMapping("/addNewUser")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<UserInfo> addNewUser(@Valid @RequestBody UserInfoRequest userInfoRequest) {
@@ -87,6 +92,7 @@ public class UserController {
     } catch (BadCredentialsException e) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
           .body(Map.of(Constants.ERROR, "Invalid username or password"));
+
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body(Map.of(Constants.ERROR, "Authentication failed"));
@@ -94,10 +100,5 @@ public class UserController {
 
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
         .body(Map.of(Constants.ERROR, "Invalid login attempt"));
-  }
-
-  @GetMapping("/user/userProfile")
-  public ResponseEntity<String> userProfile() {
-    return ResponseEntity.ok(Constants.SUCCESS);
   }
 }

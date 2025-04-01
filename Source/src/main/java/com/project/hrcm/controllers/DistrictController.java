@@ -29,29 +29,33 @@ public class DistrictController {
     return new ResponseEntity<>(districts, HttpStatus.OK);
   }
 
-  @PostMapping("/add")
-  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<District> createUser(@Valid @RequestBody NameRequest nameRequest, Locale locale) {
-    return new ResponseEntity<>(service.createDistrict(nameRequest, locale), HttpStatus.OK);
-  }
-
   @PostMapping("/get")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<District> getDistrictById(@Valid @RequestBody IdRequest idRequest, Locale locale) {
+  public ResponseEntity<District> getDistrictById(
+      @Valid @RequestBody IdRequest idRequest, Locale locale) {
     return new ResponseEntity<>(service.getDistrictById(idRequest.getId(), locale), HttpStatus.OK);
+  }
+
+  @PostMapping("/add")
+  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
+  public ResponseEntity<District> createUser(
+      @Valid @RequestBody NameRequest nameRequest, Locale locale) {
+    return new ResponseEntity<>(service.createDistrict(nameRequest, locale), HttpStatus.OK);
   }
 
   // Update District
   @PostMapping("/update")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<District> updateDistrict(@Valid @RequestBody BaseRequest baseRequest, Locale locale) {
+  public ResponseEntity<District> updateDistrict(
+      @Valid @RequestBody BaseRequest baseRequest, Locale locale) {
     return new ResponseEntity<>(service.updateDistrict(baseRequest, locale), HttpStatus.OK);
   }
 
   // Delete District
   @PostMapping("/delete")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<String> deleteDistrict(@Valid @RequestBody IdRequest idRequest, Locale locale) {
+  public ResponseEntity<String> deleteDistrict(
+      @Valid @RequestBody IdRequest idRequest, Locale locale) {
     service.deleteDistrict(idRequest.getId(), locale);
     return ResponseEntity.ok(Constants.SUCCESS);
   }

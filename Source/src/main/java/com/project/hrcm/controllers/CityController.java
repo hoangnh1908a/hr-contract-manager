@@ -1,7 +1,6 @@
 package com.project.hrcm.controllers;
 
 import com.project.hrcm.entities.City;
-import com.project.hrcm.entities.City;
 import com.project.hrcm.models.requests.BaseRequest;
 import com.project.hrcm.models.requests.IdRequest;
 import com.project.hrcm.models.requests.NameRequest;
@@ -30,22 +29,24 @@ public class CityController {
     return new ResponseEntity<>(citys, HttpStatus.OK);
   }
 
-  @PostMapping("/add")
-  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<City> createUser(@Valid @RequestBody NameRequest nameRequest, Locale locale) {
-    return new ResponseEntity<>(service.createCity(nameRequest, locale), HttpStatus.OK);
-  }
-
   @PostMapping("/get")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<City> getCityById(@Valid @RequestBody IdRequest idRequest, Locale locale) {
     return new ResponseEntity<>(service.getCityById(idRequest.getId(), locale), HttpStatus.OK);
   }
 
+  @PostMapping("/add")
+  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
+  public ResponseEntity<City> createUser(
+      @Valid @RequestBody NameRequest nameRequest, Locale locale) {
+    return new ResponseEntity<>(service.createCity(nameRequest, locale), HttpStatus.OK);
+  }
+
   // Update City
   @PostMapping("/update")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<City> updateCity(@Valid @RequestBody BaseRequest baseRequest, Locale locale) {
+  public ResponseEntity<City> updateCity(
+      @Valid @RequestBody BaseRequest baseRequest, Locale locale) {
     return new ResponseEntity<>(service.updateCity(baseRequest, locale), HttpStatus.OK);
   }
 
@@ -54,6 +55,7 @@ public class CityController {
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<String> deleteCity(@Valid @RequestBody IdRequest idRequest, Locale locale) {
     service.deleteCity(idRequest.getId(), locale);
+
     return ResponseEntity.ok(Constants.SUCCESS);
   }
 }

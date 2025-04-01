@@ -7,6 +7,7 @@ import com.project.hrcm.models.requests.NameRequest;
 import com.project.hrcm.models.requests.StatusRequest;
 import com.project.hrcm.repository.DepartmentRepository;
 import com.project.hrcm.utils.Constants;
+import com.project.hrcm.utils.Utils;
 import java.util.List;
 import java.util.Locale;
 import lombok.AllArgsConstructor;
@@ -18,8 +19,6 @@ import org.springframework.stereotype.Service;
 public class DepartmentService {
 
   private final String TABLE_NAME = "DEPARTMENT";
-  private final String DEPARTMENT_NOT_FOUND = "department_not_found";
-  private final String DEPARTMENT_NAME_EXISTS = "department_name_exists";
 
   private final DepartmentRepository departmentRepository;
   private final MessageSource messageSource;
@@ -36,7 +35,8 @@ public class DepartmentService {
             .orElseThrow(
                 () ->
                     new CustomException(
-                        messageSource.getMessage(DEPARTMENT_NOT_FOUND, null, locale)));
+                        Utils.formatMessage(
+                            messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND)));
 
     auditLogService.saveAuditLog(Constants.GET_ID, TABLE_NAME, department.getId(), "", "");
 
@@ -59,7 +59,9 @@ public class DepartmentService {
             })
         .orElseThrow(
             () ->
-                new CustomException(messageSource.getMessage(DEPARTMENT_NOT_FOUND, null, locale)));
+                new CustomException(
+                    Utils.formatMessage(
+                        messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND)));
   }
 
   public void deleteDepartment(Integer id, Locale locale) {
@@ -69,7 +71,8 @@ public class DepartmentService {
             departmentRepository::delete,
             () -> {
               throw new CustomException(
-                  messageSource.getMessage(DEPARTMENT_NOT_FOUND, null, locale));
+                  messageSource.getMessage(
+                      TABLE_NAME.toLowerCase() + Constants.NOT_FOUND, null, locale));
             });
 
     auditLogService.saveAuditLog(Constants.DELETE, TABLE_NAME, id, "", "");
@@ -77,7 +80,9 @@ public class DepartmentService {
 
   public Department createDepartment(NameRequest nameRequest, Locale locale) {
     if (departmentRepository.existsByName(nameRequest.getName())) {
-      throw new CustomException(messageSource.getMessage(DEPARTMENT_NAME_EXISTS, null, locale));
+      throw new CustomException(
+          Utils.formatMessage(
+              messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NAME_EXISTS));
     }
     Department department = Department.builder().name(nameRequest.getName()).build();
     department = departmentRepository.save(department);
@@ -106,6 +111,8 @@ public class DepartmentService {
             })
         .orElseThrow(
             () ->
-                new CustomException(messageSource.getMessage(DEPARTMENT_NOT_FOUND, null, locale)));
+                new CustomException(
+                    Utils.formatMessage(
+                        messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND)));
   }
 }

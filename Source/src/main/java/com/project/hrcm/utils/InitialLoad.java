@@ -26,6 +26,12 @@ public class InitialLoad {
   public void load() {
     roles = roleRepository.findAllRoleDto();
     log.info("Roles loaded successfully. Total entries: {}", roles.size());
+
+    cities = cityRepository.findAllCityDto();
+    log.info("Cities loaded successfully. Total entries: {}", cities.size());
+
+    districts = districtRepository.findAllDistrictDto();
+    log.info("Districts loaded successfully. Total entries: {}", districts.size());
   }
 
   /** Getter */

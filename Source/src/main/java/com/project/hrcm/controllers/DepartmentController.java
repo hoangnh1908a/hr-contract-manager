@@ -30,13 +30,6 @@ public class DepartmentController {
     return new ResponseEntity<>(departments, HttpStatus.OK);
   }
 
-  @PostMapping("/add")
-  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<Department> createUser(
-      @Valid @RequestBody NameRequest nameRequest, Locale locale) {
-    return new ResponseEntity<>(service.createDepartment(nameRequest, locale), HttpStatus.OK);
-  }
-
   @PostMapping("/get")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<Department> getDepartmentById(
@@ -45,7 +38,13 @@ public class DepartmentController {
         service.getDepartmentById(idRequest.getId(), locale), HttpStatus.OK);
   }
 
-  // Update Department
+  @PostMapping("/add")
+  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
+  public ResponseEntity<Department> createUser(
+      @Valid @RequestBody NameRequest nameRequest, Locale locale) {
+    return new ResponseEntity<>(service.createDepartment(nameRequest, locale), HttpStatus.OK);
+  }
+
   @PostMapping("/update")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<Department> updateDepartment(
@@ -53,22 +52,21 @@ public class DepartmentController {
     return new ResponseEntity<>(service.updateDepartment(baseRequest, locale), HttpStatus.OK);
   }
 
-  @PostMapping("/lock")
-  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<Department> lockUser(
-          @Valid @RequestBody StatusRequest statusRequest, Locale locale) {
-
-    Department department = service.lockOrUnlockDepartment(statusRequest, locale);
-
-    return new ResponseEntity<>(department, HttpStatus.OK);
-  }
-
-  // Delete Department
   @PostMapping("/delete")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<String> deleteDepartment(
       @Valid @RequestBody IdRequest idRequest, Locale locale) {
     service.deleteDepartment(idRequest.getId(), locale);
     return ResponseEntity.ok(Constants.SUCCESS);
+  }
+
+  @PostMapping("/lock")
+  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
+  public ResponseEntity<Department> lockUser(
+      @Valid @RequestBody StatusRequest statusRequest, Locale locale) {
+
+    Department department = service.lockOrUnlockDepartment(statusRequest, locale);
+
+    return new ResponseEntity<>(department, HttpStatus.OK);
   }
 }

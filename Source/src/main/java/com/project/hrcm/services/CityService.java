@@ -6,6 +6,7 @@ import com.project.hrcm.models.requests.BaseRequest;
 import com.project.hrcm.models.requests.NameRequest;
 import com.project.hrcm.repository.CityRepository;
 import com.project.hrcm.utils.Constants;
+import com.project.hrcm.utils.Utils;
 import java.util.List;
 import java.util.Locale;
 import lombok.AllArgsConstructor;
@@ -17,8 +18,6 @@ import org.springframework.stereotype.Service;
 public class CityService {
 
   private final String TABLE_NAME = "CITY";
-  private final String CITY_NOT_FOUND = "city_not_found";
-  private final String CITY_NAME_EXISTS = "city_name_exists";
 
   private final CityRepository cityRepository;
   private final MessageSource messageSource;
@@ -33,7 +32,10 @@ public class CityService {
         cityRepository
             .findById(id)
             .orElseThrow(
-                () -> new CustomException(messageSource.getMessage(CITY_NOT_FOUND, null, locale)));
+                () ->
+                    new CustomException(
+                        Utils.formatMessage(
+                            messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND)));
 
     auditLogService.saveAuditLog(Constants.GET_ID, TABLE_NAME, city.getId(), "", "");
 
@@ -55,7 +57,10 @@ public class CityService {
               return city;
             })
         .orElseThrow(
-            () -> new CustomException(messageSource.getMessage(CITY_NOT_FOUND, null, locale)));
+            () ->
+                new CustomException(
+                    Utils.formatMessage(
+                        messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND)));
   }
 
   public void deleteCity(Integer id, Locale locale) {
@@ -64,7 +69,9 @@ public class CityService {
         .ifPresentOrElse(
             cityRepository::delete,
             () -> {
-              throw new CustomException(messageSource.getMessage(CITY_NOT_FOUND, null, locale));
+              throw new CustomException(
+                  Utils.formatMessage(
+                      messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND));
             });
 
     auditLogService.saveAuditLog(Constants.DELETE, TABLE_NAME, id, "", "");
@@ -72,7 +79,9 @@ public class CityService {
 
   public City createCity(NameRequest nameRequest, Locale locale) {
     if (cityRepository.existsByName(nameRequest.getName())) {
-      throw new CustomException(messageSource.getMessage(CITY_NAME_EXISTS, null, locale));
+      throw new CustomException(
+          Utils.formatMessage(
+              messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NAME_EXISTS));
     }
     City city = City.builder().name(nameRequest.getName()).build();
     city = cityRepository.save(city);

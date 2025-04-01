@@ -6,6 +6,7 @@ import com.project.hrcm.models.requests.BaseRequest;
 import com.project.hrcm.models.requests.NameRequest;
 import com.project.hrcm.repository.DistrictRepository;
 import com.project.hrcm.utils.Constants;
+import com.project.hrcm.utils.Utils;
 import java.util.List;
 import java.util.Locale;
 import lombok.AllArgsConstructor;
@@ -17,8 +18,6 @@ import org.springframework.stereotype.Service;
 public class DistrictService {
 
   private final String TABLE_NAME = "DISTRICT";
-  private final String DISTRICT_NOT_FOUND = "district_not_found";
-  private final String DISTRICT_NAME_EXISTS = "district_name_exists";
 
   private final DistrictRepository districtRepository;
   private final MessageSource messageSource;
@@ -33,7 +32,10 @@ public class DistrictService {
         districtRepository
             .findById(id)
             .orElseThrow(
-                () -> new CustomException(messageSource.getMessage(DISTRICT_NOT_FOUND, null, locale)));
+                () ->
+                    new CustomException(
+                        Utils.formatMessage(
+                            messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND)));
 
     auditLogService.saveAuditLog(Constants.GET_ID, TABLE_NAME, district.getId(), "", "");
 
@@ -55,7 +57,10 @@ public class DistrictService {
               return district;
             })
         .orElseThrow(
-            () -> new CustomException(messageSource.getMessage(DISTRICT_NOT_FOUND, null, locale)));
+            () ->
+                new CustomException(
+                    Utils.formatMessage(
+                        messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND)));
   }
 
   public void deleteDistrict(Integer id, Locale locale) {
@@ -64,7 +69,9 @@ public class DistrictService {
         .ifPresentOrElse(
             districtRepository::delete,
             () -> {
-              throw new CustomException(messageSource.getMessage(DISTRICT_NOT_FOUND, null, locale));
+              throw new CustomException(
+                  Utils.formatMessage(
+                      messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND));
             });
 
     auditLogService.saveAuditLog(Constants.DELETE, TABLE_NAME, id, "", "");
@@ -72,7 +79,9 @@ public class DistrictService {
 
   public District createDistrict(NameRequest nameRequest, Locale locale) {
     if (districtRepository.existsByName(nameRequest.getName())) {
-      throw new CustomException(messageSource.getMessage(DISTRICT_NAME_EXISTS, null, locale));
+      throw new CustomException(
+          Utils.formatMessage(
+              messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NAME_EXISTS));
     }
     District district = District.builder().name(nameRequest.getName()).build();
     district = districtRepository.save(district);

@@ -29,22 +29,24 @@ public class RoleController {
     return new ResponseEntity<>(roles, HttpStatus.OK);
   }
 
-  @PostMapping("/add")
-  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<Role> createUser(@Valid @RequestBody NameRequest nameRequest, Locale locale) {
-    return new ResponseEntity<>(service.createRole(nameRequest, locale), HttpStatus.OK);
-  }
-
   @PostMapping("/get")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<Role> getRoleById(@Valid @RequestBody IdRequest idRequest, Locale locale) {
     return new ResponseEntity<>(service.getRoleById(idRequest.getId(), locale), HttpStatus.OK);
   }
 
+  @PostMapping("/add")
+  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
+  public ResponseEntity<Role> createRole(
+      Locale locale, @Valid @RequestBody NameRequest nameRequest) {
+    return new ResponseEntity<>(service.createRole(nameRequest, locale), HttpStatus.OK);
+  }
+
   // Update Role
   @PostMapping("/update")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<Role> updateRole(@Valid @RequestBody BaseRequest baseRequest, Locale locale) {
+  public ResponseEntity<Role> updateRole(
+      @Valid @RequestBody BaseRequest baseRequest, Locale locale) {
     return new ResponseEntity<>(service.updateRole(baseRequest, locale), HttpStatus.OK);
   }
 
