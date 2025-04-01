@@ -12,4 +12,6 @@ public interface DistrictRepository extends JpaRepository<District, Integer> {
 
   @Query("SELECT new com.project.hrcm.dto.BaseDto(u.id, u.name) FROM District u")
   List<BaseDto> findAllDistrictDto();
+
+  boolean existsByName(String name);
 }

@@ -12,4 +12,6 @@ public interface CityRepository extends JpaRepository<City, Integer> {
 
   @Query("SELECT new com.project.hrcm.dto.BaseDto(u.id, u.name) FROM City u")
   List<BaseDto> findAllCityDto();
+
+  boolean existsByName(String name);
 }

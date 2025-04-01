@@ -3,11 +3,10 @@ package com.project.hrcm.models.requests;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class BaseRequest {
+public class StatusRequest {
 
   @NotNull(message = "The ID is required.")
   @Pattern(
@@ -17,6 +16,6 @@ public class BaseRequest {
       message = "The ID must contain only numbers.")
   private Integer id;
 
-  @NotBlank(message = "The name is required.")
-  private String name;
+  @NotBlank(message = "The status is required.")
+  private Integer status;
 }

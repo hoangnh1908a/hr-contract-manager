@@ -28,6 +28,9 @@ public class UserInfo {
     @Column(unique = true, length = 100, nullable = false)
     private String email;
 
+    @Column
+    private Integer status;
+
     @Column(nullable = false)
     private String password;
 

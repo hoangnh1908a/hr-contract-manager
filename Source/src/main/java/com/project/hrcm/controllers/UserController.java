@@ -2,11 +2,14 @@ package com.project.hrcm.controllers;
 
 import com.project.hrcm.entities.UserInfo;
 import com.project.hrcm.models.requests.AuthRequest;
+import com.project.hrcm.models.requests.StatusRequest;
 import com.project.hrcm.models.requests.UserInfoRequest;
 import com.project.hrcm.services.JwtService;
 import com.project.hrcm.services.userInfo.UserInfoService;
 import com.project.hrcm.utils.Constants;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -28,6 +31,13 @@ public class UserController {
   private final JwtService jwtService;
   private final AuthenticationManager authenticationManager;
 
+  @GetMapping("/users")
+  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
+  public ResponseEntity<List<UserInfo>> users() {
+    List<UserInfo> users = service.getListUsers();
+    return new ResponseEntity<>(users, HttpStatus.OK);
+  }
+
   @PostMapping("/addNewUser")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<UserInfo> addNewUser(@Valid @RequestBody UserInfoRequest userInfoRequest) {
@@ -36,6 +46,26 @@ public class UserController {
     BeanUtils.copyProperties(userInfoRequest, userInfo);
 
     userInfo = service.addUser(userInfo);
+
+    return new ResponseEntity<>(userInfo, HttpStatus.OK);
+  }
+
+  @PostMapping("/updateUser")
+  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
+  public ResponseEntity<UserInfo> updateUser(
+      @Valid @RequestBody UserInfo userInfoRequest, Locale locale) {
+
+    UserInfo userInfo = service.updateUser(userInfoRequest, locale);
+
+    return new ResponseEntity<>(userInfo, HttpStatus.OK);
+  }
+
+  @PostMapping("/lock")
+  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
+  public ResponseEntity<UserInfo> lockUser(
+      @Valid @RequestBody StatusRequest statusRequest, Locale locale) {
+
+    UserInfo userInfo = service.lockOrUnlockUser(statusRequest, locale);
 
     return new ResponseEntity<>(userInfo, HttpStatus.OK);
   }
@@ -67,7 +97,6 @@ public class UserController {
   }
 
   @GetMapping("/user/userProfile")
-  //  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<String> userProfile() {
     return ResponseEntity.ok(Constants.SUCCESS);
   }

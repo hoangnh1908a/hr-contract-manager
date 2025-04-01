@@ -3,6 +3,7 @@ CREATE TABLE `users` (
   `full_name` VARCHAR(100) UNIQUE NOT NULL,
   `email` VARCHAR(150) UNIQUE NOT NULL,
   `password` VARCHAR(255) NOT NULL,
+  `status` TINYINT NOT NULL DEFAULT 1,
   `role_id` INT NOT NULL,
   `created_by` INT,
   `updated_by` INT,
@@ -13,6 +14,7 @@ CREATE TABLE `users` (
 CREATE TABLE `roles` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
   `name` VARCHAR(100) UNIQUE NOT NULL,
+  `status` TINYINT NOT NULL DEFAULT 1,
   `created_by` INT,
   `updated_by` INT,
   `created_at` TIMESTAMP,
@@ -43,6 +45,7 @@ CREATE TABLE `employees` (
 CREATE TABLE `departments` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
   `name` VARCHAR(100) UNIQUE NOT NULL,
+  `status` TINYINT NOT NULL DEFAULT 1,
   `created_by` INT,
   `updated_by` INT,
   `created_at` TIMESTAMP,
@@ -52,6 +55,7 @@ CREATE TABLE `departments` (
 CREATE TABLE `positions` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
   `name` VARCHAR(100) UNIQUE NOT NULL,
+  `status` TINYINT NOT NULL DEFAULT 1,
   `created_by` INT,
   `updated_by` INT,
   `created_at` TIMESTAMP,
@@ -62,6 +66,7 @@ CREATE TABLE `contract_templates` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
   `name` VARCHAR(255) UNIQUE NOT NULL,
   `file_name` VARCHAR(255) NOT NULL,
+  `status` TINYINT NOT NULL DEFAULT 1,
   `description` VARCHAR(2000) NOT NULL,
   `created_by` INT,
   `updated_by` INT,
@@ -127,20 +132,6 @@ CREATE TABLE `districts` (
 );
 
 # pass = 12345678
-INSERT INTO hr_contract_manager.users (id, full_name, email, password, role_id, created_by, updated_by, created_at, updated_at) VALUES (1, 'admin', 'admin@company.com', '$2a$10$3OCVxm2GfbqcyWTOu3GxQe2dZKNeA/ZegR0r/XSCYy1u2vBIbBiRK', 1, null, null, NOW(), NOW());
-
-INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Software Development', NULL, NULL, NOW(), NOW());
-INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('IT Infrastructure & Support', NULL, NULL, NOW(), NOW());
-INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Cybersecurity', NULL, NULL, NOW(), NOW());
-INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Data Science & Analytics', NULL, NULL, NOW(), NOW());
-INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Cloud Computing & DevOps', NULL, NULL, NOW(), NOW());
-INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Product Management', NULL, NULL, NOW(), NOW());
-INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Quality Assurance (QA) & Testing', NULL, NULL, NOW(), NOW());
-INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Technical Support & Customer Service', NULL, NULL, NOW(), NOW());
-INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Sales & Marketing', NULL, NULL, NOW(), NOW());
-INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Human Resources (HR) & Administration', NULL, NULL, NOW(), NOW());
-INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Finance & Accounting', NULL, NULL, NOW(), NOW());
-INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Research & Development (R&D)', NULL, NULL, NOW(), NOW());
 
 ALTER TABLE `users` ADD FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ;
 
@@ -189,3 +180,21 @@ ALTER TABLE `contract_approvals` ADD FOREIGN KEY (`created_by`) REFERENCES `user
 ALTER TABLE `contract_approvals` ADD FOREIGN KEY (`updated_by`) REFERENCES `users` (`id`);
 
 ALTER TABLE `audit_logs` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+
+INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Software Development', NULL, NULL, NOW(), NOW());
+INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('IT Infrastructure & Support', NULL, NULL, NOW(), NOW());
+INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Cybersecurity', NULL, NULL, NOW(), NOW());
+INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Data Science & Analytics', NULL, NULL, NOW(), NOW());
+INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Cloud Computing & DevOps', NULL, NULL, NOW(), NOW());
+INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Product Management', NULL, NULL, NOW(), NOW());
+INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Quality Assurance (QA) & Testing', NULL, NULL, NOW(), NOW());
+INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Technical Support & Customer Service', NULL, NULL, NOW(), NOW());
+INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Sales & Marketing', NULL, NULL, NOW(), NOW());
+INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Human Resources (HR) & Administration', NULL, NULL, NOW(), NOW());
+INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Finance & Accounting', NULL, NULL, NOW(), NOW());
+INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Research & Development (R&D)', NULL, NULL, NOW(), NOW());
+
+
+INSERT INTO `roles` (id, name, created_by, updated_by, created_at, updated_at) VALUES (1, 'admin', null, null, NOW(), NOW());
+INSERT INTO `users` (id, full_name, email, password, role_id, created_by, updated_by, created_at, updated_at) VALUES (1, 'admin', 'admin@company.com', '$2a$10$3OCVxm2GfbqcyWTOu3GxQe2dZKNeA/ZegR0r/XSCYy1u2vBIbBiRK', 1, null, null, NOW(), NOW());

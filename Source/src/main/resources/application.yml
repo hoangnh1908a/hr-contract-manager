@@ -1,9 +1,4 @@
 spring:
-  mvc:
-    format:
-      date: dd/MM/yyyy
-      date-time: yyyy-MM-dd HH:mm:ss
-      time: HH:mm:ss
   application:
     name: hr-contract-manager
   datasource:
