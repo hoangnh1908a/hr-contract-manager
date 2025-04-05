@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: hr-contract-manager
+  datasource:
+    url: "jdbc:mysql://localhost:3306/hr_contract_manager?serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false"
+    username: root
+    password: hrcm123456!@#
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+server:
+  port: 8005
+scheduling:
+  load-data: 60000
+logging:
+  file:
+    name: logs/app.log
+  level:
+    root: INFO
+    com:
+      example: DEBUG
+    org:
+      springframework:
+        security: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} [%X{requestId}] [%X{username}] - %msg%n"
