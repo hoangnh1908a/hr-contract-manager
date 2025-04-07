@@ -1,4 +1,4 @@
-package com.project.hrcm.models.requests;
+package com.project.hrcm.models.requests.noRequired;
 
 import lombok.Data;
 
@@ -14,7 +14,7 @@ public class EmployeeRequest {
 
   private String numberId;
 
-  private LocalTime dateOfBirth;
+  private String dateOfBirth;
 
   private String sex;
 
@@ -28,7 +28,7 @@ public class EmployeeRequest {
 
   private String phone;
 
-  private LocalDate hireDate;
+  private String hireDate;
 
   private Integer status;
 

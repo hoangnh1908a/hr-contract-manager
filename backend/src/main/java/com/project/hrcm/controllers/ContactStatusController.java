@@ -1,9 +1,9 @@
 package com.project.hrcm.controllers;
 
 import com.project.hrcm.entities.ContactStatus;
-import com.project.hrcm.models.requests.BaseRequest;
-import com.project.hrcm.models.requests.IdRequest;
-import com.project.hrcm.models.requests.NameRequest;
+import com.project.hrcm.models.requests.BaseValidateRequest;
+import com.project.hrcm.models.requests.IdValidateRequest;
+import com.project.hrcm.models.requests.NameValidateRequest;
 import com.project.hrcm.services.ContactStatusService;
 import com.project.hrcm.utils.Constants;
 import jakarta.validation.Valid;
@@ -32,32 +32,32 @@ public class ContactStatusController {
   @PostMapping("/get")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + ", " + Constants.ROLE_HR + "')")
   public ResponseEntity<ContactStatus> getContactStatusById(
-      @Valid @RequestBody IdRequest idRequest, Locale locale) {
+          @Valid @RequestBody IdValidateRequest idValidateRequest, Locale locale) {
     return new ResponseEntity<>(
-        service.getContactStatusById(idRequest.getId(), locale), HttpStatus.OK);
+        service.getContactStatusById(idValidateRequest.getId(), locale), HttpStatus.OK);
   }
 
   @PostMapping("/add")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + ", " + Constants.ROLE_HR + "')")
   public ResponseEntity<ContactStatus> createContactStatus(
-      @Valid @RequestBody NameRequest nameRequest, Locale locale) {
-    return new ResponseEntity<>(service.createContactStatus(nameRequest, locale), HttpStatus.OK);
+          @Valid @RequestBody NameValidateRequest nameValidateRequest, Locale locale) {
+    return new ResponseEntity<>(service.createContactStatus(nameValidateRequest, locale), HttpStatus.OK);
   }
 
   // Update ContactStatus
   @PostMapping("/update")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + ", " + Constants.ROLE_HR + "')")
   public ResponseEntity<ContactStatus> updateContactStatus(
-      @Valid @RequestBody BaseRequest baseRequest, Locale locale) {
-    return new ResponseEntity<>(service.updateContactStatus(baseRequest, locale), HttpStatus.OK);
+          @Valid @RequestBody BaseValidateRequest baseValidateRequest, Locale locale) {
+    return new ResponseEntity<>(service.updateContactStatus(baseValidateRequest, locale), HttpStatus.OK);
   }
 
   // Delete ContactStatus
   @PostMapping("/delete")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + ", " + Constants.ROLE_HR + "')")
   public ResponseEntity<String> deleteContactStatus(
-      @Valid @RequestBody IdRequest idRequest, Locale locale) {
-    service.deleteContactStatus(idRequest.getId(), locale);
+          @Valid @RequestBody IdValidateRequest idValidateRequest, Locale locale) {
+    service.deleteContactStatus(idValidateRequest.getId(), locale);
 
     return ResponseEntity.ok(Constants.SUCCESS);
   }

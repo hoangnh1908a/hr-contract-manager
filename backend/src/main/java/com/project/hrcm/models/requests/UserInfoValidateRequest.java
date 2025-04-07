@@ -1,12 +1,16 @@
 package com.project.hrcm.models.requests;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class AuthRequest {
+public class UserInfoValidateRequest {
+
+  @NotBlank(message = "The fullName is required.")
+  private String fullName;
 
   @NotBlank(message = "The email is required.")
   @Pattern(
@@ -17,4 +21,7 @@ public class AuthRequest {
   @NotBlank(message = "The password is required.")
   @Size(min = 8, message = "Password must be at least 3 characters long!")
   private String password;
+
+  @NotNull(message = "The roleId is required.")
+  private Integer roleId;
 }

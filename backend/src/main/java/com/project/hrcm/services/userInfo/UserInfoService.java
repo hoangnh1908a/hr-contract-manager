@@ -3,7 +3,7 @@ package com.project.hrcm.services.userInfo;
 import com.project.hrcm.configs.CustomException;
 import com.project.hrcm.dto.UserInfoDetails;
 import com.project.hrcm.entities.UserInfo;
-import com.project.hrcm.models.requests.StatusRequest;
+import com.project.hrcm.models.requests.StatusValidateRequest;
 import com.project.hrcm.repository.UserInfoRepository;
 import com.project.hrcm.services.AuditLogService;
 import com.project.hrcm.utils.Constants;
@@ -109,7 +109,7 @@ public class UserInfoService implements UserDetailsService {
     return userRepository.findAll();
   }
 
-  public UserInfo lockOrUnlockUser(StatusRequest baseRequest, Locale locale) {
+  public UserInfo lockOrUnlockUser(StatusValidateRequest baseRequest, Locale locale) {
     return userRepository
         .findById(baseRequest.getId())
         .map(

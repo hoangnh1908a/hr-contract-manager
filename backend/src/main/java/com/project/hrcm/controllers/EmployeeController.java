@@ -2,6 +2,7 @@ package com.project.hrcm.controllers;
 
 import com.project.hrcm.entities.Employee;
 import com.project.hrcm.models.requests.*;
+import com.project.hrcm.models.requests.noRequired.EmployeeRequest;
 import com.project.hrcm.services.EmployeeService;
 import com.project.hrcm.utils.Constants;
 import jakarta.validation.Valid;
@@ -30,14 +31,14 @@ public class EmployeeController {
   @PostMapping("/get")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + ", " + Constants.ROLE_HR + "')")
   public ResponseEntity<Employee> getEmployeeById(
-      @Valid @RequestBody IdRequest idRequest, Locale locale) {
-    return new ResponseEntity<>(service.getEmployeeById(idRequest.getId(), locale), HttpStatus.OK);
+          @Valid @RequestBody IdValidateRequest idValidateRequest, Locale locale) {
+    return new ResponseEntity<>(service.getEmployeeById(idValidateRequest.getId(), locale), HttpStatus.OK);
   }
 
   @PostMapping("/add")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + ", " + Constants.ROLE_HR + "')")
   public ResponseEntity<Employee> createEmployee(
-      @Valid @RequestBody EmployeeRequest employeeRequest, Locale locale) {
+          @Valid @RequestBody EmployeeRequest employeeRequest, Locale locale) {
     return new ResponseEntity<>(service.createEmployee(employeeRequest, locale), HttpStatus.OK);
   }
 
@@ -51,17 +52,17 @@ public class EmployeeController {
   @PostMapping("/delete")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + ", " + Constants.ROLE_HR + "')")
   public ResponseEntity<String> deleteEmployee(
-      @Valid @RequestBody IdRequest idRequest, Locale locale) {
-    service.deleteEmployee(idRequest.getId(), locale);
+          @Valid @RequestBody IdValidateRequest idValidateRequest, Locale locale) {
+    service.deleteEmployee(idValidateRequest.getId(), locale);
     return ResponseEntity.ok(Constants.SUCCESS);
   }
 
   @PostMapping("/lock")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + ", " + Constants.ROLE_HR + "')")
   public ResponseEntity<Employee> lockUser(
-      @Valid @RequestBody StatusRequest statusRequest, Locale locale) {
+          @Valid @RequestBody StatusValidateRequest statusValidateRequest, Locale locale) {
 
-    Employee employee = service.lockOrUnlockEmployee(statusRequest, locale);
+    Employee employee = service.lockOrUnlockEmployee(statusValidateRequest, locale);
 
     return new ResponseEntity<>(employee, HttpStatus.OK);
   }

@@ -14,4 +14,6 @@ public interface CityRepository extends JpaRepository<City, Integer> {
   List<BaseDto> findAllCityDto();
 
   boolean existsByName(String name);
+
+  List<City> findByName(String name);
 }

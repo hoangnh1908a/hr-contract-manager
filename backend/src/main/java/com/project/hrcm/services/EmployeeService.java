@@ -2,8 +2,8 @@ package com.project.hrcm.services;
 
 import com.project.hrcm.configs.CustomException;
 import com.project.hrcm.entities.Employee;
-import com.project.hrcm.models.requests.EmployeeRequest;
-import com.project.hrcm.models.requests.StatusRequest;
+import com.project.hrcm.models.requests.noRequired.EmployeeRequest;
+import com.project.hrcm.models.requests.StatusValidateRequest;
 import com.project.hrcm.repository.EmployeeRepository;
 import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.Utils;
@@ -42,6 +42,28 @@ public class EmployeeService {
     return employee;
   }
 
+  public Employee createEmployee(EmployeeRequest nameRequest, Locale locale) {
+    Employee employee =
+        Employee.builder()
+            .fullName(nameRequest.getFullName())
+            .numberId(nameRequest.getNumberId())
+//            .dateOfBirth(nameRequest.getDateOfBirth())
+            .sex(nameRequest.getSex())
+            .nationality(nameRequest.getNationality())
+            .placeOfOrigin(nameRequest.getPlaceOfOrigin())
+            .placeOfResidence(nameRequest.getPlaceOfResidence())
+            .email(nameRequest.getEmail())
+//            .hireDate(nameRequest.getHireDate())
+            .status(nameRequest.getStatus())
+            .departmentId(nameRequest.getDepartmentId())
+            .positionId(nameRequest.getPositionId())
+            .build();
+    employee = employeeRepository.save(employee);
+
+    auditLogService.saveAuditLog(Constants.ADD, TABLE_NAME, employee.getId(), "", "");
+    return employee;
+  }
+
   public Employee updateEmployee(EmployeeRequest employeeRequest, Locale locale) {
     return employeeRepository
         .findById(employeeRequest.getId())
@@ -49,14 +71,14 @@ public class EmployeeService {
             employee -> {
               employee.setFullName(employeeRequest.getFullName());
               employee.setNumberId(employeeRequest.getNumberId());
-              employee.setDateOfBirth(employeeRequest.getDateOfBirth());
+//              employee.setDateOfBirth(employeeRequest.getDateOfBirth());
               employee.setSex(employeeRequest.getSex());
               employee.setNationality(employeeRequest.getNationality());
               employee.setPlaceOfOrigin(employeeRequest.getPlaceOfOrigin());
               employee.setPlaceOfResidence(employeeRequest.getPlaceOfResidence());
               employee.setEmail(employeeRequest.getEmail());
               employee.setPhone(employeeRequest.getPhone());
-              employee.setHireDate(employeeRequest.getHireDate());
+//              employee.setHireDate(employeeRequest.getHireDate());
               employee.setStatus(employeeRequest.getStatus());
               employee.setDepartmentId(employeeRequest.getDepartmentId());
               employee.setPositionId(employeeRequest.getPositionId());
@@ -89,29 +111,7 @@ public class EmployeeService {
     auditLogService.saveAuditLog(Constants.DELETE, TABLE_NAME, id, "", "");
   }
 
-  public Employee createEmployee(EmployeeRequest nameRequest, Locale locale) {
-    Employee employee =
-        Employee.builder()
-            .fullName(nameRequest.getFullName())
-            .numberId(nameRequest.getNumberId())
-            .dateOfBirth(nameRequest.getDateOfBirth())
-            .sex(nameRequest.getSex())
-            .nationality(nameRequest.getNationality())
-            .placeOfOrigin(nameRequest.getPlaceOfOrigin())
-            .placeOfResidence(nameRequest.getPlaceOfResidence())
-            .email(nameRequest.getEmail())
-            .hireDate(nameRequest.getHireDate())
-            .status(nameRequest.getStatus())
-            .departmentId(nameRequest.getDepartmentId())
-            .positionId(nameRequest.getPositionId())
-            .build();
-    employee = employeeRepository.save(employee);
-
-    auditLogService.saveAuditLog(Constants.ADD, TABLE_NAME, employee.getId(), "", "");
-    return employee;
-  }
-
-  public Employee lockOrUnlockEmployee(StatusRequest employeeRequest, Locale locale) {
+  public Employee lockOrUnlockEmployee(StatusValidateRequest employeeRequest, Locale locale) {
     return employeeRepository
         .findById(employeeRequest.getId())
         .map(

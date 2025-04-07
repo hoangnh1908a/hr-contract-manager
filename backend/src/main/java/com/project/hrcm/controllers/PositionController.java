@@ -1,10 +1,11 @@
 package com.project.hrcm.controllers;
 
 import com.project.hrcm.entities.Position;
-import com.project.hrcm.models.requests.BaseRequest;
-import com.project.hrcm.models.requests.IdRequest;
-import com.project.hrcm.models.requests.NameRequest;
-import com.project.hrcm.models.requests.StatusRequest;
+import com.project.hrcm.models.requests.BaseValidateRequest;
+import com.project.hrcm.models.requests.IdValidateRequest;
+import com.project.hrcm.models.requests.NameValidateRequest;
+import com.project.hrcm.models.requests.StatusValidateRequest;
+import com.project.hrcm.models.requests.noRequired.NameRequest;
 import com.project.hrcm.services.PositionService;
 import com.project.hrcm.utils.Constants;
 import jakarta.validation.Valid;
@@ -25,47 +26,47 @@ public class PositionController {
 
   @GetMapping()
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<List<Position>> getPositions() {
-    List<Position> positions = service.getPositions();
+  public ResponseEntity<List<Position>> getPositions(@RequestParam NameRequest nameRequest) {
+    List<Position> positions = service.getPositions(nameRequest);
     return new ResponseEntity<>(positions, HttpStatus.OK);
   }
 
   @PostMapping("/get")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<Position> getPositionById(
-      @Valid @RequestBody IdRequest idRequest, Locale locale) {
+          @Valid @RequestBody IdValidateRequest idValidateRequest, Locale locale) {
     return new ResponseEntity<>(
-        service.getPositionById(idRequest.getId(), locale), HttpStatus.OK);
+        service.getPositionById(idValidateRequest.getId(), locale), HttpStatus.OK);
   }
 
   @PostMapping("/add")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<Position> createPosition(
-      @Valid @RequestBody NameRequest nameRequest, Locale locale) {
-    return new ResponseEntity<>(service.createPosition(nameRequest, locale), HttpStatus.OK);
+          @Valid @RequestBody NameValidateRequest nameValidateRequest, Locale locale) {
+    return new ResponseEntity<>(service.createPosition(nameValidateRequest, locale), HttpStatus.OK);
   }
 
   @PostMapping("/update")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<Position> updatePosition(
-      @Valid @RequestBody BaseRequest baseRequest, Locale locale) {
-    return new ResponseEntity<>(service.updatePosition(baseRequest, locale), HttpStatus.OK);
+          @Valid @RequestBody BaseValidateRequest baseValidateRequest, Locale locale) {
+    return new ResponseEntity<>(service.updatePosition(baseValidateRequest, locale), HttpStatus.OK);
   }
 
   @PostMapping("/delete")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<String> deletePosition(
-      @Valid @RequestBody IdRequest idRequest, Locale locale) {
-    service.deletePosition(idRequest.getId(), locale);
+          @Valid @RequestBody IdValidateRequest idValidateRequest, Locale locale) {
+    service.deletePosition(idValidateRequest.getId(), locale);
     return ResponseEntity.ok(Constants.SUCCESS);
   }
 
   @PostMapping("/lock")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<Position> lockUser(
-      @Valid @RequestBody StatusRequest statusRequest, Locale locale) {
+          @Valid @RequestBody StatusValidateRequest statusValidateRequest, Locale locale) {
 
-    Position position = service.lockOrUnlockPosition(statusRequest, locale);
+    Position position = service.lockOrUnlockPosition(statusValidateRequest, locale);
 
     return new ResponseEntity<>(position, HttpStatus.OK);
   }

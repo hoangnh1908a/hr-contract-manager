@@ -20,6 +20,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -74,16 +78,18 @@ public class SecurityConfig {
     return new JwtAuthFilter(userDetailsService, jwtService);
   }
 
-  /*    @Bean
+  @Bean
   public WebMvcConfigurer corsConfigurer() {
       return new WebMvcConfigurer() {
           @Override
           public void addCorsMappings(CorsRegistry registry) {
               registry.addMapping("/**")
-                      .allowedOrigins("*") // Change "*" to frontend domain for security
+                      .allowCredentials(true)
+                      .allowedOrigins("http://localhost:3000")
+                      .allowedHeaders("*")
                       .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                       .allowCredentials(true);
           }
       };
-  }*/
+  }
 }

@@ -2,8 +2,8 @@ package com.project.hrcm.services;
 
 import com.project.hrcm.configs.CustomException;
 import com.project.hrcm.entities.District;
-import com.project.hrcm.models.requests.BaseRequest;
-import com.project.hrcm.models.requests.NameRequest;
+import com.project.hrcm.models.requests.BaseValidateRequest;
+import com.project.hrcm.models.requests.NameValidateRequest;
 import com.project.hrcm.repository.DistrictRepository;
 import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.Utils;
@@ -42,17 +42,30 @@ public class DistrictService {
     return district;
   }
 
-  public District updateDistrict(BaseRequest baseRequest, Locale locale) {
+  public District createDistrict(NameValidateRequest nameValidateRequest, Locale locale) {
+    if (districtRepository.existsByName(nameValidateRequest.getName())) {
+      throw new CustomException(
+          Utils.formatMessage(
+              messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NAME_EXISTS));
+    }
+    District district = District.builder().name(nameValidateRequest.getName()).build();
+    district = districtRepository.save(district);
+
+    auditLogService.saveAuditLog(Constants.ADD, TABLE_NAME, district.getId(), "", "");
+    return district;
+  }
+
+  public District updateDistrict(BaseValidateRequest baseValidateRequest, Locale locale) {
     return districtRepository
-        .findById(baseRequest.getId())
+        .findById(baseValidateRequest.getId())
         .map(
             district -> {
               String oldName = district.getName();
-              district.setName(baseRequest.getName());
+              district.setName(baseValidateRequest.getName());
               district = districtRepository.save(district);
 
               auditLogService.saveAuditLog(
-                  Constants.UPDATE, TABLE_NAME, district.getId(), oldName, baseRequest.getName());
+                  Constants.UPDATE, TABLE_NAME, district.getId(), oldName, baseValidateRequest.getName());
 
               return district;
             })
@@ -75,18 +88,5 @@ public class DistrictService {
             });
 
     auditLogService.saveAuditLog(Constants.DELETE, TABLE_NAME, id, "", "");
-  }
-
-  public District createDistrict(NameRequest nameRequest, Locale locale) {
-    if (districtRepository.existsByName(nameRequest.getName())) {
-      throw new CustomException(
-          Utils.formatMessage(
-              messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NAME_EXISTS));
-    }
-    District district = District.builder().name(nameRequest.getName()).build();
-    district = districtRepository.save(district);
-
-    auditLogService.saveAuditLog(Constants.ADD, TABLE_NAME, district.getId(), "", "");
-    return district;
   }
 }

@@ -2,8 +2,8 @@ package com.project.hrcm.services;
 
 import com.project.hrcm.configs.CustomException;
 import com.project.hrcm.entities.ContactStatus;
-import com.project.hrcm.models.requests.BaseRequest;
-import com.project.hrcm.models.requests.NameRequest;
+import com.project.hrcm.models.requests.BaseValidateRequest;
+import com.project.hrcm.models.requests.NameValidateRequest;
 import com.project.hrcm.repository.ContactStatusRepository;
 import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.Utils;
@@ -42,13 +42,26 @@ public class ContactStatusService {
     return contactStatus;
   }
 
-  public ContactStatus updateContactStatus(BaseRequest baseRequest, Locale locale) {
+  public ContactStatus createContactStatus(NameValidateRequest nameValidateRequest, Locale locale) {
+    if (contactStatusRepository.existsByName(nameValidateRequest.getName())) {
+      throw new CustomException(
+          Utils.formatMessage(
+              messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NAME_EXISTS));
+    }
+    ContactStatus contactStatus = ContactStatus.builder().name(nameValidateRequest.getName()).build();
+    contactStatus = contactStatusRepository.save(contactStatus);
+
+    auditLogService.saveAuditLog(Constants.ADD, TABLE_NAME, contactStatus.getId(), "", "");
+    return contactStatus;
+  }
+
+  public ContactStatus updateContactStatus(BaseValidateRequest baseValidateRequest, Locale locale) {
     return contactStatusRepository
-        .findById(baseRequest.getId())
+        .findById(baseValidateRequest.getId())
         .map(
             contactStatus -> {
               String oldName = contactStatus.getName();
-              contactStatus.setName(baseRequest.getName());
+              contactStatus.setName(baseValidateRequest.getName());
               contactStatus = contactStatusRepository.save(contactStatus);
 
               auditLogService.saveAuditLog(
@@ -56,7 +69,7 @@ public class ContactStatusService {
                   TABLE_NAME,
                   contactStatus.getId(),
                   oldName,
-                  baseRequest.getName());
+                  baseValidateRequest.getName());
 
               return contactStatus;
             })
@@ -79,18 +92,5 @@ public class ContactStatusService {
             });
 
     auditLogService.saveAuditLog(Constants.DELETE, TABLE_NAME, id, "", "");
-  }
-
-  public ContactStatus createContactStatus(NameRequest nameRequest, Locale locale) {
-    if (contactStatusRepository.existsByName(nameRequest.getName())) {
-      throw new CustomException(
-          Utils.formatMessage(
-              messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NAME_EXISTS));
-    }
-    ContactStatus contactStatus = ContactStatus.builder().name(nameRequest.getName()).build();
-    contactStatus = contactStatusRepository.save(contactStatus);
-
-    auditLogService.saveAuditLog(Constants.ADD, TABLE_NAME, contactStatus.getId(), "", "");
-    return contactStatus;
   }
 }

@@ -14,4 +14,6 @@ public interface RoleRepository extends JpaRepository<Role, Integer> {
   List<BaseDto> findAllRoleDto();
 
   boolean existsByName(String name);
+
+  List<Role> findByNameLike(String name);
 }

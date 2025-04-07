@@ -1,37 +1,35 @@
 package com.project.hrcm.services;
 
 import com.project.hrcm.configs.CustomException;
-import com.project.hrcm.entities.City;
+import com.project.hrcm.entities.ContactTemplate;
 import com.project.hrcm.models.requests.BaseValidateRequest;
 import com.project.hrcm.models.requests.NameValidateRequest;
-import com.project.hrcm.models.requests.noRequired.NameRequest;
-import com.project.hrcm.repository.CityRepository;
+import com.project.hrcm.repository.ContactTemplateRepository;
 import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.Utils;
 import java.util.List;
 import java.util.Locale;
-
 import lombok.AllArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
-public class CityService {
+public class ContactTemplateService {
 
-  private final String TABLE_NAME = "CITY";
+  private final String TABLE_NAME = "CONTACT_TEMPLATE";
 
-  private final CityRepository cityRepository;
+  private final ContactTemplateRepository contactStatusRepository;
   private final MessageSource messageSource;
   private final AuditLogService auditLogService;
 
-  public List<City> getCities(NameRequest nameRequest) {
-      return cityRepository.findByName(nameRequest.getName());
+  public List<ContactTemplate> getContactTemplate() {
+    return contactStatusRepository.findAll();
   }
 
-  public City getCityById(Integer id, Locale locale) {
-    City city =
-        cityRepository
+  public ContactTemplate getContactTemplateById(Integer id, Locale locale) {
+    ContactTemplate contactStatus =
+        contactStatusRepository
             .findById(id)
             .orElseThrow(
                 () ->
@@ -39,41 +37,41 @@ public class CityService {
                         Utils.formatMessage(
                             messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND)));
 
-    auditLogService.saveAuditLog(Constants.GET_ID, TABLE_NAME, city.getId(), "", "");
+    auditLogService.saveAuditLog(Constants.GET_ID, TABLE_NAME, contactStatus.getId(), "", "");
 
-    return city;
+    return contactStatus;
   }
 
-  public City createCity(NameValidateRequest nameValidateRequest, Locale locale) {
-    if (cityRepository.existsByName(nameValidateRequest.getName())) {
+  public ContactTemplate createContactTemplate(NameValidateRequest nameValidateRequest, Locale locale) {
+    if (contactStatusRepository.existsByName(nameValidateRequest.getName())) {
       throw new CustomException(
           Utils.formatMessage(
               messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NAME_EXISTS));
     }
-    City city = City.builder().name(nameValidateRequest.getName()).build();
-    city = cityRepository.save(city);
+    ContactTemplate contactStatus = ContactTemplate.builder().name(nameValidateRequest.getName()).build();
+    contactStatus = contactStatusRepository.save(contactStatus);
 
-    auditLogService.saveAuditLog(Constants.ADD, TABLE_NAME, city.getId(), "", "");
-    return city;
+    auditLogService.saveAuditLog(Constants.ADD, TABLE_NAME, contactStatus.getId(), "", "");
+    return contactStatus;
   }
 
-  public City updateCity(BaseValidateRequest baseValidateRequest, Locale locale) {
-    return cityRepository
+  public ContactTemplate updateContactTemplate(BaseValidateRequest baseValidateRequest, Locale locale) {
+    return contactStatusRepository
         .findById(baseValidateRequest.getId())
         .map(
-            city -> {
-              String oldName = city.getName();
-              city.setName(baseValidateRequest.getName());
-              city = cityRepository.save(city);
+            contactStatus -> {
+              String oldName = contactStatus.getName();
+              contactStatus.setName(baseValidateRequest.getName());
+              contactStatus = contactStatusRepository.save(contactStatus);
 
               auditLogService.saveAuditLog(
                   Constants.UPDATE,
                   TABLE_NAME,
-                  city.getId(),
+                  contactStatus.getId(),
                   oldName,
                   baseValidateRequest.getName());
 
-              return city;
+              return contactStatus;
             })
         .orElseThrow(
             () ->
@@ -82,11 +80,11 @@ public class CityService {
                         messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND)));
   }
 
-  public void deleteCity(Integer id, Locale locale) {
-    cityRepository
+  public void deleteContactTemplate(Integer id, Locale locale) {
+    contactStatusRepository
         .findById(id)
         .ifPresentOrElse(
-            cityRepository::delete,
+            contactStatusRepository::delete,
             () -> {
               throw new CustomException(
                   Utils.formatMessage(

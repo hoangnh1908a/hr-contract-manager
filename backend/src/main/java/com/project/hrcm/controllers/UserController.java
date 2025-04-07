@@ -1,9 +1,9 @@
 package com.project.hrcm.controllers;
 
 import com.project.hrcm.entities.UserInfo;
-import com.project.hrcm.models.requests.AuthRequest;
-import com.project.hrcm.models.requests.StatusRequest;
-import com.project.hrcm.models.requests.UserInfoRequest;
+import com.project.hrcm.models.requests.AuthValidateRequest;
+import com.project.hrcm.models.requests.StatusValidateRequest;
+import com.project.hrcm.models.requests.UserInfoValidateRequest;
 import com.project.hrcm.services.JwtService;
 import com.project.hrcm.services.userInfo.UserInfoService;
 import com.project.hrcm.utils.Constants;
@@ -45,10 +45,10 @@ public class UserController {
 
   @PostMapping("/addNewUser")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<UserInfo> addNewUser(@Valid @RequestBody UserInfoRequest userInfoRequest) {
+  public ResponseEntity<UserInfo> addNewUser(@Valid @RequestBody UserInfoValidateRequest userInfoValidateRequest) {
     UserInfo userInfo = new UserInfo();
 
-    BeanUtils.copyProperties(userInfoRequest, userInfo);
+    BeanUtils.copyProperties(userInfoValidateRequest, userInfo);
 
     userInfo = service.addUser(userInfo);
 
@@ -68,24 +68,24 @@ public class UserController {
   @PostMapping("/lock")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<UserInfo> lockUser(
-      @Valid @RequestBody StatusRequest statusRequest, Locale locale) {
+          @Valid @RequestBody StatusValidateRequest statusValidateRequest, Locale locale) {
 
-    UserInfo userInfo = service.lockOrUnlockUser(statusRequest, locale);
+    UserInfo userInfo = service.lockOrUnlockUser(statusValidateRequest, locale);
 
     return new ResponseEntity<>(userInfo, HttpStatus.OK);
   }
 
   @PostMapping("/generateToken")
-  public ResponseEntity<?> authenticateAndGetToken(@Valid @RequestBody AuthRequest authRequest) {
+  public ResponseEntity<?> authenticateAndGetToken(@Valid @RequestBody AuthValidateRequest authValidateRequest) {
     try {
       Authentication authentication =
           authenticationManager.authenticate(
               new UsernamePasswordAuthenticationToken(
-                  authRequest.getEmail(), authRequest.getPassword()));
+                  authValidateRequest.getEmail(), authValidateRequest.getPassword()));
 
       // Check if authentication was successful
       if (authentication.isAuthenticated()) {
-        String token = jwtService.generateToken(authRequest.getEmail());
+        String token = jwtService.generateToken(authValidateRequest.getEmail());
         return ResponseEntity.ok(Map.of("token", token));
       }
 

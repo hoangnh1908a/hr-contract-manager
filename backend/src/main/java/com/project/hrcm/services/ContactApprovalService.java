@@ -2,7 +2,7 @@ package com.project.hrcm.services;
 
 import com.project.hrcm.configs.CustomException;
 import com.project.hrcm.entities.ContactApproval;
-import com.project.hrcm.models.requests.ContactApprovalRequest;
+import com.project.hrcm.models.requests.ContactApprovalValidateRequest;
 import com.project.hrcm.repository.ContactApprovalRepository;
 import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.Utils;
@@ -22,7 +22,7 @@ public class ContactApprovalService {
   private final MessageSource messageSource;
   private final AuditLogService auditLogService;
 
-  public List<ContactApproval> getContactApproval() {
+  public List<ContactApproval> getContactApprovals() {
     return contactApprovalRepository.findAll();
   }
 
@@ -41,7 +41,17 @@ public class ContactApprovalService {
     return contactApproval;
   }
 
-  public ContactApproval updateContactApproval(ContactApprovalRequest baseRequest, Locale locale) {
+    public ContactApproval createContactApproval(
+            ContactApprovalValidateRequest contactApprovalValidateRequest, Locale locale) {
+        ContactApproval contactApproval = ContactApproval.builder().build();
+
+        contactApproval = contactApprovalRepository.save(contactApproval);
+
+        auditLogService.saveAuditLog(Constants.ADD, TABLE_NAME, contactApproval.getId(), "", "");
+        return contactApproval;
+    }
+
+  public ContactApproval updateContactApproval(ContactApprovalValidateRequest baseRequest, Locale locale) {
     return contactApprovalRepository
         .findById(baseRequest.getId())
         .map(
@@ -78,15 +88,5 @@ public class ContactApprovalService {
             });
 
     auditLogService.saveAuditLog(Constants.DELETE, TABLE_NAME, id, "", "");
-  }
-
-  public ContactApproval createContactApproval(
-      ContactApprovalRequest contactApprovalRequest, Locale locale) {
-    ContactApproval contactApproval = ContactApproval.builder().build();
-
-    contactApproval = contactApprovalRepository.save(contactApproval);
-
-    auditLogService.saveAuditLog(Constants.ADD, TABLE_NAME, contactApproval.getId(), "", "");
-    return contactApproval;
   }
 }

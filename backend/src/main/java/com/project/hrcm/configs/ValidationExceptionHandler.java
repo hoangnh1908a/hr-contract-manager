@@ -23,7 +23,7 @@ public class ValidationExceptionHandler {
         .getFieldErrors()
         .forEach(
             error -> {
-              errors.put(error.getField(), error.getDefaultMessage());
+              errors.put(Constants.MESSAGE, error.getDefaultMessage());
             });
     return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
   }
@@ -39,6 +39,6 @@ public class ValidationExceptionHandler {
   @ExceptionHandler(Exception.class)
   public ResponseEntity<?> handleGeneralException(Exception e) {
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body(Map.of(Constants.ERROR, e.getMessage()));
+        .body(Map.of(Constants.MESSAGE, e.getMessage()));
   }
 }

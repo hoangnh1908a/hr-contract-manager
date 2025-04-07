@@ -2,9 +2,9 @@ package com.project.hrcm.services;
 
 import com.project.hrcm.configs.CustomException;
 import com.project.hrcm.entities.Department;
-import com.project.hrcm.models.requests.BaseRequest;
-import com.project.hrcm.models.requests.NameRequest;
-import com.project.hrcm.models.requests.StatusRequest;
+import com.project.hrcm.models.requests.BaseValidateRequest;
+import com.project.hrcm.models.requests.NameValidateRequest;
+import com.project.hrcm.models.requests.StatusValidateRequest;
 import com.project.hrcm.repository.DepartmentRepository;
 import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.Utils;
@@ -43,17 +43,30 @@ public class DepartmentService {
     return department;
   }
 
-  public Department updateDepartment(BaseRequest baseRequest, Locale locale) {
+  public Department createDepartment(NameValidateRequest nameValidateRequest, Locale locale) {
+    if (departmentRepository.existsByName(nameValidateRequest.getName())) {
+      throw new CustomException(
+          Utils.formatMessage(
+              messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NAME_EXISTS));
+    }
+    Department department = Department.builder().name(nameValidateRequest.getName()).build();
+    department = departmentRepository.save(department);
+
+    auditLogService.saveAuditLog(Constants.ADD, TABLE_NAME, department.getId(), "", "");
+    return department;
+  }
+
+  public Department updateDepartment(BaseValidateRequest baseValidateRequest, Locale locale) {
     return departmentRepository
-        .findById(baseRequest.getId())
+        .findById(baseValidateRequest.getId())
         .map(
             department -> {
               String oldName = department.getName();
-              department.setName(baseRequest.getName());
+              department.setName(baseValidateRequest.getName());
               department = departmentRepository.save(department);
 
               auditLogService.saveAuditLog(
-                  Constants.UPDATE, TABLE_NAME, department.getId(), oldName, baseRequest.getName());
+                  Constants.UPDATE, TABLE_NAME, department.getId(), oldName, baseValidateRequest.getName());
 
               return department;
             })
@@ -78,20 +91,7 @@ public class DepartmentService {
     auditLogService.saveAuditLog(Constants.DELETE, TABLE_NAME, id, "", "");
   }
 
-  public Department createDepartment(NameRequest nameRequest, Locale locale) {
-    if (departmentRepository.existsByName(nameRequest.getName())) {
-      throw new CustomException(
-          Utils.formatMessage(
-              messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NAME_EXISTS));
-    }
-    Department department = Department.builder().name(nameRequest.getName()).build();
-    department = departmentRepository.save(department);
-
-    auditLogService.saveAuditLog(Constants.ADD, TABLE_NAME, department.getId(), "", "");
-    return department;
-  }
-
-  public Department lockOrUnlockDepartment(StatusRequest baseRequest, Locale locale) {
+  public Department lockOrUnlockDepartment(StatusValidateRequest baseRequest, Locale locale) {
     return departmentRepository
         .findById(baseRequest.getId())
         .map(

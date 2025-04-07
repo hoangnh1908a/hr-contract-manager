@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 @Data
-public class StatusRequest {
+public class BaseValidateRequest {
 
   @NotNull(message = "The ID is required.")
   @Pattern(
@@ -16,6 +16,6 @@ public class StatusRequest {
       message = "The ID must contain only numbers.")
   private Integer id;
 
-  @NotBlank(message = "The status is required.")
-  private Integer status;
+  @NotBlank(message = "The name is required.")
+  private String name;
 }

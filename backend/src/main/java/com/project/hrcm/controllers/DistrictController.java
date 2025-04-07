@@ -1,9 +1,9 @@
 package com.project.hrcm.controllers;
 
 import com.project.hrcm.entities.District;
-import com.project.hrcm.models.requests.BaseRequest;
-import com.project.hrcm.models.requests.IdRequest;
-import com.project.hrcm.models.requests.NameRequest;
+import com.project.hrcm.models.requests.BaseValidateRequest;
+import com.project.hrcm.models.requests.IdValidateRequest;
+import com.project.hrcm.models.requests.NameValidateRequest;
 import com.project.hrcm.services.DistrictService;
 import com.project.hrcm.utils.Constants;
 import jakarta.validation.Valid;
@@ -32,31 +32,31 @@ public class DistrictController {
   @PostMapping("/get")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<District> getDistrictById(
-      @Valid @RequestBody IdRequest idRequest, Locale locale) {
-    return new ResponseEntity<>(service.getDistrictById(idRequest.getId(), locale), HttpStatus.OK);
+          @Valid @RequestBody IdValidateRequest idValidateRequest, Locale locale) {
+    return new ResponseEntity<>(service.getDistrictById(idValidateRequest.getId(), locale), HttpStatus.OK);
   }
 
   @PostMapping("/add")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<District> createDistrict(
-      @Valid @RequestBody NameRequest nameRequest, Locale locale) {
-    return new ResponseEntity<>(service.createDistrict(nameRequest, locale), HttpStatus.OK);
+          @Valid @RequestBody NameValidateRequest nameValidateRequest, Locale locale) {
+    return new ResponseEntity<>(service.createDistrict(nameValidateRequest, locale), HttpStatus.OK);
   }
 
   // Update District
   @PostMapping("/update")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<District> updateDistrict(
-      @Valid @RequestBody BaseRequest baseRequest, Locale locale) {
-    return new ResponseEntity<>(service.updateDistrict(baseRequest, locale), HttpStatus.OK);
+          @Valid @RequestBody BaseValidateRequest baseValidateRequest, Locale locale) {
+    return new ResponseEntity<>(service.updateDistrict(baseValidateRequest, locale), HttpStatus.OK);
   }
 
   // Delete District
   @PostMapping("/delete")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<String> deleteDistrict(
-      @Valid @RequestBody IdRequest idRequest, Locale locale) {
-    service.deleteDistrict(idRequest.getId(), locale);
+          @Valid @RequestBody IdValidateRequest idValidateRequest, Locale locale) {
+    service.deleteDistrict(idValidateRequest.getId(), locale);
     return ResponseEntity.ok(Constants.SUCCESS);
   }
 }

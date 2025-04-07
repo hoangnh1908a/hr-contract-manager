@@ -31,7 +31,7 @@ public class Employee {
   private String numberId;
 
   @Column(nullable = false)
-  private LocalTime dateOfBirth;
+  private LocalDate dateOfBirth;
 
   @Column(nullable = false)
   private String sex;
