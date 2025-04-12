@@ -7,7 +7,10 @@ import com.project.hrcm.models.requests.UserInfoValidateRequest;
 import com.project.hrcm.services.JwtService;
 import com.project.hrcm.services.userInfo.UserInfoService;
 import com.project.hrcm.utils.Constants;
+import com.project.hrcm.utils.Utils;
 import jakarta.validation.Valid;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -86,7 +89,14 @@ public class UserController {
       // Check if authentication was successful
       if (authentication.isAuthenticated()) {
         String token = jwtService.generateToken(authValidateRequest.getEmail());
-        return ResponseEntity.ok(Map.of("token", token));
+
+        Map<String, String> maps = new HashMap<>();
+        String data = Utils.gson.toJson(authentication.getPrincipal());
+
+        maps.put("token", token);
+        maps.put("user", data);
+
+        return ResponseEntity.ok(maps);
       }
 
     } catch (BadCredentialsException e) {

@@ -58,7 +58,7 @@ public class DepartmentService {
 
   public Department updateDepartment(BaseValidateRequest baseValidateRequest, Locale locale) {
     return departmentRepository
-        .findById(baseValidateRequest.getId())
+        .findById(Integer.valueOf(baseValidateRequest.getId()))
         .map(
             department -> {
               String oldName = department.getName();

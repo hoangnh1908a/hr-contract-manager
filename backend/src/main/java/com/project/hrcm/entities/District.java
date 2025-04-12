@@ -30,4 +30,7 @@ public class District {
   private LocalDateTime createdAt;
 
   @UpdateTimestamp @Column private LocalDateTime updatedAt;
+
+  @Column(nullable = false)
+  private Integer cityId;
 }

@@ -57,7 +57,7 @@ public class DistrictService {
 
   public District updateDistrict(BaseValidateRequest baseValidateRequest, Locale locale) {
     return districtRepository
-        .findById(baseValidateRequest.getId())
+        .findById(Integer.valueOf(baseValidateRequest.getId()))
         .map(
             district -> {
               String oldName = district.getName();

@@ -15,5 +15,5 @@ public interface RoleRepository extends JpaRepository<Role, Integer> {
 
   boolean existsByName(String name);
 
-  List<Role> findByNameLike(String name);
+  List<Role> findByNameContainingIgnoreCase(String name);
 }

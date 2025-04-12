@@ -57,7 +57,7 @@ public class ContactTemplateService {
 
   public ContactTemplate updateContactTemplate(BaseValidateRequest baseValidateRequest, Locale locale) {
     return contactStatusRepository
-        .findById(baseValidateRequest.getId())
+        .findById(Integer.valueOf(baseValidateRequest.getId()))
         .map(
             contactStatus -> {
               String oldName = contactStatus.getName();

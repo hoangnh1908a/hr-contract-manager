@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class UserInfoDetails implements UserDetails {
 
     private final String username;
-
+    private final String fullname;
     private final String password;
 
     private final List<GrantedAuthority> authorities;
@@ -17,7 +17,7 @@ public class UserInfoDetails implements UserDetails {
     public UserInfoDetails(UserInfo userInfo) {
         this.username = userInfo.getEmail(); // Use email as username
         this.password = userInfo.getPassword();
-
+        this.fullname = userInfo.getFullName();
         this.authorities = userInfo.getRoles();
     }
 

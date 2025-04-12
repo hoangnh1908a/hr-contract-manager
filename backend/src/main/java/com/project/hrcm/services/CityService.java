@@ -59,7 +59,7 @@ public class CityService {
 
   public City updateCity(BaseValidateRequest baseValidateRequest, Locale locale) {
     return cityRepository
-        .findById(baseValidateRequest.getId())
+        .findById(Integer.valueOf(baseValidateRequest.getId()))
         .map(
             city -> {
               String oldName = city.getName();

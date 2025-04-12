@@ -25,8 +25,8 @@ public class RoleController {
 
   @GetMapping()
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<List<Role>> getRoles(@RequestParam NameRequest nameRequest) {
-    List<Role> roles = service.getRoles(nameRequest);
+  public ResponseEntity<List<Role>> getRoles(@RequestParam(required = false) String name) {
+    List<Role> roles = service.getRoles(name);
     return new ResponseEntity<>(roles, HttpStatus.OK);
   }
 
@@ -54,8 +54,8 @@ public class RoleController {
   // Delete Role
   @PostMapping("/delete")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<String> deleteRole(@Valid @RequestBody IdValidateRequest idValidateRequest, Locale locale) {
-    service.deleteRole(idValidateRequest.getId(), locale);
+  public ResponseEntity<String> deleteRole(@Valid @RequestBody Integer id, Locale locale) {
+    service.deleteRole(id, locale);
     return ResponseEntity.ok(Constants.SUCCESS);
   }
 }

@@ -64,7 +64,7 @@ public class PositionService {
 
   public Position updatePosition(BaseValidateRequest baseValidateRequest, Locale locale) {
     return positionRepository
-        .findById(baseValidateRequest.getId())
+        .findById(Integer.valueOf(baseValidateRequest.getId()))
         .map(
             position -> {
               String oldName = position.getName();

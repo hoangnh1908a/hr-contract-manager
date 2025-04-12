@@ -9,13 +9,14 @@ import com.project.hrcm.repository.RoleRepository;
 import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.Utils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import lombok.AllArgsConstructor;
+import org.apache.poi.util.StringUtil;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 @Service
 @AllArgsConstructor
@@ -27,10 +28,10 @@ public class RoleService {
   private final MessageSource messageSource;
   private final AuditLogService auditLogService;
 
-  public List<Role> getRoles(NameRequest nameRequest) {
-    if (ObjectUtils.isEmpty(nameRequest)) return new ArrayList<>();
+  public List<Role> getRoles(String name) {
+    if (ObjectUtils.isEmpty(name)) return roleRepository.findAll();
 
-    return roleRepository.findByNameLike(nameRequest.getName());
+    return roleRepository.findByNameContainingIgnoreCase(name);
   }
 
   public Role getRoleById(Integer id, Locale locale) {
@@ -54,7 +55,12 @@ public class RoleService {
           Utils.formatMessage(
               messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NAME_EXISTS));
     }
-    Role role = Role.builder().name(nameValidateRequest.getName()).build();
+
+    Role role = Role.builder()
+            .name(nameValidateRequest.getName())
+            .status(Integer.valueOf(nameValidateRequest.getStatus()))
+            .build();
+
     role = roleRepository.save(role);
 
     auditLogService.saveAuditLog(Constants.ADD, TABLE_NAME, role.getId(), "", "");
@@ -63,15 +69,21 @@ public class RoleService {
 
   public Role updateRole(BaseValidateRequest baseValidateRequest, Locale locale) {
     return roleRepository
-        .findById(baseValidateRequest.getId())
+        .findById(Integer.valueOf(baseValidateRequest.getId()))
         .map(
             role -> {
-              String oldName = role.getName();
-              role.setName(baseValidateRequest.getName());
+              String old = Utils.gson.toJson(role);
+
+              if (StringUtil.isNotBlank(baseValidateRequest.getName()))
+                role.setName(baseValidateRequest.getName());
+
+              if (baseValidateRequest.getStatus() != null)
+                role.setStatus(Integer.valueOf(baseValidateRequest.getStatus()));
+
               role = roleRepository.save(role);
 
               auditLogService.saveAuditLog(
-                  Constants.UPDATE, TABLE_NAME, role.getId(), oldName, baseValidateRequest.getName());
+                  Constants.UPDATE, TABLE_NAME, role.getId(), old, Utils.gson.toJson(role));
 
               return role;
             })
