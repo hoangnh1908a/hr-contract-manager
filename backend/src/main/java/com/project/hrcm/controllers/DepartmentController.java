@@ -2,7 +2,6 @@ package com.project.hrcm.controllers;
 
 import com.project.hrcm.entities.Department;
 import com.project.hrcm.models.requests.BaseValidateRequest;
-import com.project.hrcm.models.requests.IdValidateRequest;
 import com.project.hrcm.models.requests.NameValidateRequest;
 import com.project.hrcm.models.requests.StatusValidateRequest;
 import com.project.hrcm.services.DepartmentService;
@@ -33,9 +32,9 @@ public class DepartmentController {
   @PostMapping("/get")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<Department> getDepartmentById(
-          @Valid @RequestBody IdValidateRequest idValidateRequest, Locale locale) {
+          @Valid @RequestBody String id, Locale locale) {
     return new ResponseEntity<>(
-        service.getDepartmentById(idValidateRequest.getId(), locale), HttpStatus.OK);
+        service.getDepartmentById(Integer.valueOf(id), locale), HttpStatus.OK);
   }
 
   @PostMapping("/add")
@@ -55,8 +54,8 @@ public class DepartmentController {
   @PostMapping("/delete")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<String> deleteDepartment(
-          @Valid @RequestBody IdValidateRequest idValidateRequest, Locale locale) {
-    service.deleteDepartment(idValidateRequest.getId(), locale);
+          @Valid @RequestBody String id, Locale locale) {
+    service.deleteDepartment(Integer.valueOf(id), locale);
     return ResponseEntity.ok(Constants.SUCCESS);
   }
 

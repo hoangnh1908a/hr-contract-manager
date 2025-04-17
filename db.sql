@@ -112,8 +112,8 @@ CREATE TABLE `audit_logs` (
   `action` VARCHAR(255) NOT NULL,
   `table_name` VARCHAR(255),
   `record_id` INT,
-  `old_value` VARCHAR(255),
-  `new_value` VARCHAR(255),
+  `old_value` VARCHAR(2000),
+  `new_value` VARCHAR(2000),
   `timestamp` TIMESTAMP
 );
 
@@ -127,6 +127,7 @@ CREATE TABLE `cities` (
 CREATE TABLE `districts` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
   `name` VARCHAR(100) UNIQUE NOT NULL,
+  `city_id` INT NOT NULL,
   `created_at` TIMESTAMP,
   `updated_at` TIMESTAMP
 );

@@ -2,9 +2,7 @@ package com.project.hrcm.controllers;
 
 import com.project.hrcm.entities.Role;
 import com.project.hrcm.models.requests.BaseValidateRequest;
-import com.project.hrcm.models.requests.IdValidateRequest;
 import com.project.hrcm.models.requests.NameValidateRequest;
-import com.project.hrcm.models.requests.noRequired.NameRequest;
 import com.project.hrcm.services.RoleService;
 import com.project.hrcm.utils.Constants;
 import jakarta.validation.Valid;
@@ -32,8 +30,8 @@ public class RoleController {
 
   @PostMapping("/get")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<Role> getRoleById(@Valid @RequestBody IdValidateRequest idValidateRequest, Locale locale) {
-    return new ResponseEntity<>(service.getRoleById(idValidateRequest.getId(), locale), HttpStatus.OK);
+  public ResponseEntity<Role> getRoleById(@Valid @RequestBody String id, Locale locale) {
+    return new ResponseEntity<>(service.getRoleById(Integer.valueOf(id), locale), HttpStatus.OK);
   }
 
   @PostMapping("/add")

@@ -2,8 +2,6 @@ package com.project.hrcm.controllers;
 
 import com.project.hrcm.entities.City;
 import com.project.hrcm.models.requests.BaseValidateRequest;
-import com.project.hrcm.models.requests.IdValidateRequest;
-import com.project.hrcm.models.requests.NameValidateRequest;
 import com.project.hrcm.models.requests.noRequired.NameRequest;
 import com.project.hrcm.services.CityService;
 import com.project.hrcm.utils.Constants;
@@ -25,22 +23,22 @@ public class CityController {
 
   @GetMapping()
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<List<City>> getCities(@RequestParam NameRequest nameRequest) {
-    List<City> cities = service.getCities(nameRequest);
+  public ResponseEntity<List<City>> getCities(@RequestParam(required = false) String name) {
+    List<City> cities = service.getCities(name);
     return new ResponseEntity<>(cities, HttpStatus.OK);
   }
 
   @PostMapping("/get")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<City> getCityById(@Valid @RequestBody IdValidateRequest idValidateRequest, Locale locale) {
-    return new ResponseEntity<>(service.getCityById(idValidateRequest.getId(), locale), HttpStatus.OK);
+  public ResponseEntity<City> getCityById(@Valid @RequestBody String id, Locale locale) {
+    return new ResponseEntity<>(service.getCityById(Integer.valueOf(id), locale), HttpStatus.OK);
   }
 
   @PostMapping("/add")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<City> createCity(
-          @Valid @RequestBody NameValidateRequest nameValidateRequest, Locale locale) {
-    return new ResponseEntity<>(service.createCity(nameValidateRequest, locale), HttpStatus.OK);
+          @Valid @RequestBody NameRequest nameRequest, Locale locale) {
+    return new ResponseEntity<>(service.createCity(nameRequest.getName(), locale), HttpStatus.OK);
   }
 
   // Update City
@@ -54,8 +52,8 @@ public class CityController {
   // Delete City
   @PostMapping("/delete")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<String> deleteCity(@Valid @RequestBody IdValidateRequest idValidateRequest, Locale locale) {
-    service.deleteCity(idValidateRequest.getId(), locale);
+  public ResponseEntity<String> deleteCity(@Valid @RequestBody String id, Locale locale) {
+    service.deleteCity(Integer.valueOf(id), locale);
 
     return ResponseEntity.ok(Constants.SUCCESS);
   }

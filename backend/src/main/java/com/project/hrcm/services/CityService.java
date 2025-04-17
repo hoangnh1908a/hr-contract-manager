@@ -25,8 +25,8 @@ public class CityService {
   private final MessageSource messageSource;
   private final AuditLogService auditLogService;
 
-  public List<City> getCities(NameRequest nameRequest) {
-      return cityRepository.findByName(nameRequest.getName());
+  public List<City> getCities(String name) {
+      return cityRepository.findByName(name);
   }
 
   public City getCityById(Integer id, Locale locale) {
@@ -44,16 +44,16 @@ public class CityService {
     return city;
   }
 
-  public City createCity(NameValidateRequest nameValidateRequest, Locale locale) {
-    if (cityRepository.existsByName(nameValidateRequest.getName())) {
+  public City createCity(String name, Locale locale) {
+    if (cityRepository.existsByName(name)) {
       throw new CustomException(
           Utils.formatMessage(
               messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NAME_EXISTS));
     }
-    City city = City.builder().name(nameValidateRequest.getName()).build();
+    City city = City.builder().name(name).build();
     city = cityRepository.save(city);
 
-    auditLogService.saveAuditLog(Constants.ADD, TABLE_NAME, city.getId(), "", "");
+    auditLogService.saveAuditLog(Constants.ADD, TABLE_NAME, city.getId(), "", Utils.gson.toJson(city));
     return city;
   }
 
@@ -62,7 +62,8 @@ public class CityService {
         .findById(Integer.valueOf(baseValidateRequest.getId()))
         .map(
             city -> {
-              String oldName = city.getName();
+
+              String old = Utils.gson.toJson(city);
               city.setName(baseValidateRequest.getName());
               city = cityRepository.save(city);
 
@@ -70,8 +71,8 @@ public class CityService {
                   Constants.UPDATE,
                   TABLE_NAME,
                   city.getId(),
-                  oldName,
-                  baseValidateRequest.getName());
+                  old,
+                  Utils.gson.toJson(city));
 
               return city;
             })

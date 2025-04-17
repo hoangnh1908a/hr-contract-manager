@@ -30,9 +30,9 @@ public class ContactApprovalController {
   @PostMapping("/get")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<ContactApproval> getContactApprovalById(
-          @Valid @RequestBody IdValidateRequest idValidateRequest, Locale locale) {
+          @Valid @RequestBody String id, Locale locale) {
     return new ResponseEntity<>(
-        service.getContactApprovalById(idValidateRequest.getId(), locale), HttpStatus.OK);
+        service.getContactApprovalById(Integer.valueOf(id), locale), HttpStatus.OK);
   }
 
   @PostMapping("/add")
@@ -52,8 +52,8 @@ public class ContactApprovalController {
   @PostMapping("/delete")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<String> deleteContactApproval(
-          @Valid @RequestBody IdValidateRequest idValidateRequest, Locale locale) {
-    service.deleteContactApproval(idValidateRequest.getId(), locale);
+          @Valid @RequestBody String id, Locale locale) {
+    service.deleteContactApproval(Integer.valueOf(id), locale);
     return ResponseEntity.ok(Constants.SUCCESS);
   }
 }

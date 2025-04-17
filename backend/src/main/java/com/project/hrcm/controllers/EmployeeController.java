@@ -31,8 +31,8 @@ public class EmployeeController {
   @PostMapping("/get")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + ", " + Constants.ROLE_HR + "')")
   public ResponseEntity<Employee> getEmployeeById(
-          @Valid @RequestBody IdValidateRequest idValidateRequest, Locale locale) {
-    return new ResponseEntity<>(service.getEmployeeById(idValidateRequest.getId(), locale), HttpStatus.OK);
+          @Valid @RequestBody String id, Locale locale) {
+    return new ResponseEntity<>(service.getEmployeeById(Integer.valueOf(id), locale), HttpStatus.OK);
   }
 
   @PostMapping("/add")
@@ -52,8 +52,8 @@ public class EmployeeController {
   @PostMapping("/delete")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + ", " + Constants.ROLE_HR + "')")
   public ResponseEntity<String> deleteEmployee(
-          @Valid @RequestBody IdValidateRequest idValidateRequest, Locale locale) {
-    service.deleteEmployee(idValidateRequest.getId(), locale);
+          @Valid @RequestBody String id, Locale locale) {
+    service.deleteEmployee(Integer.valueOf(id), locale);
     return ResponseEntity.ok(Constants.SUCCESS);
   }
 

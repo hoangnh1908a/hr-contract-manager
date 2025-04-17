@@ -2,7 +2,6 @@ package com.project.hrcm.controllers;
 
 import com.project.hrcm.entities.ContactStatus;
 import com.project.hrcm.models.requests.BaseValidateRequest;
-import com.project.hrcm.models.requests.IdValidateRequest;
 import com.project.hrcm.models.requests.NameValidateRequest;
 import com.project.hrcm.services.ContactStatusService;
 import com.project.hrcm.utils.Constants;
@@ -32,9 +31,9 @@ public class ContactStatusController {
   @PostMapping("/get")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + ", " + Constants.ROLE_HR + "')")
   public ResponseEntity<ContactStatus> getContactStatusById(
-          @Valid @RequestBody IdValidateRequest idValidateRequest, Locale locale) {
+          @Valid @RequestBody String id, Locale locale) {
     return new ResponseEntity<>(
-        service.getContactStatusById(idValidateRequest.getId(), locale), HttpStatus.OK);
+        service.getContactStatusById(Integer.valueOf(id), locale), HttpStatus.OK);
   }
 
   @PostMapping("/add")
@@ -56,8 +55,8 @@ public class ContactStatusController {
   @PostMapping("/delete")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + ", " + Constants.ROLE_HR + "')")
   public ResponseEntity<String> deleteContactStatus(
-          @Valid @RequestBody IdValidateRequest idValidateRequest, Locale locale) {
-    service.deleteContactStatus(idValidateRequest.getId(), locale);
+          @Valid @RequestBody String id, Locale locale) {
+    service.deleteContactStatus(Integer.valueOf(id), locale);
 
     return ResponseEntity.ok(Constants.SUCCESS);
   }
