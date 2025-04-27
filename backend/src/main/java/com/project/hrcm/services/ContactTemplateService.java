@@ -48,7 +48,7 @@ public class ContactTemplateService {
           Utils.formatMessage(
               messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NAME_EXISTS));
     }
-    ContactTemplate contactStatus = ContactTemplate.builder().name(nameValidateRequest.getName()).build();
+    ContactTemplate contactStatus = ContactTemplate.builder().name(nameValidateRequest.getName().trim()).build();
     contactStatus = contactStatusRepository.save(contactStatus);
 
     auditLogService.saveAuditLog(Constants.ADD, TABLE_NAME, contactStatus.getId(), "", "");
@@ -60,8 +60,8 @@ public class ContactTemplateService {
         .findById(Integer.valueOf(baseValidateRequest.getId()))
         .map(
             contactStatus -> {
-              String oldName = contactStatus.getName();
-              contactStatus.setName(baseValidateRequest.getName());
+              String oldName = Utils.gson.toJson(contactStatus);
+              contactStatus.setName(baseValidateRequest.getName().trim());
               contactStatus = contactStatusRepository.save(contactStatus);
 
               auditLogService.saveAuditLog(

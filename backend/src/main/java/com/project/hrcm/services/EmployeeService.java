@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Locale;
 import lombok.AllArgsConstructor;
 import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,8 +25,8 @@ public class EmployeeService {
   private final MessageSource messageSource;
   private final AuditLogService auditLogService;
 
-  public List<Employee> getEmployees() {
-    return employeeRepository.findAll();
+  public Page<Employee> getEmployees(Pageable pageable) {
+    return employeeRepository.findAll(pageable);
   }
 
   public Employee getEmployeeById(Integer id, Locale locale) {
@@ -45,14 +47,14 @@ public class EmployeeService {
   public Employee createEmployee(EmployeeRequest nameRequest, Locale locale) {
     Employee employee =
         Employee.builder()
-            .fullName(nameRequest.getFullName())
+            .fullName(nameRequest.getFullName().trim())
             .numberId(nameRequest.getNumberId())
 //            .dateOfBirth(nameRequest.getDateOfBirth())
-            .sex(nameRequest.getSex())
-            .nationality(nameRequest.getNationality())
-            .placeOfOrigin(nameRequest.getPlaceOfOrigin())
-            .placeOfResidence(nameRequest.getPlaceOfResidence())
-            .email(nameRequest.getEmail())
+            .sex(nameRequest.getSex().trim())
+            .nationality(nameRequest.getNationality().trim())
+            .placeOfOrigin(nameRequest.getPlaceOfOrigin().trim())
+            .placeOfResidence(nameRequest.getPlaceOfResidence().trim())
+            .email(nameRequest.getEmail().trim())
 //            .hireDate(nameRequest.getHireDate())
             .status(nameRequest.getStatus())
             .departmentId(nameRequest.getDepartmentId())
@@ -69,15 +71,15 @@ public class EmployeeService {
         .findById(employeeRequest.getId())
         .map(
             employee -> {
-              employee.setFullName(employeeRequest.getFullName());
+              employee.setFullName(employeeRequest.getFullName().trim());
               employee.setNumberId(employeeRequest.getNumberId());
 //              employee.setDateOfBirth(employeeRequest.getDateOfBirth());
-              employee.setSex(employeeRequest.getSex());
-              employee.setNationality(employeeRequest.getNationality());
-              employee.setPlaceOfOrigin(employeeRequest.getPlaceOfOrigin());
-              employee.setPlaceOfResidence(employeeRequest.getPlaceOfResidence());
-              employee.setEmail(employeeRequest.getEmail());
-              employee.setPhone(employeeRequest.getPhone());
+              employee.setSex(employeeRequest.getSex().trim());
+              employee.setNationality(employeeRequest.getNationality().trim());
+              employee.setPlaceOfOrigin(employeeRequest.getPlaceOfOrigin().trim());
+              employee.setPlaceOfResidence(employeeRequest.getPlaceOfResidence().trim());
+              employee.setEmail(employeeRequest.getEmail().trim());
+              employee.setPhone(employeeRequest.getPhone().trim());
 //              employee.setHireDate(employeeRequest.getHireDate());
               employee.setStatus(employeeRequest.getStatus());
               employee.setDepartmentId(employeeRequest.getDepartmentId());

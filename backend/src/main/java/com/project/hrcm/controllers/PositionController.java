@@ -11,6 +11,8 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Locale;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,8 +27,8 @@ public class PositionController {
 
   @GetMapping()
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<List<Position>> getPositions(@RequestParam NameRequest nameRequest) {
-    List<Position> positions = service.getPositions(nameRequest);
+  public ResponseEntity<Page<Position>> getPositions(@RequestParam(required = false) String name, Pageable pageable) {
+    Page<Position> positions = service.getPositions(name, pageable);
     return new ResponseEntity<>(positions, HttpStatus.OK);
   }
 
@@ -38,7 +40,7 @@ public class PositionController {
         service.getPositionById(Integer.valueOf(id), locale), HttpStatus.OK);
   }
 
-  @PostMapping("/add")
+  @PostMapping("/create")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<Position> createPosition(
           @Valid @RequestBody NameValidateRequest nameValidateRequest, Locale locale) {

@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Locale;
 import lombok.AllArgsConstructor;
 import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,8 +24,8 @@ public class ContactApprovalService {
   private final MessageSource messageSource;
   private final AuditLogService auditLogService;
 
-  public List<ContactApproval> getContactApprovals() {
-    return contactApprovalRepository.findAll();
+  public Page<ContactApproval> getContactApprovals(Pageable pageable) {
+    return contactApprovalRepository.findAll(pageable);
   }
 
   public ContactApproval getContactApprovalById(Integer id, Locale locale) {

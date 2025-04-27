@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Locale;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,8 +25,8 @@ public class ContactStatusController {
 
   @GetMapping()
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + ", " + Constants.ROLE_HR + "')")
-  public ResponseEntity<List<ContactStatus>> getContactStatus() {
-    List<ContactStatus> contactStatus = service.getContactStatus();
+  public ResponseEntity<Page<ContactStatus>> getContactStatus(Pageable pageable) {
+    Page<ContactStatus> contactStatus = service.getContactStatus(pageable);
     return new ResponseEntity<>(contactStatus, HttpStatus.OK);
   }
 
@@ -36,7 +38,7 @@ public class ContactStatusController {
         service.getContactStatusById(Integer.valueOf(id), locale), HttpStatus.OK);
   }
 
-  @PostMapping("/add")
+  @PostMapping("/create")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + ", " + Constants.ROLE_HR + "')")
   public ResponseEntity<ContactStatus> createContactStatus(
           @Valid @RequestBody NameValidateRequest nameValidateRequest, Locale locale) {

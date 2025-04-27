@@ -5,18 +5,16 @@ import com.project.hrcm.entities.Position;
 import com.project.hrcm.models.requests.BaseValidateRequest;
 import com.project.hrcm.models.requests.NameValidateRequest;
 import com.project.hrcm.models.requests.StatusValidateRequest;
-import com.project.hrcm.models.requests.noRequired.NameRequest;
 import com.project.hrcm.repository.PositionRepository;
 import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.Utils;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 
 @Service
 @AllArgsConstructor
@@ -28,10 +26,8 @@ public class PositionService {
   private final MessageSource messageSource;
   private final AuditLogService auditLogService;
 
-  public List<Position> getPositions(NameRequest nameRequest) {
-      if (ObjectUtils.isEmpty(nameRequest)) return new ArrayList<>();
-
-      return positionRepository.findByNameLike(nameRequest.getName());
+  public Page<Position> getPositions(String name, Pageable pageable) {
+    return positionRepository.findByNameContainingIgnoreCase(name, pageable);
   }
 
   public Position getPositionById(Integer id, Locale locale) {
@@ -50,7 +46,7 @@ public class PositionService {
   }
 
   public Position createPosition(NameValidateRequest nameValidateRequest, Locale locale) {
-    if (positionRepository.existsByName(nameValidateRequest.getName())) {
+    if (positionRepository.existsByName(nameValidateRequest.getName().trim())) {
       throw new CustomException(
           Utils.formatMessage(
               messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NAME_EXISTS));
@@ -58,7 +54,8 @@ public class PositionService {
     Position position = Position.builder().name(nameValidateRequest.getName()).build();
     position = positionRepository.save(position);
 
-    auditLogService.saveAuditLog(Constants.ADD, TABLE_NAME, position.getId(), "", "");
+    auditLogService.saveAuditLog(
+        Constants.ADD, TABLE_NAME, position.getId(), "", Utils.gson.toJson(position));
     return position;
   }
 
@@ -67,12 +64,12 @@ public class PositionService {
         .findById(Integer.valueOf(baseValidateRequest.getId()))
         .map(
             position -> {
-              String oldName = position.getName();
+              String old = Utils.gson.toJson(position);
               position.setName(baseValidateRequest.getName());
               position = positionRepository.save(position);
 
               auditLogService.saveAuditLog(
-                  Constants.UPDATE, TABLE_NAME, position.getId(), oldName, baseValidateRequest.getName());
+                  Constants.UPDATE, TABLE_NAME, position.getId(), old, Utils.gson.toJson(position));
 
               return position;
             })
@@ -84,17 +81,16 @@ public class PositionService {
   }
 
   public void deletePosition(Integer id, Locale locale) {
-    positionRepository
-        .findById(id)
-        .ifPresentOrElse(
-            positionRepository::delete,
-            () -> {
-              throw new CustomException(
-                  messageSource.getMessage(
-                      TABLE_NAME.toLowerCase() + Constants.NOT_FOUND, null, locale));
-            });
+    Optional<Position> position = positionRepository.findById(id);
+    position.ifPresentOrElse(
+        positionRepository::delete,
+        () -> {
+          throw new CustomException(
+              messageSource.getMessage(
+                  TABLE_NAME.toLowerCase() + Constants.NOT_FOUND, null, locale));
+        });
 
-    auditLogService.saveAuditLog(Constants.DELETE, TABLE_NAME, id, "", "");
+    auditLogService.saveAuditLog(Constants.DELETE, TABLE_NAME, id, Utils.gson.toJson(position), "");
   }
 
   public Position lockOrUnlockPosition(StatusValidateRequest baseRequest, Locale locale) {
@@ -102,16 +98,12 @@ public class PositionService {
         .findById(baseRequest.getId())
         .map(
             position -> {
-              String oldStatus = String.valueOf(position.getStatus());
+              String old = Utils.gson.toJson(position);
               position.setStatus(baseRequest.getStatus());
               position = positionRepository.save(position);
 
               auditLogService.saveAuditLog(
-                  Constants.UPDATE,
-                  TABLE_NAME,
-                  position.getId(),
-                  oldStatus,
-                  String.valueOf(baseRequest.getStatus()));
+                  Constants.UPDATE, TABLE_NAME, position.getId(), old, Utils.gson.toJson(position));
 
               return position;
             })

@@ -4,6 +4,7 @@ import com.project.hrcm.entities.UserInfo;
 import com.project.hrcm.models.requests.AuthValidateRequest;
 import com.project.hrcm.models.requests.StatusValidateRequest;
 import com.project.hrcm.models.requests.UserInfoValidateRequest;
+import com.project.hrcm.models.requests.noRequired.UserRequest;
 import com.project.hrcm.services.JwtService;
 import com.project.hrcm.services.userInfo.UserInfoService;
 import com.project.hrcm.utils.Constants;
@@ -11,11 +12,12 @@ import com.project.hrcm.utils.Utils;
 import jakarta.validation.Valid;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,6 +26,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @AllArgsConstructor
 @RestController
@@ -36,8 +40,8 @@ public class UserController {
 
   @GetMapping("/users")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<List<UserInfo>> users() {
-    List<UserInfo> users = service.getListUsers();
+  public ResponseEntity<Page<UserInfo>> users(UserRequest userRequest, Pageable pageable) {
+    Page<UserInfo> users = service.getListUsers(userRequest, pageable);
     return new ResponseEntity<>(users, HttpStatus.OK);
   }
 
@@ -46,7 +50,7 @@ public class UserController {
     return ResponseEntity.ok(Constants.SUCCESS);
   }
 
-  @PostMapping("/addNewUser")
+  @PostMapping("/user/create")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<UserInfo> addNewUser(@Valid @RequestBody UserInfoValidateRequest userInfoValidateRequest) {
     UserInfo userInfo = new UserInfo();
@@ -58,17 +62,17 @@ public class UserController {
     return new ResponseEntity<>(userInfo, HttpStatus.OK);
   }
 
-  @PostMapping("/updateUser")
+  @PostMapping("/user/update")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<UserInfo> updateUser(
+  public ResponseEntity<String> updateUser(
       @Valid @RequestBody UserInfo userInfoRequest, Locale locale) {
 
-    UserInfo userInfo = service.updateUser(userInfoRequest, locale);
+    service.updateUser(userInfoRequest, locale);
 
-    return new ResponseEntity<>(userInfo, HttpStatus.OK);
+    return new ResponseEntity<>(HttpStatus.OK);
   }
 
-  @PostMapping("/lock")
+  @PostMapping("/user/lock")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<UserInfo> lockUser(
           @Valid @RequestBody StatusValidateRequest statusValidateRequest, Locale locale) {
@@ -76,6 +80,16 @@ public class UserController {
     UserInfo userInfo = service.lockOrUnlockUser(statusValidateRequest, locale);
 
     return new ResponseEntity<>(userInfo, HttpStatus.OK);
+  }
+
+  @PostMapping("/user/resetPassword")
+  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
+  public ResponseEntity<String> resetPassword(
+          @Valid @RequestBody Integer userId, Locale locale) {
+
+    service.resetPassword(userId, locale);
+
+    return new ResponseEntity<>(HttpStatus.OK);
   }
 
   @PostMapping("/generateToken")

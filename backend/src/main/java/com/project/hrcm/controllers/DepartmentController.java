@@ -10,6 +10,8 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Locale;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,8 +26,8 @@ public class DepartmentController {
 
   @GetMapping()
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<List<Department>> getDepartments() {
-    List<Department> departments = service.getDepartments();
+  public ResponseEntity<Page<Department>> getDepartments(Pageable pageable) {
+    Page<Department> departments = service.getDepartments(pageable);
     return new ResponseEntity<>(departments, HttpStatus.OK);
   }
 
@@ -37,7 +39,7 @@ public class DepartmentController {
         service.getDepartmentById(Integer.valueOf(id), locale), HttpStatus.OK);
   }
 
-  @PostMapping("/add")
+  @PostMapping("/create")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<Department> createDepartment(
           @Valid @RequestBody NameValidateRequest nameValidateRequest, Locale locale) {

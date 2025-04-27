@@ -18,10 +18,6 @@ public class UserInfoValidateRequest {
       message = "The email address format is invalid.")
   private String email;
 
-  @NotBlank(message = "The password is required.")
-  @Size(min = 8, message = "Password must be at least 3 characters long!")
-  private String password;
-
   @NotNull(message = "The roleId is required.")
   private Integer roleId;
 }

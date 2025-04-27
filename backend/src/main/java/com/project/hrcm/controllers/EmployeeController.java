@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Locale;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,8 +25,8 @@ public class EmployeeController {
 
   @GetMapping()
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + ", " + Constants.ROLE_HR + "')")
-  public ResponseEntity<List<Employee>> getEmployees() {
-    List<Employee> employees = service.getEmployees();
+  public ResponseEntity<Page<Employee>> getEmployees(Pageable pageable) {
+    Page<Employee> employees = service.getEmployees(pageable);
     return new ResponseEntity<>(employees, HttpStatus.OK);
   }
 
@@ -35,7 +37,7 @@ public class EmployeeController {
     return new ResponseEntity<>(service.getEmployeeById(Integer.valueOf(id), locale), HttpStatus.OK);
   }
 
-  @PostMapping("/add")
+  @PostMapping("/create")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + ", " + Constants.ROLE_HR + "')")
   public ResponseEntity<Employee> createEmployee(
           @Valid @RequestBody EmployeeRequest employeeRequest, Locale locale) {

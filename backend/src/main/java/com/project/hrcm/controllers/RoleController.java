@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Locale;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,8 +25,8 @@ public class RoleController {
 
   @GetMapping()
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<List<Role>> getRoles(@RequestParam(required = false) String name) {
-    List<Role> roles = service.getRoles(name);
+  public ResponseEntity<Page<Role>> getRoles(@RequestParam(required = false) String name, Pageable pageable) {
+    Page<Role> roles = service.getRoles(name, pageable);
     return new ResponseEntity<>(roles, HttpStatus.OK);
   }
 
@@ -34,7 +36,7 @@ public class RoleController {
     return new ResponseEntity<>(service.getRoleById(Integer.valueOf(id), locale), HttpStatus.OK);
   }
 
-  @PostMapping("/add")
+  @PostMapping("/create")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<Role> createRole(
       Locale locale, @Valid @RequestBody NameValidateRequest nameValidateRequest) {

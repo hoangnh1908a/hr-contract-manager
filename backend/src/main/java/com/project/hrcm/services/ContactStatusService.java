@@ -7,10 +7,12 @@ import com.project.hrcm.models.requests.NameValidateRequest;
 import com.project.hrcm.repository.ContactStatusRepository;
 import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.Utils;
-import java.util.List;
+
 import java.util.Locale;
 import lombok.AllArgsConstructor;
 import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,8 +25,8 @@ public class ContactStatusService {
   private final MessageSource messageSource;
   private final AuditLogService auditLogService;
 
-  public List<ContactStatus> getContactStatus() {
-    return contactStatusRepository.findAll();
+  public Page<ContactStatus> getContactStatus(Pageable pageable) {
+    return contactStatusRepository.findAll(pageable);
   }
 
   public ContactStatus getContactStatusById(Integer id, Locale locale) {

@@ -4,18 +4,26 @@ import com.project.hrcm.configs.CustomException;
 import com.project.hrcm.dto.UserInfoDetails;
 import com.project.hrcm.entities.UserInfo;
 import com.project.hrcm.models.requests.StatusValidateRequest;
+import com.project.hrcm.models.requests.noRequired.UserRequest;
 import com.project.hrcm.repository.UserInfoRepository;
 import com.project.hrcm.services.AuditLogService;
+import com.project.hrcm.services.MailService;
 import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.InitialLoad;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import com.project.hrcm.utils.Utils;
+import jakarta.mail.MessagingException;
+import jakarta.persistence.criteria.Predicate;
+import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -39,6 +47,7 @@ public class UserInfoService implements UserDetailsService {
   private final InitialLoad initialLoad;
   private final AuditLogService auditLogService;
   private final MessageSource messageSource;
+  private final MailService mailService;
 
   public static Integer getCurrentUserId() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -49,6 +58,28 @@ public class UserInfoService implements UserDetailsService {
       }
     }
     return 1;
+  }
+
+  public static Specification<UserInfo> filterBy(UserRequest userRequest) {
+    return (root, query, cb) -> {
+      List<Predicate> predicates = new ArrayList<>();
+
+      if (StringUtils.isNotBlank(userRequest.getFullName())) {
+        predicates.add(
+            cb.like(
+                cb.lower(root.get("fullName")),
+                "%" + userRequest.getFullName().toLowerCase() + "%"));
+      }
+      if (userRequest.getRoleId() != null) {
+        predicates.add(cb.equal(root.get("roleId"), userRequest.getRoleId()));
+      }
+      if (StringUtils.isNotBlank(userRequest.getEmail())) {
+        predicates.add(
+            cb.like(cb.lower(root.get("email")), "%" + userRequest.getEmail().toLowerCase() + "%"));
+      }
+
+      return cb.and(predicates.toArray(new Predicate[0]));
+    };
   }
 
   @Override
@@ -72,41 +103,92 @@ public class UserInfoService implements UserDetailsService {
 
   public UserInfo addUser(UserInfo userInfo) {
     try {
+
+      String newPassword = Utils.generatePassword(16);
       // Encode password before saving the user
-      userInfo.setPassword(passwordEncoder.encode(userInfo.getPassword()));
+      userInfo.setPassword(passwordEncoder.encode(newPassword));
+      userInfo.setForcePasswordChangeOnLogin(1); // reset pass when login
 
       userInfo = userRepository.save(userInfo);
       log.info("User Added Successfully : {} ", userInfo.getEmail());
+
+      try {
+        sendPasswordForNewUser(userInfo.getEmail(), newPassword);
+      } catch (MessagingException | IOException ex) {
+        throw new RuntimeException(ex);
+      }
     } catch (Exception e) {
       log.error("addUser error : {}", e.toString());
       throw e;
     } finally {
       auditLogService.saveAuditLog(
-          Constants.ADD, TABLE_NAME, userInfo.getId(), "", userInfo.getEmail());
+          Constants.ADD, TABLE_NAME, userInfo.getId(), "", Utils.gson.toJson(userInfo));
     }
     return userInfo;
   }
 
-  public UserInfo updateUser(UserInfo baseRequest, Locale locale) {
-    return userRepository
-        .findByEmail(baseRequest.getEmail())
-        .map(
-            userInfo -> {
-              userInfo.setFullName(baseRequest.getFullName());
-              userInfo.setPassword(passwordEncoder.encode(userInfo.getPassword()));
-              userInfo.setRoleId(baseRequest.getRoleId());
-              userInfo = userRepository.save(userInfo);
+  public void updateUser(UserInfo baseRequest, Locale locale) {
 
-              auditLogService.saveAuditLog(Constants.UPDATE, TABLE_NAME, userInfo.getId(), "", "");
+    Optional<UserInfo> userInfo = userRepository.findById(baseRequest.getId());
+    userInfo.ifPresentOrElse(
+        (e -> {
+          e.setFullName(baseRequest.getFullName());
+          e.setEmail(baseRequest.getEmail());
+          e.setPassword(passwordEncoder.encode(baseRequest.getPassword()));
+          e.setRoleId(baseRequest.getRoleId());
+          e.setForcePasswordChangeOnLogin(1);
+          UserInfo save = userRepository.save(e);
 
-              return userInfo;
-            })
-        .orElseThrow(
-            () -> new CustomException(messageSource.getMessage(USER_NOT_FOUND, null, locale)));
+          auditLogService.saveAuditLog(
+              Constants.UPDATE,
+              TABLE_NAME,
+              baseRequest.getId(),
+              Utils.gson.toJson(userInfo),
+              Utils.gson.toJson(save));
+        }),
+        () -> {
+          String errorMessage =
+              Utils.formatMessage(
+                  messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND);
+          // Log the error message
+          throw new CustomException(errorMessage);
+        });
   }
 
-  public List<UserInfo> getListUsers() {
-    return userRepository.findAll();
+  public void resetPassword(Integer id, Locale locale) {
+    Optional<UserInfo> userInfo = userRepository.findById(id);
+
+    userInfo.ifPresentOrElse(
+        (e -> {
+          String newPassword = Utils.generatePassword(16);
+          e.setPassword(passwordEncoder.encode(newPassword));
+          e.setForcePasswordChangeOnLogin(1); // reset pass when login
+          UserInfo save = userRepository.save(e);
+
+          auditLogService.saveAuditLog(
+              Constants.RESET_PASSWORD,
+              TABLE_NAME,
+              id,
+              Utils.gson.toJson(userInfo),
+              Utils.gson.toJson(save));
+          try {
+            sendPasswordForNewUser(e.getEmail(), newPassword);
+          } catch (MessagingException | IOException ex) {
+            throw new RuntimeException(ex);
+          }
+        }),
+        () -> {
+          String errorMessage =
+              Utils.formatMessage(
+                  messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND);
+          // Log the error message
+          throw new CustomException(errorMessage);
+        });
+  }
+
+  public Page<UserInfo> getListUsers(UserRequest userRequest, Pageable pageable) {
+    Specification<UserInfo> spec = filterBy(userRequest);
+    return userRepository.findAll(spec, pageable);
   }
 
   public UserInfo lockOrUnlockUser(StatusValidateRequest baseRequest, Locale locale) {
@@ -129,5 +211,14 @@ public class UserInfoService implements UserDetailsService {
             })
         .orElseThrow(
             () -> new CustomException(messageSource.getMessage(USER_NOT_FOUND, null, locale)));
+  }
+
+  public void sendPasswordForNewUser(String email, String password)
+      throws MessagingException, IOException {
+    Map<String, String> variables = new HashMap<>();
+    variables.put("email", email);
+    variables.put("password", password);
+
+    mailService.sendHtmlEmail(email, "User Information!", "new-user-template", variables);
   }
 }

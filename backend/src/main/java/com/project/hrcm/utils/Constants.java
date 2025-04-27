@@ -25,6 +25,7 @@ public class Constants {
   public static final String UPDATE = "UPDATE";
   public static final String DELETE = "DELETE";
   public static final String GET_ID = "GET_ID";
+  public static final String RESET_PASSWORD = "RESET_PASSWORD";
 
   //  MESSAGE LANGUAGE
   public static final String NOT_FOUND = "not_found";

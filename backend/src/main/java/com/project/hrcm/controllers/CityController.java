@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Locale;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,8 +25,8 @@ public class CityController {
 
   @GetMapping()
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<List<City>> getCities(@RequestParam(required = false) String name) {
-    List<City> cities = service.getCities(name);
+  public ResponseEntity<Page<City>> getCities(@RequestParam(required = false) String name, Pageable pageable) {
+    Page<City> cities = service.getCities(name, pageable);
     return new ResponseEntity<>(cities, HttpStatus.OK);
   }
 
@@ -34,7 +36,7 @@ public class CityController {
     return new ResponseEntity<>(service.getCityById(Integer.valueOf(id), locale), HttpStatus.OK);
   }
 
-  @PostMapping("/add")
+  @PostMapping("/create")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<City> createCity(
           @Valid @RequestBody NameRequest nameRequest, Locale locale) {

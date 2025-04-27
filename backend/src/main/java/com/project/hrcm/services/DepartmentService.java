@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Locale;
 import lombok.AllArgsConstructor;
 import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -24,8 +26,8 @@ public class DepartmentService {
   private final MessageSource messageSource;
   private final AuditLogService auditLogService;
 
-  public List<Department> getDepartments() {
-    return departmentRepository.findAll();
+  public Page<Department> getDepartments(Pageable pageable) {
+    return departmentRepository.findAll(pageable);
   }
 
   public Department getDepartmentById(Integer id, Locale locale) {
@@ -44,12 +46,12 @@ public class DepartmentService {
   }
 
   public Department createDepartment(NameValidateRequest nameValidateRequest, Locale locale) {
-    if (departmentRepository.existsByName(nameValidateRequest.getName())) {
+    if (departmentRepository.existsByName(nameValidateRequest.getName().trim())) {
       throw new CustomException(
           Utils.formatMessage(
               messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NAME_EXISTS));
     }
-    Department department = Department.builder().name(nameValidateRequest.getName()).build();
+    Department department = Department.builder().name(nameValidateRequest.getName().trim()).build();
     department = departmentRepository.save(department);
 
     auditLogService.saveAuditLog(Constants.ADD, TABLE_NAME, department.getId(), "", "");
@@ -61,12 +63,12 @@ public class DepartmentService {
         .findById(Integer.valueOf(baseValidateRequest.getId()))
         .map(
             department -> {
-              String oldName = department.getName();
-              department.setName(baseValidateRequest.getName());
+              String old = Utils.gson.toJson(department);
+              department.setName(baseValidateRequest.getName().trim());
               department = departmentRepository.save(department);
 
               auditLogService.saveAuditLog(
-                  Constants.UPDATE, TABLE_NAME, department.getId(), oldName, baseValidateRequest.getName());
+                  Constants.UPDATE, TABLE_NAME, department.getId(), old, baseValidateRequest.getName());
 
               return department;
             })

@@ -8,6 +8,8 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Locale;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,8 +24,8 @@ public class ContactApprovalController {
 
   @GetMapping()
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<List<ContactApproval>> getContactApprovals() {
-    List<ContactApproval> contactApprovals = service.getContactApprovals();
+  public ResponseEntity<Page<ContactApproval>> getContactApprovals(Pageable pageable) {
+    Page<ContactApproval> contactApprovals = service.getContactApprovals(pageable);
     return new ResponseEntity<>(contactApprovals, HttpStatus.OK);
   }
 
@@ -35,7 +37,7 @@ public class ContactApprovalController {
         service.getContactApprovalById(Integer.valueOf(id), locale), HttpStatus.OK);
   }
 
-  @PostMapping("/add")
+  @PostMapping("/create")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<ContactApproval> createContactApproval(
           @Valid @RequestBody ContactApprovalValidateRequest nameRequest, Locale locale) {
