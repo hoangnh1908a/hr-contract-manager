@@ -48,7 +48,7 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // ✅ allow preflight globally
+                auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // allow preflight globally
                     .requestMatchers("/auth/addNewUser", "/auth/generateToken", "/test/**")
                     .permitAll()
                     .anyRequest()

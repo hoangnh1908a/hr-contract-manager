@@ -3,7 +3,6 @@ package com.project.hrcm.services.userInfo;
 import com.project.hrcm.configs.CustomException;
 import com.project.hrcm.dto.UserInfoDetails;
 import com.project.hrcm.entities.UserInfo;
-import com.project.hrcm.models.requests.StatusValidateRequest;
 import com.project.hrcm.models.requests.noRequired.UserRequest;
 import com.project.hrcm.repository.UserInfoRepository;
 import com.project.hrcm.services.AuditLogService;
@@ -14,6 +13,7 @@ import com.project.hrcm.utils.Utils;
 import jakarta.mail.MessagingException;
 import jakarta.persistence.criteria.Predicate;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -85,8 +85,7 @@ public class UserInfoService implements UserDetailsService {
   @Override
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
     log.info(" Load user : {}", email);
-    Optional<UserInfo> userInfo = userRepository.findByEmail(email);
-    /** get role */
+    Optional<UserInfo> userInfo = userRepository.findByEmailAndStatus(email, 1);
     if (userInfo.isPresent()) {
       List<GrantedAuthority> authorities =
           Stream.of(initialLoad.getRoleNameById(userInfo.get().getRoleId()).split(","))
@@ -108,6 +107,9 @@ public class UserInfoService implements UserDetailsService {
       // Encode password before saving the user
       userInfo.setPassword(passwordEncoder.encode(newPassword));
       userInfo.setForcePasswordChangeOnLogin(1); // reset pass when login
+      userInfo.setPasswordFailCount(0);
+      userInfo.setPasswordExpiryDate(
+          LocalDateTime.now().plusMonths(3)); // default 3month reset pass
 
       userInfo = userRepository.save(userInfo);
       log.info("User Added Successfully : {} ", userInfo.getEmail());
@@ -155,22 +157,27 @@ public class UserInfoService implements UserDetailsService {
         });
   }
 
-  public void resetPassword(Integer id, Locale locale) {
-    Optional<UserInfo> userInfo = userRepository.findById(id);
+  public void resetPassword(String email, String password, Locale locale) {
+
+    Optional<UserInfo> userInfo = userRepository.findByEmail(email);
 
     userInfo.ifPresentOrElse(
         (e -> {
+          String old = Utils.gson.toJson(e);
           String newPassword = Utils.generatePassword(16);
+          if (StringUtils.isNotBlank(password)) { // user change pass
+            newPassword = password;
+            e.setForcePasswordChangeOnLogin(0);
+          } else {
+            e.setForcePasswordChangeOnLogin(1);
+          }
+
           e.setPassword(passwordEncoder.encode(newPassword));
-          e.setForcePasswordChangeOnLogin(1); // reset pass when login
+          // reset pass when login
           UserInfo save = userRepository.save(e);
 
           auditLogService.saveAuditLog(
-              Constants.RESET_PASSWORD,
-              TABLE_NAME,
-              id,
-              Utils.gson.toJson(userInfo),
-              Utils.gson.toJson(save));
+              Constants.RESET_PASSWORD, TABLE_NAME, save.getId(), old, Utils.gson.toJson(save));
           try {
             sendPasswordForNewUser(e.getEmail(), newPassword);
           } catch (MessagingException | IOException ex) {
@@ -191,21 +198,17 @@ public class UserInfoService implements UserDetailsService {
     return userRepository.findAll(spec, pageable);
   }
 
-  public UserInfo lockOrUnlockUser(StatusValidateRequest baseRequest, Locale locale) {
+  public UserInfo lockOrUnlockUser(Integer id, Locale locale) {
     return userRepository
-        .findById(baseRequest.getId())
+        .findById(id)
         .map(
             userInfo -> {
-              String oldStatus = String.valueOf(userInfo.getStatus());
-              userInfo.setStatus(baseRequest.getStatus());
+              String old = Utils.gson.toJson(userInfo);
+              userInfo.setStatus(userInfo.getStatus() == 1 ? 0 : 1);
               userInfo = userRepository.save(userInfo);
 
               auditLogService.saveAuditLog(
-                  Constants.UPDATE,
-                  TABLE_NAME,
-                  userInfo.getId(),
-                  oldStatus,
-                  String.valueOf(baseRequest.getStatus()));
+                  Constants.UPDATE, TABLE_NAME, userInfo.getId(), old, Utils.gson.toJson(userInfo));
 
               return userInfo;
             })
@@ -220,5 +223,47 @@ public class UserInfoService implements UserDetailsService {
     variables.put("password", password);
 
     mailService.sendHtmlEmail(email, "User Information!", "new-user-template", variables);
+  }
+
+  public void setPasswordFailCount(String email, Locale locale) {
+    userRepository
+        .findByEmail(email)
+        .map(
+            userInfo -> {
+              String old = Utils.gson.toJson(userInfo);
+              userInfo.setPasswordFailCount(userInfo.getPasswordFailCount() + 1);
+              userInfo = userRepository.save(userInfo);
+
+              auditLogService.saveAuditLog(
+                  Constants.UPDATE, TABLE_NAME, userInfo.getId(), old, Utils.gson.toJson(userInfo));
+              return userInfo;
+            })
+        .orElseThrow(
+            () -> new CustomException(messageSource.getMessage(USER_NOT_FOUND, null, locale)));
+  }
+
+  public long setAndCheckLockoutTime(UserInfoDetails userInfoDetails, Locale locale) {
+    long timeout = 0;
+    UserInfo userInfo = userRepository.findByEmail(userInfoDetails.getUsername()).orElse(null);
+    String old = Utils.gson.toJson(userInfo);
+    if (userInfo != null) {
+      if (userInfoDetails.getLockoutTime() == null) {
+        userInfo.setLockoutTime(LocalDateTime.now().plusMinutes(15)); // lock 15 when pass fail 5
+        timeout = 15;
+      } else {
+        timeout = LocalDateTime.now().getMinute() - userInfo.getLockoutTime().getMinute();
+        if (timeout > 15) {
+          userInfo.setPasswordFailCount(0);
+          userInfo.setLockoutTime(null);
+        }
+      }
+
+      userRepository.save(userInfo);
+
+      auditLogService.saveAuditLog(
+          Constants.UPDATE, TABLE_NAME, userInfo.getId(), old, Utils.gson.toJson(userInfo));
+    }
+
+    return timeout;
   }
 }

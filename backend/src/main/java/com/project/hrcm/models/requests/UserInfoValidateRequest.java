@@ -3,7 +3,6 @@ package com.project.hrcm.models.requests;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
@@ -20,4 +19,7 @@ public class UserInfoValidateRequest {
 
   @NotNull(message = "The roleId is required.")
   private Integer roleId;
+
+  @NotNull(message = "The status is required.")
+  private Integer status;
 }

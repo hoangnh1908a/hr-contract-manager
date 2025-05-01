@@ -34,14 +34,17 @@ public class UserInfo {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
+    @Column
     private Integer passwordFailCount;
 
-    @Column(nullable = false)
+    @Column
     private Integer forcePasswordChangeOnLogin;
 
     @Column
     private LocalDateTime passwordExpiryDate;
+
+    @Column
+    private LocalDateTime lockoutTime;
 
     @Column
     private Integer createdBy;

@@ -1,8 +1,10 @@
 package com.project.hrcm.controllers;
 
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
+
+import com.project.hrcm.dto.UserInfoDetails;
 import com.project.hrcm.entities.UserInfo;
 import com.project.hrcm.models.requests.AuthValidateRequest;
-import com.project.hrcm.models.requests.StatusValidateRequest;
 import com.project.hrcm.models.requests.UserInfoValidateRequest;
 import com.project.hrcm.models.requests.noRequired.UserRequest;
 import com.project.hrcm.services.JwtService;
@@ -10,11 +12,11 @@ import com.project.hrcm.services.userInfo.UserInfoService;
 import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.Utils;
 import jakarta.validation.Valid;
-
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,8 +28,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @AllArgsConstructor
 @RestController
@@ -52,7 +52,8 @@ public class UserController {
 
   @PostMapping("/user/create")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<UserInfo> addNewUser(@Valid @RequestBody UserInfoValidateRequest userInfoValidateRequest) {
+  public ResponseEntity<UserInfo> addNewUser(
+      @Valid @RequestBody UserInfoValidateRequest userInfoValidateRequest) {
     UserInfo userInfo = new UserInfo();
 
     BeanUtils.copyProperties(userInfoValidateRequest, userInfo);
@@ -74,26 +75,30 @@ public class UserController {
 
   @PostMapping("/user/lock")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<UserInfo> lockUser(
-          @Valid @RequestBody StatusValidateRequest statusValidateRequest, Locale locale) {
+  public ResponseEntity<UserInfo> lockUser(@Valid @RequestBody Integer id, Locale locale) {
 
-    UserInfo userInfo = service.lockOrUnlockUser(statusValidateRequest, locale);
+    UserInfo userInfo = service.lockOrUnlockUser(id, locale);
 
     return new ResponseEntity<>(userInfo, HttpStatus.OK);
   }
 
-  @PostMapping("/user/resetPassword")
+  @PostMapping("/user/reset-password")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<String> resetPassword(
-          @Valid @RequestBody Integer userId, Locale locale) {
+  public ResponseEntity<String> resetPassword(@RequestBody UserRequest userRequest, Locale locale) {
 
-    service.resetPassword(userId, locale);
+    if(StringUtils.isNotBlank(userRequest.getEmail())){
+        service.resetPassword(userRequest.getEmail(), userRequest.getNewPassword(), locale);
+    }else{
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
   @PostMapping("/generateToken")
-  public ResponseEntity<?> authenticateAndGetToken(@Valid @RequestBody AuthValidateRequest authValidateRequest) {
+  public ResponseEntity<?> authenticateAndGetToken(
+      @Valid @RequestBody AuthValidateRequest authValidateRequest, Locale locale) {
+    UserInfoDetails userInfoDetails = null;
     try {
       Authentication authentication =
           authenticationManager.authenticate(
@@ -105,7 +110,21 @@ public class UserController {
         String token = jwtService.generateToken(authValidateRequest.getEmail());
 
         Map<String, String> maps = new HashMap<>();
-        String data = Utils.gson.toJson(authentication.getPrincipal());
+
+        userInfoDetails = (UserInfoDetails) authentication.getPrincipal();
+
+        if (userInfoDetails.getPasswordFailCount() + 1 > 5) {
+          long timeout = service.setAndCheckLockoutTime(userInfoDetails, locale);
+          if(timeout < 15){
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body(
+                            Map.of(
+                                    Constants.ERROR,
+                                    "Too many failed attempts. Try again later " + timeout + " minus"));
+          }
+        }
+
+        String data = Utils.gson.toJson(userInfoDetails);
 
         maps.put("token", token);
         maps.put("user", data);
@@ -114,14 +133,18 @@ public class UserController {
       }
 
     } catch (BadCredentialsException e) {
+      service.setPasswordFailCount(authValidateRequest.getEmail(), locale);
+
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
           .body(Map.of(Constants.ERROR, "Invalid username or password"));
 
     } catch (Exception e) {
+      service.setPasswordFailCount(authValidateRequest.getEmail(), locale);
+
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body(Map.of(Constants.ERROR, "Authentication failed"));
     }
-
+    service.setPasswordFailCount(authValidateRequest.getEmail(), locale);
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
         .body(Map.of(Constants.ERROR, "Invalid login attempt"));
   }

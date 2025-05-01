@@ -6,6 +6,7 @@
       `password_fail_count` INT NOT NULL DEFAULT 0,
       `force_password_change_on_login` INT NOT NULL DEFAULT 0,
       `password_expiry_date` TIMESTAMP,
+      `lockout_time` TIMESTAMP,
       `status` TINYINT NOT NULL DEFAULT 1,
       `role_id` INT NOT NULL,
       `created_by` INT,
@@ -202,5 +203,6 @@
     INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Research & Development (R&D)', NULL, NULL, NOW(), NOW());
 
 
-    INSERT INTO `roles` (id, name, created_by, updated_by, created_at, updated_at) VALUES (1, 'admin', null, null, NOW(), NOW());
-    INSERT INTO `users` (id, full_name, email, password, password_fail_count, force_password_change_on_login, password_expiry_date, role_id, created_by, updated_by, created_at, updated_at) VALUES (1, 'admin', 'admin@company.com', '$2a$10$3OCVxm2GfbqcyWTOu3GxQe2dZKNeA/ZegR0r/XSCYy1u2vBIbBiRK', 0, 0, null, 1, null, null, NOW(), NOW());
+    INSERT INTO `roles` (id, name, created_by, updated_by, created_at, updated_at) VALUES (1, 'ADMIN', null, null, NOW(), NOW());
+# pass 12345678
+    INSERT INTO `users` (id, full_name, email, password, password_fail_count, force_password_change_on_login, password_expiry_date, lockout_time, role_id, created_by, updated_by, created_at, updated_at) VALUES (1, 'ADMIN', 'admin@company.com', '$2a$10$3OCVxm2GfbqcyWTOu3GxQe2dZKNeA/ZegR0r/XSCYy1u2vBIbBiRK', 0, 0, null, null, 1, null, null, NOW(), NOW());

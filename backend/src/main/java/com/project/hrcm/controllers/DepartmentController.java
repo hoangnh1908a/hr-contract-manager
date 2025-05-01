@@ -26,8 +26,8 @@ public class DepartmentController {
 
   @GetMapping()
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<Page<Department>> getDepartments(Pageable pageable) {
-    Page<Department> departments = service.getDepartments(pageable);
+  public ResponseEntity<Page<Department>> getDepartments(@RequestParam(required = false) String name, Pageable pageable) {
+    Page<Department> departments = service.getDepartments(name, pageable);
     return new ResponseEntity<>(departments, HttpStatus.OK);
   }
 
@@ -63,7 +63,7 @@ public class DepartmentController {
 
   @PostMapping("/lock")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<Department> lockUser(
+  public ResponseEntity<Department> lockDepartment(
           @Valid @RequestBody StatusValidateRequest statusValidateRequest, Locale locale) {
 
     Department department = service.lockOrUnlockDepartment(statusValidateRequest, locale);

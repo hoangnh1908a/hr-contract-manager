@@ -6,15 +6,16 @@ import com.project.hrcm.models.requests.BaseValidateRequest;
 import com.project.hrcm.models.requests.NameValidateRequest;
 import com.project.hrcm.models.requests.StatusValidateRequest;
 import com.project.hrcm.repository.DepartmentRepository;
+import com.project.hrcm.services.userInfo.UserInfoService;
 import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.Utils;
-import java.util.List;
 import java.util.Locale;
 import lombok.AllArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
 
 @Service
 @AllArgsConstructor
@@ -26,8 +27,8 @@ public class DepartmentService {
   private final MessageSource messageSource;
   private final AuditLogService auditLogService;
 
-  public Page<Department> getDepartments(Pageable pageable) {
-    return departmentRepository.findAll(pageable);
+  public Page<Department> getDepartments(String name, Pageable pageable) {
+    return departmentRepository.findByNameContainingIgnoreCase(name, pageable);
   }
 
   public Department getDepartmentById(Integer id, Locale locale) {
@@ -51,7 +52,11 @@ public class DepartmentService {
           Utils.formatMessage(
               messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NAME_EXISTS));
     }
-    Department department = Department.builder().name(nameValidateRequest.getName().trim()).build();
+    Department department = Department.builder()
+            .name(nameValidateRequest.getName().trim())
+            .createdBy(UserInfoService.getCurrentUserId())
+            .status(nameValidateRequest.getStatus())
+            .build();
     department = departmentRepository.save(department);
 
     auditLogService.saveAuditLog(Constants.ADD, TABLE_NAME, department.getId(), "", "");
