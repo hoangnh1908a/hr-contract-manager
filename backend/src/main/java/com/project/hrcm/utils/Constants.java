@@ -30,5 +30,6 @@ public class Constants {
   //  MESSAGE LANGUAGE
   public static final String NOT_FOUND = "not_found";
   public static final String NAME_EXISTS = "name_exists";
+  public static final String USER_LOCK = "user_lock";
 
 }

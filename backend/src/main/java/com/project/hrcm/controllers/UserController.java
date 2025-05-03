@@ -1,6 +1,5 @@
 package com.project.hrcm.controllers;
 
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 import com.project.hrcm.dto.UserInfoDetails;
 import com.project.hrcm.entities.UserInfo;
@@ -73,15 +72,6 @@ public class UserController {
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
-  @PostMapping("/user/lock")
-  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<UserInfo> lockUser(@Valid @RequestBody Integer id, Locale locale) {
-
-    UserInfo userInfo = service.lockOrUnlockUser(id, locale);
-
-    return new ResponseEntity<>(userInfo, HttpStatus.OK);
-  }
-
   @PostMapping("/user/reset-password")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<String> resetPassword(@RequestBody UserRequest userRequest, Locale locale) {
@@ -114,14 +104,7 @@ public class UserController {
         userInfoDetails = (UserInfoDetails) authentication.getPrincipal();
 
         if (userInfoDetails.getPasswordFailCount() + 1 > 5) {
-          long timeout = service.setAndCheckLockoutTime(userInfoDetails, locale);
-          if(timeout < 15){
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-                    .body(
-                            Map.of(
-                                    Constants.ERROR,
-                                    "Too many failed attempts. Try again later " + timeout + " minus"));
-          }
+          service.setAndCheckLockoutTime(userInfoDetails, locale);
         }
 
         String data = Utils.gson.toJson(userInfoDetails);

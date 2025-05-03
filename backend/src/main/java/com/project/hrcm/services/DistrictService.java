@@ -2,17 +2,12 @@ package com.project.hrcm.services;
 
 import com.project.hrcm.configs.CustomException;
 import com.project.hrcm.entities.District;
-import com.project.hrcm.models.requests.BaseValidateRequest;
-import com.project.hrcm.models.requests.NameValidateRequest;
 import com.project.hrcm.models.requests.noRequired.DistrictRequest;
 import com.project.hrcm.repository.DistrictRepository;
 import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.Utils;
-import java.util.List;
 import java.util.Locale;
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -1,12 +1,12 @@
 package com.project.hrcm.controllers;
 
-import com.project.hrcm.entities.ContactStatus;
+import com.project.hrcm.entities.ContractStatus;
 import com.project.hrcm.models.requests.BaseValidateRequest;
 import com.project.hrcm.models.requests.NameValidateRequest;
+import com.project.hrcm.models.requests.noRequired.ContractStatusRequest;
 import com.project.hrcm.services.ContactStatusService;
 import com.project.hrcm.utils.Constants;
 import jakarta.validation.Valid;
-import java.util.List;
 import java.util.Locale;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,38 +24,38 @@ public class ContactStatusController {
   private final ContactStatusService service;
 
   @GetMapping()
-  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + ", " + Constants.ROLE_HR + "')")
-  public ResponseEntity<Page<ContactStatus>> getContactStatus(Pageable pageable) {
-    Page<ContactStatus> contactStatus = service.getContactStatus(pageable);
+  @PreAuthorize(
+      "hasAnyAuthority(T(com.project.hrcm.utils.Constants).ROLE_ADMIN"
+          + ", T(com.project.hrcm.utils.Constants).ROLE_HR)")
+  public ResponseEntity<Page<ContractStatus>> getContactStatus(@RequestParam(required = false) String name, Pageable pageable) {
+    Page<ContractStatus> contactStatus = service.getContactStatus(name, pageable);
     return new ResponseEntity<>(contactStatus, HttpStatus.OK);
   }
 
-  @PostMapping("/get")
-  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + ", " + Constants.ROLE_HR + "')")
-  public ResponseEntity<ContactStatus> getContactStatusById(
-          @Valid @RequestBody String id, Locale locale) {
-    return new ResponseEntity<>(
-        service.getContactStatusById(Integer.valueOf(id), locale), HttpStatus.OK);
-  }
-
   @PostMapping("/create")
-  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + ", " + Constants.ROLE_HR + "')")
-  public ResponseEntity<ContactStatus> createContactStatus(
-          @Valid @RequestBody NameValidateRequest nameValidateRequest, Locale locale) {
-    return new ResponseEntity<>(service.createContactStatus(nameValidateRequest, locale), HttpStatus.OK);
+  @PreAuthorize(
+      "hasAnyAuthority(T(com.project.hrcm.utils.Constants).ROLE_ADMIN"
+          + ", T(com.project.hrcm.utils.Constants).ROLE_HR)")
+  public ResponseEntity<ContractStatus> createContactStatus(
+          @Valid @RequestBody ContractStatusRequest contractStatusRequest, Locale locale) {
+    return new ResponseEntity<>(service.createContactStatus(contractStatusRequest, locale), HttpStatus.OK);
   }
 
   // Update ContactStatus
   @PostMapping("/update")
-  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + ", " + Constants.ROLE_HR + "')")
-  public ResponseEntity<ContactStatus> updateContactStatus(
-          @Valid @RequestBody BaseValidateRequest baseValidateRequest, Locale locale) {
-    return new ResponseEntity<>(service.updateContactStatus(baseValidateRequest, locale), HttpStatus.OK);
+  @PreAuthorize(
+      "hasAnyAuthority(T(com.project.hrcm.utils.Constants).ROLE_ADMIN"
+          + ", T(com.project.hrcm.utils.Constants).ROLE_HR)")
+  public ResponseEntity<ContractStatus> updateContactStatus(
+          @Valid @RequestBody ContractStatusRequest contractStatusRequest, Locale locale) {
+    return new ResponseEntity<>(service.updateContactStatus(contractStatusRequest, locale), HttpStatus.OK);
   }
 
   // Delete ContactStatus
   @PostMapping("/delete")
-  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + ", " + Constants.ROLE_HR + "')")
+  @PreAuthorize(
+      "hasAnyAuthority(T(com.project.hrcm.utils.Constants).ROLE_ADMIN"
+          + ", T(com.project.hrcm.utils.Constants).ROLE_HR)")
   public ResponseEntity<String> deleteContactStatus(
           @Valid @RequestBody String id, Locale locale) {
     service.deleteContactStatus(Integer.valueOf(id), locale);

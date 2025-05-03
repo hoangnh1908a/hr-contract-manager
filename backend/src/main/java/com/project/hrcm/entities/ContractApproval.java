@@ -14,28 +14,23 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "contact_templates")
-public class ContactTemplate {
+@Table(name = "contract_approvals")
+public class ContractApproval {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(nullable = false)
   private Integer id;
 
-  @Column(nullable = false)
-  private String name;
+  @Column private String comment;
 
-  @Column(nullable = false)
-  private String filePath;
+  @Column private Integer approvedBy;
 
-  @Column(nullable = false)
-  private String description;
+  @Column private LocalDateTime approvedDate;
 
-  @Column(nullable = false)
-  private Integer status; // 0, 1
+  @Column private Integer approvalStatus;
 
-  @Column(nullable = false)
-  private Integer createdBy;
+  @Column private Integer createdBy;
 
   @Column private Integer updatedBy;
 
@@ -44,4 +39,11 @@ public class ContactTemplate {
   private LocalDateTime createdAt;
 
   @UpdateTimestamp @Column private LocalDateTime updatedAt;
+
+  // Key
+  @Column(nullable = false)
+  private Integer contactId;
+
+  @Column(nullable = false)
+  private Integer contactStatusId;
 }

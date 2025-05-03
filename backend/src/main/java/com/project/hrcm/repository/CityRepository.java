@@ -3,7 +3,6 @@ package com.project.hrcm.repository;
 import com.project.hrcm.dto.BaseDto;
 import com.project.hrcm.entities.City;
 import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

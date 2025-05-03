@@ -4,7 +4,6 @@ import com.project.hrcm.configs.CustomException;
 import com.project.hrcm.entities.Position;
 import com.project.hrcm.models.requests.BaseValidateRequest;
 import com.project.hrcm.models.requests.NameValidateRequest;
-import com.project.hrcm.models.requests.StatusValidateRequest;
 import com.project.hrcm.repository.PositionRepository;
 import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.Utils;
@@ -91,26 +90,5 @@ public class PositionService {
         });
 
     auditLogService.saveAuditLog(Constants.DELETE, TABLE_NAME, id, Utils.gson.toJson(position), "");
-  }
-
-  public Position lockOrUnlockPosition(StatusValidateRequest baseRequest, Locale locale) {
-    return positionRepository
-        .findById(baseRequest.getId())
-        .map(
-            position -> {
-              String old = Utils.gson.toJson(position);
-              position.setStatus(baseRequest.getStatus());
-              position = positionRepository.save(position);
-
-              auditLogService.saveAuditLog(
-                  Constants.UPDATE, TABLE_NAME, position.getId(), old, Utils.gson.toJson(position));
-
-              return position;
-            })
-        .orElseThrow(
-            () ->
-                new CustomException(
-                    Utils.formatMessage(
-                        messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND)));
   }
 }

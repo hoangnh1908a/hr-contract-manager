@@ -3,16 +3,18 @@ package com.project.hrcm.services;
 import com.project.hrcm.configs.CustomException;
 import com.project.hrcm.entities.Employee;
 import com.project.hrcm.models.requests.noRequired.EmployeeRequest;
-import com.project.hrcm.models.requests.StatusValidateRequest;
 import com.project.hrcm.repository.EmployeeRepository;
 import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.Utils;
-import java.util.List;
-import java.util.Locale;
+import jakarta.persistence.criteria.Predicate;
+import java.time.LocalDate;
+import java.util.*;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,8 +27,87 @@ public class EmployeeService {
   private final MessageSource messageSource;
   private final AuditLogService auditLogService;
 
-  public Page<Employee> getEmployees(Pageable pageable) {
-    return employeeRepository.findAll(pageable);
+    public static Specification<Employee> filterBy(
+            EmployeeRequest employeeRequest
+    ) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (StringUtils.isNotBlank(employeeRequest.getFullName())) {
+                predicates.add(cb.like(cb.lower(root.get("fullName")), "%" + employeeRequest.getFullName().toLowerCase() + "%"));
+            }
+            if (StringUtils.isNotBlank(employeeRequest.getNumberId())) {
+                predicates.add(cb.like(cb.lower(root.get("numberId")), "%" + employeeRequest.getNumberId().toLowerCase() + "%"));
+            }
+            if (employeeRequest.getStatus() != null) {
+                predicates.add(cb.equal(root.get("status"), employeeRequest.getStatus()));
+            }
+            if (StringUtils.isNotBlank(employeeRequest.getEmail())) {
+                predicates.add(cb.like(cb.lower(root.get("email")), "%" + employeeRequest.getEmail().toLowerCase() + "%"));
+            }
+            if (employeeRequest.getPositionId() != null) {
+                predicates.add(cb.equal(root.get("positionId"), employeeRequest.getPositionId()));
+            }
+            if (employeeRequest.getDepartmentId() != null) {
+                predicates.add(cb.equal(root.get("departmentId"), employeeRequest.getDepartmentId()));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    private static void setUpdateEmployee(EmployeeRequest employeeRequest, Employee e) {
+        if (StringUtils.isNotBlank(employeeRequest.getFullName()))
+            e.setFullName(employeeRequest.getFullName().trim());
+
+        if (StringUtils.isNotBlank(employeeRequest.getNumberId()))
+            e.setNumberId(employeeRequest.getNumberId());
+
+        if (StringUtils.isNotBlank(employeeRequest.getDateOfBirth()))
+            e.setDateOfBirth(LocalDate.parse(employeeRequest.getDateOfBirth()));
+
+        if (StringUtils.isNotBlank(employeeRequest.getSex()))
+            e.setSex(employeeRequest.getSex().trim());
+
+        if (StringUtils.isNotBlank(employeeRequest.getNationality()))
+            e.setNationality(employeeRequest.getNationality().trim());
+
+        if (StringUtils.isNotBlank(employeeRequest.getPlaceOfOrigin()))
+            e.setPlaceOfOrigin(employeeRequest.getPlaceOfOrigin().trim());
+
+        if (StringUtils.isNotBlank(employeeRequest.getPlaceOfResidence()))
+            e.setPlaceOfResidence(employeeRequest.getPlaceOfResidence().trim());
+
+        if (StringUtils.isNotBlank(employeeRequest.getEmail()))
+            e.setEmail(employeeRequest.getEmail().trim());
+
+        if (StringUtils.isNotBlank(employeeRequest.getPhone()))
+            e.setPhone(employeeRequest.getPhone().trim());
+
+        if (StringUtils.isNotBlank(employeeRequest.getHireDate()))
+            e.setHireDate(LocalDate.parse(employeeRequest.getHireDate()));
+
+        if (employeeRequest.getStatus() != null)
+            e.setStatus(employeeRequest.getStatus());
+
+        if (StringUtils.isNotBlank(employeeRequest.getDepartmentId()))
+            e.setDepartmentId(employeeRequest.getDepartmentId());
+
+        if (StringUtils.isNotBlank(employeeRequest.getPositionId()))
+            e.setPositionId(employeeRequest.getPositionId());
+
+        if (employeeRequest.getDepartmentId() != null)
+            e.setDepartmentId(employeeRequest.getDepartmentId());
+
+        if (employeeRequest.getPositionId() != null)
+            e.setDepartmentId(employeeRequest.getPositionId());
+    }
+
+  public Page<Employee> getEmployees(EmployeeRequest employeeRequest, Pageable pageable) {
+
+      Specification<Employee> spec = filterBy(employeeRequest);
+
+      return employeeRepository.findAll(spec, pageable);
   }
 
   public Employee getEmployeeById(Integer id, Locale locale) {
@@ -45,52 +126,48 @@ public class EmployeeService {
   }
 
   public Employee createEmployee(EmployeeRequest nameRequest, Locale locale) {
+      if (employeeRepository.existsByEmail(nameRequest.getEmail().trim())) {
+          throw new CustomException(
+                  Utils.formatMessage(
+                          messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NAME_EXISTS));
+      }
+
     Employee employee =
         Employee.builder()
             .fullName(nameRequest.getFullName().trim())
             .numberId(nameRequest.getNumberId())
-//            .dateOfBirth(nameRequest.getDateOfBirth())
+            .phone(nameRequest.getPhone())
+            .dateOfBirth(LocalDate.parse(nameRequest.getDateOfBirth()))
             .sex(nameRequest.getSex().trim())
             .nationality(nameRequest.getNationality().trim())
             .placeOfOrigin(nameRequest.getPlaceOfOrigin().trim())
             .placeOfResidence(nameRequest.getPlaceOfResidence().trim())
             .email(nameRequest.getEmail().trim())
-//            .hireDate(nameRequest.getHireDate())
+            .hireDate(LocalDate.parse(nameRequest.getHireDate()))
             .status(nameRequest.getStatus())
             .departmentId(nameRequest.getDepartmentId())
             .positionId(nameRequest.getPositionId())
             .build();
     employee = employeeRepository.save(employee);
 
-    auditLogService.saveAuditLog(Constants.ADD, TABLE_NAME, employee.getId(), "", "");
+    auditLogService.saveAuditLog(Constants.ADD, TABLE_NAME, employee.getId(), "", Utils.gson.toJson(employee));
     return employee;
   }
 
   public Employee updateEmployee(EmployeeRequest employeeRequest, Locale locale) {
-    return employeeRepository
-        .findById(employeeRequest.getId())
-        .map(
-            employee -> {
-              employee.setFullName(employeeRequest.getFullName().trim());
-              employee.setNumberId(employeeRequest.getNumberId());
-//              employee.setDateOfBirth(employeeRequest.getDateOfBirth());
-              employee.setSex(employeeRequest.getSex().trim());
-              employee.setNationality(employeeRequest.getNationality().trim());
-              employee.setPlaceOfOrigin(employeeRequest.getPlaceOfOrigin().trim());
-              employee.setPlaceOfResidence(employeeRequest.getPlaceOfResidence().trim());
-              employee.setEmail(employeeRequest.getEmail().trim());
-              employee.setPhone(employeeRequest.getPhone().trim());
-//              employee.setHireDate(employeeRequest.getHireDate());
-              employee.setStatus(employeeRequest.getStatus());
-              employee.setDepartmentId(employeeRequest.getDepartmentId());
-              employee.setPositionId(employeeRequest.getPositionId());
+    return employeeRepository.findById(employeeRequest.getId()).
+        map(
+            e -> {
+                Employee old = e;
 
-              employee = employeeRepository.save(employee);
+                setUpdateEmployee(employeeRequest, e);
+
+                e = employeeRepository.save(e);
 
               auditLogService.saveAuditLog(
-                  Constants.UPDATE, TABLE_NAME, employee.getId(), "", employeeRequest.getEmail());
+                  Constants.UPDATE, TABLE_NAME, e.getId(), Utils.gson.toJson(old), Utils.gson.toJson(e));
 
-              return employee;
+              return e;
             })
         .orElseThrow(
             () ->
@@ -99,7 +176,7 @@ public class EmployeeService {
                         messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND)));
   }
 
-  public void deleteEmployee(Integer id, Locale locale) {
+    public void deleteEmployee(Integer id, Locale locale) {
     employeeRepository
         .findById(id)
         .ifPresentOrElse(
@@ -111,30 +188,5 @@ public class EmployeeService {
             });
 
     auditLogService.saveAuditLog(Constants.DELETE, TABLE_NAME, id, "", "");
-  }
-
-  public Employee lockOrUnlockEmployee(StatusValidateRequest employeeRequest, Locale locale) {
-    return employeeRepository
-        .findById(employeeRequest.getId())
-        .map(
-            employee -> {
-              String oldStatus = String.valueOf(employee.getStatus());
-              employee.setStatus(employeeRequest.getStatus());
-              employee = employeeRepository.save(employee);
-
-              auditLogService.saveAuditLog(
-                  Constants.UPDATE,
-                  TABLE_NAME,
-                  employee.getId(),
-                  oldStatus,
-                  String.valueOf(employeeRequest.getStatus()));
-
-              return employee;
-            })
-        .orElseThrow(
-            () ->
-                new CustomException(
-                    Utils.formatMessage(
-                        messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND)));
   }
 }

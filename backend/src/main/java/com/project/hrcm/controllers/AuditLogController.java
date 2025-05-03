@@ -21,8 +21,9 @@ public class AuditLogController {
 
   @GetMapping()
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<Page<AuditLog>> getAuditLogs(AuditLogRequest auditLogRequest,Pageable pageable) {
-    Page<AuditLog> auditLogs = service.getAuditlogs(auditLogRequest, pageable);
+  public ResponseEntity<Page<AuditLog>> getAuditLogs(
+      AuditLogRequest auditLogRequest, Pageable pageable) {
+    Page<AuditLog> auditLogs = service.getAuditLogs(auditLogRequest, pageable);
     return new ResponseEntity<>(auditLogs, HttpStatus.OK);
   }
 }

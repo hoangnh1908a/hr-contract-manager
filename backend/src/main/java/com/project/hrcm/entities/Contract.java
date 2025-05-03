@@ -14,23 +14,25 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "contact_approvals")
-public class ContactApproval {
+@Table(name = "contracts")
+public class Contract {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(nullable = false)
   private Integer id;
 
-  @Column private String comment;
+  @Column(nullable = false)
+  private String fileName;
 
-  @Column private Integer approvedBy;
+  @Column
+  private String description;
 
-  @Column private LocalDateTime approvedDate;
+  @Column
+  private String params;
 
-  @Column private Integer approvalStatus;
-
-  @Column private Integer createdBy;
+  @Column(updatable = false)
+  private Integer createdBy;
 
   @Column private Integer updatedBy;
 
@@ -42,8 +44,11 @@ public class ContactApproval {
 
   // Key
   @Column(nullable = false)
-  private Integer contactId;
+  private Integer employeeId;
 
   @Column(nullable = false)
-  private Integer contactStatusId;
+  private Integer contractTemplateId;
+
+  @Column(nullable = false)
+  private Integer contractStatusId;
 }

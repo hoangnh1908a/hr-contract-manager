@@ -1,14 +1,12 @@
 package com.project.hrcm.utils;
 
-import static org.hibernate.validator.internal.engine.messageinterpolation.el.RootResolver.FORMATTER;
-
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.security.SecureRandom;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
@@ -17,30 +15,53 @@ import org.springframework.context.MessageSource;
 
 public class Utils {
 
-  private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-  // Create a new Gson instance using inline adapters for LocalDateTime
+  private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+  private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+
   public static final Gson gson =
-      new GsonBuilder()
-          .registerTypeAdapter(
-              LocalDateTime.class,
-              new JsonSerializer<LocalDateTime>() {
-                @Override
-                public JsonElement serialize(
-                    LocalDateTime src, Type typeOfSrc, JsonSerializationContext context) {
-                  return new JsonPrimitive(src.format(FORMATTER));
-                }
-              })
-          .registerTypeAdapter(
-              LocalDateTime.class,
-              new JsonDeserializer<LocalDateTime>() {
-                @Override
-                public LocalDateTime deserialize(
-                    JsonElement json, Type typeOfT, JsonDeserializationContext context)
-                    throws JsonParseException {
-                  return LocalDateTime.parse(json.getAsString(), FORMATTER);
-                }
-              })
-          .create();
+          new GsonBuilder()
+                  // LocalDateTime Adapter
+                  .registerTypeAdapter(
+                          LocalDateTime.class,
+                          new JsonSerializer<LocalDateTime>() {
+                            @Override
+                            public JsonElement serialize(
+                                    LocalDateTime src, Type typeOfSrc, JsonSerializationContext context) {
+                              return new JsonPrimitive(src.format(DATE_TIME_FORMATTER));
+                            }
+                          })
+                  .registerTypeAdapter(
+                          LocalDateTime.class,
+                          new JsonDeserializer<LocalDateTime>() {
+                            @Override
+                            public LocalDateTime deserialize(
+                                    JsonElement json, Type typeOfT, JsonDeserializationContext context)
+                                    throws JsonParseException {
+                              return LocalDateTime.parse(json.getAsString(), DATE_TIME_FORMATTER);
+                            }
+                          })
+                  // LocalDate Adapter
+                  .registerTypeAdapter(
+                          LocalDate.class,
+                          new JsonSerializer<LocalDate>() {
+                            @Override
+                            public JsonElement serialize(
+                                    LocalDate src, Type typeOfSrc, JsonSerializationContext context) {
+                              return new JsonPrimitive(src.format(DATE_FORMATTER));
+                            }
+                          })
+                  .registerTypeAdapter(
+                          LocalDate.class,
+                          new JsonDeserializer<LocalDate>() {
+                            @Override
+                            public LocalDate deserialize(
+                                    JsonElement json, Type typeOfT, JsonDeserializationContext context)
+                                    throws JsonParseException {
+                              return LocalDate.parse(json.getAsString(), DATE_FORMATTER);
+                            }
+                          })
+                  .create();
 
   private static final String UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   private static final String LOWER = "abcdefghijklmnopqrstuvwxyz";

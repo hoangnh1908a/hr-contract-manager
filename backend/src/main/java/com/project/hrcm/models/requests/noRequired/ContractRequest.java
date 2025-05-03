@@ -5,11 +5,17 @@ import lombok.Data;
 @Data
 public class ContractRequest {
 
-  private String contractId;
-  private String recordId;
-  private String oldValue;
-  private String newValue;
-  private String timestamp;
-  private String userId;
+  private Integer id;
+  private String fileName;
+  private String description;
+  private String createdBy;
+  private String updatedBy;
+  private String toDate;
+  private String fromDate;
+  private String params;
+
+  private Integer employeeId;
+  private Integer contractTemplateId;
+  private Integer contractStatusId;
 
 };

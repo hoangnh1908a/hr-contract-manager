@@ -1,15 +1,17 @@
 package com.project.hrcm.services;
 
 import com.project.hrcm.configs.CustomException;
-import com.project.hrcm.entities.ContactStatus;
-import com.project.hrcm.models.requests.BaseValidateRequest;
+import com.project.hrcm.entities.ContractStatus;
 import com.project.hrcm.models.requests.NameValidateRequest;
-import com.project.hrcm.repository.ContactStatusRepository;
+import com.project.hrcm.models.requests.noRequired.ContractStatusRequest;
+import com.project.hrcm.repository.ContractStatusRepository;
 import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.Utils;
-
 import java.util.Locale;
+import java.util.Optional;
+
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,59 +23,56 @@ public class ContactStatusService {
 
   private final String TABLE_NAME = "CONTACT_STATUS";
 
-  private final ContactStatusRepository contactStatusRepository;
+  private final ContractStatusRepository contractStatusRepository;
   private final MessageSource messageSource;
   private final AuditLogService auditLogService;
 
-  public Page<ContactStatus> getContactStatus(Pageable pageable) {
-    return contactStatusRepository.findAll(pageable);
+  public Page<ContractStatus> getContactStatus(String name, Pageable pageable) {
+    return contractStatusRepository.findByNameContainingIgnoreCase(name, pageable);
   }
 
-  public ContactStatus getContactStatusById(Integer id, Locale locale) {
-    ContactStatus contactStatus =
-        contactStatusRepository
-            .findById(id)
-            .orElseThrow(
-                () ->
-                    new CustomException(
-                        Utils.formatMessage(
-                            messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND)));
-
-    auditLogService.saveAuditLog(Constants.GET_ID, TABLE_NAME, contactStatus.getId(), "", "");
-
-    return contactStatus;
-  }
-
-  public ContactStatus createContactStatus(NameValidateRequest nameValidateRequest, Locale locale) {
-    if (contactStatusRepository.existsByName(nameValidateRequest.getName())) {
+  public ContractStatus createContactStatus(
+          ContractStatusRequest contractStatusRequest, Locale locale) {
+    if (contractStatusRepository.existsByName(contractStatusRequest.getName())) {
       throw new CustomException(
           Utils.formatMessage(
               messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NAME_EXISTS));
     }
-    ContactStatus contactStatus = ContactStatus.builder().name(nameValidateRequest.getName()).build();
-    contactStatus = contactStatusRepository.save(contactStatus);
+    ContractStatus contractStatus =
+        ContractStatus.builder()
+            .name(contractStatusRequest.getName())
+            .description(contractStatusRequest.getDescription())
+            .build();
+    contractStatus = contractStatusRepository.save(contractStatus);
 
-    auditLogService.saveAuditLog(Constants.ADD, TABLE_NAME, contactStatus.getId(), "", "");
-    return contactStatus;
+    auditLogService.saveAuditLog(
+        Constants.ADD, TABLE_NAME, contractStatus.getId(), "", Utils.gson.toJson(contractStatus));
+    return contractStatus;
   }
 
-  public ContactStatus updateContactStatus(BaseValidateRequest baseValidateRequest, Locale locale) {
-    return contactStatusRepository
-        .findById(Integer.valueOf(baseValidateRequest.getId()))
+  public ContractStatus updateContactStatus(
+          ContractStatusRequest contractStatusRequest, Locale locale) {
+    return contractStatusRepository
+        .findById(contractStatusRequest.getId())
         .map(
-            contactStatus -> {
-              String oldName = contactStatus.getName();
-              contactStatus.setName(baseValidateRequest.getName());
-              contactStatus = contactStatusRepository.save(contactStatus);
+            contractStatus -> {
+              String old = Utils.gson.toJson(contractStatus);
+              if (StringUtils.isNotBlank(contractStatusRequest.getName()))
+                contractStatus.setName(contractStatusRequest.getName());
+
+              if (StringUtils.isNotBlank(contractStatusRequest.getDescription()))
+                contractStatus.setDescription(contractStatusRequest.getDescription());
+
+              contractStatus = contractStatusRepository.save(contractStatus);
 
               auditLogService.saveAuditLog(
                   Constants.UPDATE,
                   TABLE_NAME,
-                  contactStatus.getId(),
-                  oldName,
-                  baseValidateRequest.getName());
+                  contractStatus.getId(),
+                  old,
+                  Utils.gson.toJson(contractStatus));
 
-              return contactStatus;
+              return contractStatus;
             })
         .orElseThrow(
             () ->
@@ -83,16 +82,16 @@ public class ContactStatusService {
   }
 
   public void deleteContactStatus(Integer id, Locale locale) {
-    contactStatusRepository
-        .findById(id)
-        .ifPresentOrElse(
-            contactStatusRepository::delete,
-            () -> {
-              throw new CustomException(
-                  Utils.formatMessage(
-                      messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND));
-            });
+    Optional<ContractStatus> contractStatus = contractStatusRepository.findById(id);
+    contractStatus.ifPresentOrElse(
+        contractStatusRepository::delete,
+        () -> {
+          throw new CustomException(
+              Utils.formatMessage(
+                  messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND));
+        });
 
-    auditLogService.saveAuditLog(Constants.DELETE, TABLE_NAME, id, "", "");
+    auditLogService.saveAuditLog(
+        Constants.DELETE, TABLE_NAME, id, Utils.gson.toJson(contractStatus), "");
   }
 }

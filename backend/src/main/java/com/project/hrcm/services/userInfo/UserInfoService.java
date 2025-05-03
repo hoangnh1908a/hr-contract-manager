@@ -13,6 +13,7 @@ import com.project.hrcm.utils.Utils;
 import jakarta.mail.MessagingException;
 import jakarta.persistence.criteria.Predicate;
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -134,11 +135,20 @@ public class UserInfoService implements UserDetailsService {
     Optional<UserInfo> userInfo = userRepository.findById(baseRequest.getId());
     userInfo.ifPresentOrElse(
         (e -> {
-          e.setFullName(baseRequest.getFullName());
-          e.setEmail(baseRequest.getEmail());
-          e.setPassword(passwordEncoder.encode(baseRequest.getPassword()));
-          e.setRoleId(baseRequest.getRoleId());
+          if (StringUtils.isNotBlank(baseRequest.getFullName()))
+            e.setFullName(baseRequest.getFullName());
+
+          if (StringUtils.isNotBlank(baseRequest.getEmail())) e.setEmail(baseRequest.getEmail());
+
+          if (StringUtils.isNotBlank(baseRequest.getFullName()))
+            e.setPassword(passwordEncoder.encode(baseRequest.getPassword()));
+
+          if (baseRequest.getRoleId() != null) e.setRoleId(baseRequest.getRoleId());
+
           e.setForcePasswordChangeOnLogin(1);
+
+          if (baseRequest.getStatus() != null) e.setStatus(baseRequest.getStatus());
+
           UserInfo save = userRepository.save(e);
 
           auditLogService.saveAuditLog(
@@ -198,24 +208,6 @@ public class UserInfoService implements UserDetailsService {
     return userRepository.findAll(spec, pageable);
   }
 
-  public UserInfo lockOrUnlockUser(Integer id, Locale locale) {
-    return userRepository
-        .findById(id)
-        .map(
-            userInfo -> {
-              String old = Utils.gson.toJson(userInfo);
-              userInfo.setStatus(userInfo.getStatus() == 1 ? 0 : 1);
-              userInfo = userRepository.save(userInfo);
-
-              auditLogService.saveAuditLog(
-                  Constants.UPDATE, TABLE_NAME, userInfo.getId(), old, Utils.gson.toJson(userInfo));
-
-              return userInfo;
-            })
-        .orElseThrow(
-            () -> new CustomException(messageSource.getMessage(USER_NOT_FOUND, null, locale)));
-  }
-
   public void sendPasswordForNewUser(String email, String password)
       throws MessagingException, IOException {
     Map<String, String> variables = new HashMap<>();
@@ -242,7 +234,7 @@ public class UserInfoService implements UserDetailsService {
             () -> new CustomException(messageSource.getMessage(USER_NOT_FOUND, null, locale)));
   }
 
-  public long setAndCheckLockoutTime(UserInfoDetails userInfoDetails, Locale locale) {
+  public void setAndCheckLockoutTime(UserInfoDetails userInfoDetails, Locale locale) {
     long timeout = 0;
     UserInfo userInfo = userRepository.findByEmail(userInfoDetails.getUsername()).orElse(null);
     String old = Utils.gson.toJson(userInfo);
@@ -251,10 +243,14 @@ public class UserInfoService implements UserDetailsService {
         userInfo.setLockoutTime(LocalDateTime.now().plusMinutes(15)); // lock 15 when pass fail 5
         timeout = 15;
       } else {
-        timeout = LocalDateTime.now().getMinute() - userInfo.getLockoutTime().getMinute();
+        timeout = Duration.between(userInfo.getLockoutTime(), LocalDateTime.now()).toMinutes();
         if (timeout > 15) {
           userInfo.setPasswordFailCount(0);
           userInfo.setLockoutTime(null);
+
+          userRepository.save(userInfo);
+
+          return;
         }
       }
 
@@ -262,8 +258,11 @@ public class UserInfoService implements UserDetailsService {
 
       auditLogService.saveAuditLog(
           Constants.UPDATE, TABLE_NAME, userInfo.getId(), old, Utils.gson.toJson(userInfo));
-    }
 
-    return timeout;
+      throw new CustomException(
+          Utils.formatMessage(messageSource, locale, TABLE_NAME.toLowerCase(), Constants.USER_LOCK)
+              + timeout
+              + " m");
+    }
   }
 }

@@ -6,7 +6,6 @@ import com.project.hrcm.models.requests.noRequired.NameRequest;
 import com.project.hrcm.services.CityService;
 import com.project.hrcm.utils.Constants;
 import jakarta.validation.Valid;
-import java.util.List;
 import java.util.Locale;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;

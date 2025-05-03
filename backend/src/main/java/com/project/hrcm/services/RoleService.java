@@ -55,7 +55,7 @@ public class RoleService {
     Role role =
         Role.builder()
             .name(nameValidateRequest.getName().trim())
-            .status(Integer.valueOf(nameValidateRequest.getStatus()))
+            .status(nameValidateRequest.getStatus())
             .build();
 
     role = roleRepository.save(role);
@@ -75,7 +75,7 @@ public class RoleService {
                 role.setName(baseValidateRequest.getName().trim());
 
               if (baseValidateRequest.getStatus() != null)
-                role.setStatus(Integer.valueOf(baseValidateRequest.getStatus()));
+                role.setStatus(baseValidateRequest.getStatus());
 
               role = roleRepository.save(role);
 

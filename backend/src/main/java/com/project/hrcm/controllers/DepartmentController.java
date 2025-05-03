@@ -3,11 +3,9 @@ package com.project.hrcm.controllers;
 import com.project.hrcm.entities.Department;
 import com.project.hrcm.models.requests.BaseValidateRequest;
 import com.project.hrcm.models.requests.NameValidateRequest;
-import com.project.hrcm.models.requests.StatusValidateRequest;
 import com.project.hrcm.services.DepartmentService;
 import com.project.hrcm.utils.Constants;
 import jakarta.validation.Valid;
-import java.util.List;
 import java.util.Locale;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,7 +24,8 @@ public class DepartmentController {
 
   @GetMapping()
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<Page<Department>> getDepartments(@RequestParam(required = false) String name, Pageable pageable) {
+  public ResponseEntity<Page<Department>> getDepartments(
+      @RequestParam(required = false) String name, Pageable pageable) {
     Page<Department> departments = service.getDepartments(name, pageable);
     return new ResponseEntity<>(departments, HttpStatus.OK);
   }
@@ -34,7 +33,7 @@ public class DepartmentController {
   @PostMapping("/get")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<Department> getDepartmentById(
-          @Valid @RequestBody String id, Locale locale) {
+      @Valid @RequestBody String id, Locale locale) {
     return new ResponseEntity<>(
         service.getDepartmentById(Integer.valueOf(id), locale), HttpStatus.OK);
   }
@@ -42,32 +41,23 @@ public class DepartmentController {
   @PostMapping("/create")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<Department> createDepartment(
-          @Valid @RequestBody NameValidateRequest nameValidateRequest, Locale locale) {
-    return new ResponseEntity<>(service.createDepartment(nameValidateRequest, locale), HttpStatus.OK);
+      @Valid @RequestBody NameValidateRequest nameValidateRequest, Locale locale) {
+    return new ResponseEntity<>(
+        service.createDepartment(nameValidateRequest, locale), HttpStatus.OK);
   }
 
   @PostMapping("/update")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<Department> updateDepartment(
-          @Valid @RequestBody BaseValidateRequest baseValidateRequest, Locale locale) {
-    return new ResponseEntity<>(service.updateDepartment(baseValidateRequest, locale), HttpStatus.OK);
+      @Valid @RequestBody BaseValidateRequest baseValidateRequest, Locale locale) {
+    return new ResponseEntity<>(
+        service.updateDepartment(baseValidateRequest, locale), HttpStatus.OK);
   }
 
   @PostMapping("/delete")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<String> deleteDepartment(
-          @Valid @RequestBody String id, Locale locale) {
+  public ResponseEntity<String> deleteDepartment(@Valid @RequestBody String id, Locale locale) {
     service.deleteDepartment(Integer.valueOf(id), locale);
     return ResponseEntity.ok(Constants.SUCCESS);
-  }
-
-  @PostMapping("/lock")
-  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<Department> lockDepartment(
-          @Valid @RequestBody StatusValidateRequest statusValidateRequest, Locale locale) {
-
-    Department department = service.lockOrUnlockDepartment(statusValidateRequest, locale);
-
-    return new ResponseEntity<>(department, HttpStatus.OK);
   }
 }

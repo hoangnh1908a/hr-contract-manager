@@ -9,8 +9,7 @@ public class BaseValidateRequest {
   @NotBlank(message = "The id is required.")
   private String id;
 
-  @NotBlank(message = "The name is required.")
   private String name;
 
-  private String status;
+  private Integer status;
 }

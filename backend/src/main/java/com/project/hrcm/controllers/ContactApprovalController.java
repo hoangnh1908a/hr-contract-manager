@@ -1,11 +1,10 @@
 package com.project.hrcm.controllers;
 
-import com.project.hrcm.entities.ContactApproval;
+import com.project.hrcm.entities.ContractApproval;
 import com.project.hrcm.models.requests.*;
 import com.project.hrcm.services.ContactApprovalService;
 import com.project.hrcm.utils.Constants;
 import jakarta.validation.Valid;
-import java.util.List;
 import java.util.Locale;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,37 +23,30 @@ public class ContactApprovalController {
 
   @GetMapping()
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<Page<ContactApproval>> getContactApprovals(Pageable pageable) {
-    Page<ContactApproval> contactApprovals = service.getContactApprovals(pageable);
+  public ResponseEntity<Page<ContractApproval>> getContactApprovals(Pageable pageable) {
+    Page<ContractApproval> contactApprovals = service.getContactApprovals(pageable);
     return new ResponseEntity<>(contactApprovals, HttpStatus.OK);
   }
 
   @PostMapping("/get")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<ContactApproval> getContactApprovalById(
-          @Valid @RequestBody String id, Locale locale) {
+  public ResponseEntity<ContractApproval> getContactApprovalById(
+      @Valid @RequestBody String id, Locale locale) {
     return new ResponseEntity<>(
         service.getContactApprovalById(Integer.valueOf(id), locale), HttpStatus.OK);
   }
 
   @PostMapping("/create")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<ContactApproval> createContactApproval(
-          @Valid @RequestBody ContactApprovalValidateRequest nameRequest, Locale locale) {
+  public ResponseEntity<ContractApproval> createContactApproval(
+      @Valid @RequestBody ContactApprovalValidateRequest nameRequest, Locale locale) {
     return new ResponseEntity<>(service.createContactApproval(nameRequest, locale), HttpStatus.OK);
-  }
-
-  @PostMapping("/update")
-  @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<ContactApproval> updateContactApproval(
-          @Valid @RequestBody ContactApprovalValidateRequest baseRequest, Locale locale) {
-    return new ResponseEntity<>(service.updateContactApproval(baseRequest, locale), HttpStatus.OK);
   }
 
   @PostMapping("/delete")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<String> deleteContactApproval(
-          @Valid @RequestBody String id, Locale locale) {
+      @Valid @RequestBody String id, Locale locale) {
     service.deleteContactApproval(Integer.valueOf(id), locale);
     return ResponseEntity.ok(Constants.SUCCESS);
   }

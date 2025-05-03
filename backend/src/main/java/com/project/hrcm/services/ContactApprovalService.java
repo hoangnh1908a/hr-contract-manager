@@ -1,12 +1,11 @@
 package com.project.hrcm.services;
 
 import com.project.hrcm.configs.CustomException;
-import com.project.hrcm.entities.ContactApproval;
+import com.project.hrcm.entities.ContractApproval;
 import com.project.hrcm.models.requests.ContactApprovalValidateRequest;
-import com.project.hrcm.repository.ContactApprovalRepository;
+import com.project.hrcm.repository.ContractApprovalRepository;
 import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.Utils;
-import java.util.List;
 import java.util.Locale;
 import lombok.AllArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -20,17 +19,17 @@ public class ContactApprovalService {
 
   private final String TABLE_NAME = "CONTACT_APPROVAL";
 
-  private final ContactApprovalRepository contactApprovalRepository;
+  private final ContractApprovalRepository contractApprovalRepository;
   private final MessageSource messageSource;
   private final AuditLogService auditLogService;
 
-  public Page<ContactApproval> getContactApprovals(Pageable pageable) {
-    return contactApprovalRepository.findAll(pageable);
+  public Page<ContractApproval> getContactApprovals(Pageable pageable) {
+    return contractApprovalRepository.findAll(pageable);
   }
 
-  public ContactApproval getContactApprovalById(Integer id, Locale locale) {
-    ContactApproval contactApproval =
-        contactApprovalRepository
+  public ContractApproval getContactApprovalById(Integer id, Locale locale) {
+    ContractApproval contractApproval =
+        contractApprovalRepository
             .findById(id)
             .orElseThrow(
                 () ->
@@ -38,38 +37,39 @@ public class ContactApprovalService {
                         Utils.formatMessage(
                             messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND)));
 
-    auditLogService.saveAuditLog(Constants.GET_ID, TABLE_NAME, contactApproval.getId(), "", "");
+    auditLogService.saveAuditLog(Constants.GET_ID, TABLE_NAME, contractApproval.getId(), "", "");
 
-    return contactApproval;
+    return contractApproval;
   }
 
-    public ContactApproval createContactApproval(
-            ContactApprovalValidateRequest contactApprovalValidateRequest, Locale locale) {
-        ContactApproval contactApproval = ContactApproval.builder().build();
+  public ContractApproval createContactApproval(
+      ContactApprovalValidateRequest contactApprovalValidateRequest, Locale locale) {
+    ContractApproval contractApproval = ContractApproval.builder().build();
 
-        contactApproval = contactApprovalRepository.save(contactApproval);
+    contractApproval = contractApprovalRepository.save(contractApproval);
 
-        auditLogService.saveAuditLog(Constants.ADD, TABLE_NAME, contactApproval.getId(), "", "");
-        return contactApproval;
-    }
+    auditLogService.saveAuditLog(Constants.ADD, TABLE_NAME, contractApproval.getId(), "", "");
+    return contractApproval;
+  }
 
-  public ContactApproval updateContactApproval(ContactApprovalValidateRequest baseRequest, Locale locale) {
-    return contactApprovalRepository
+  public ContractApproval updateContactApproval(
+      ContactApprovalValidateRequest baseRequest, Locale locale) {
+    return contractApprovalRepository
         .findById(baseRequest.getId())
         .map(
-            contactApproval -> {
-              String oldStatus = contactApproval.getContactStatusId().toString();
-              contactApproval.setContactStatusId(baseRequest.getApprovalStatus());
-              contactApproval = contactApprovalRepository.save(contactApproval);
+            contractApproval -> {
+              String oldStatus = contractApproval.getContactStatusId().toString();
+              contractApproval.setContactStatusId(baseRequest.getApprovalStatus());
+              contractApproval = contractApprovalRepository.save(contractApproval);
 
               auditLogService.saveAuditLog(
                   Constants.UPDATE,
                   TABLE_NAME,
-                  contactApproval.getId(),
+                  contractApproval.getId(),
                   oldStatus,
                   baseRequest.getApprovalStatus().toString());
 
-              return contactApproval;
+              return contractApproval;
             })
         .orElseThrow(
             () ->
@@ -79,10 +79,10 @@ public class ContactApprovalService {
   }
 
   public void deleteContactApproval(Integer id, Locale locale) {
-    contactApprovalRepository
+    contractApprovalRepository
         .findById(id)
         .ifPresentOrElse(
-            contactApprovalRepository::delete,
+            contractApprovalRepository::delete,
             () -> {
               throw new CustomException(
                   Utils.formatMessage(

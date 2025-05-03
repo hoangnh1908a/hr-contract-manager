@@ -14,8 +14,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "contact_statuses")
-public class ContactStatus {
+@Table(name = "contract_statuses")
+public class ContractStatus {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

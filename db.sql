@@ -68,8 +68,9 @@
 
     CREATE TABLE `contract_templates` (
       `id` INT PRIMARY KEY AUTO_INCREMENT,
-      `name` VARCHAR(255) UNIQUE NOT NULL,
-      `file_name` VARCHAR(255) NOT NULL,
+      `file_name` VARCHAR(255) UNIQUE NOT NULL,
+      `file_path` VARCHAR(500) NOT NULL,
+      `params` VARCHAR(500),
       `status` TINYINT NOT NULL DEFAULT 1,
       `description` VARCHAR(2000) NOT NULL,
       `created_by` INT,
@@ -81,10 +82,11 @@
     CREATE TABLE `contracts` (
       `id` INT PRIMARY KEY AUTO_INCREMENT,
       `employee_id` INT NOT NULL,
-      `template_id` INT NOT NULL,
+      `contract_template_id` INT NOT NULL,
       `contract_status_id` TINYINT NOT NULL DEFAULT 1,
       `file_name` VARCHAR(255) NOT NULL,
       `description` VARCHAR(2000) NOT NULL,
+      `params`  VARCHAR(500),
       `created_by` INT NOT NULL,
       `updated_by` INT,
       `created_at` TIMESTAMP,
@@ -94,7 +96,9 @@
     CREATE TABLE `contract_statuses` (
       `id` TINYINT PRIMARY KEY AUTO_INCREMENT,
       `name` VARCHAR(50) UNIQUE NOT NULL,
-      `description` VARCHAR(2000) NOT NULL
+      `description` VARCHAR(2000) NOT NULL,
+      `created_at` TIMESTAMP,
+      `updated_at` TIMESTAMP
     );
 
     CREATE TABLE `contract_approvals` (
@@ -166,7 +170,7 @@
 
     ALTER TABLE `contracts` ADD FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ;
 
-    ALTER TABLE `contracts` ADD FOREIGN KEY (`template_id`) REFERENCES `contract_templates` (`id`) ;
+    ALTER TABLE `contracts` ADD FOREIGN KEY (`contract_template_id`) REFERENCES `contract_templates` (`id`) ;
 
     ALTER TABLE `contracts` ADD FOREIGN KEY (`contract_status_id`) REFERENCES `contract_statuses` (`id`) ;
 
@@ -188,7 +192,7 @@
 
     CREATE INDEX idx_email ON users (email);
 
-    
+
     INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Software Development', NULL, NULL, NOW(), NOW());
     INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('IT Infrastructure & Support', NULL, NULL, NOW(), NOW());
     INSERT INTO `departments` (`name`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES ('Cybersecurity', NULL, NULL, NOW(), NOW());
@@ -206,3 +210,5 @@
     INSERT INTO `roles` (id, name, created_by, updated_by, created_at, updated_at) VALUES (1, 'ADMIN', null, null, NOW(), NOW());
 # pass 12345678
     INSERT INTO `users` (id, full_name, email, password, password_fail_count, force_password_change_on_login, password_expiry_date, lockout_time, role_id, created_by, updated_by, created_at, updated_at) VALUES (1, 'ADMIN', 'admin@company.com', '$2a$10$3OCVxm2GfbqcyWTOu3GxQe2dZKNeA/ZegR0r/XSCYy1u2vBIbBiRK', 0, 0, null, null, 1, null, null, NOW(), NOW());
+
+# ALTER TABLE contracts ADD ( `params`  VARCHAR(500));
