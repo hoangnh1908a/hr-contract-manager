@@ -74,6 +74,7 @@
       `file_name` VARCHAR(255) UNIQUE NOT NULL,
       `file_name_en` VARCHAR(100) UNIQUE NOT NULL,
       `file_path` VARCHAR(500) NOT NULL,
+      `params` VARCHAR(2000) NOT NULL,
       `status` TINYINT NOT NULL DEFAULT 1,
       `description` VARCHAR(2000) NOT NULL,
       `created_by` INT,
@@ -85,9 +86,11 @@
     CREATE TABLE `contracts` (
       `id` INT PRIMARY KEY AUTO_INCREMENT,
       `employee_id` INT NOT NULL,
+      `contract_template_id` INT NOT NULL,
       `contract_status_id` TINYINT NOT NULL DEFAULT 1,
       `file_name` VARCHAR(255) NOT NULL,
       `file_name_en` VARCHAR(100) UNIQUE NOT NULL,
+      `params` VARCHAR(2000) NOT NULL,
       `description` VARCHAR(2000) NOT NULL,
       `created_by` INT NOT NULL,
       `updated_by` INT,
@@ -157,6 +160,8 @@
     ALTER TABLE `contract_templates` ADD FOREIGN KEY (`updated_by`) REFERENCES `users` (`id`);
 
     ALTER TABLE `contracts` ADD FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ;
+
+    ALTER TABLE `contracts` ADD FOREIGN KEY (`contract_template_id`) REFERENCES `contract_templates` (`id`) ;
 
     ALTER TABLE `contracts` ADD FOREIGN KEY (`contract_status_id`) REFERENCES `contract_statuses` (`id`) ;
 

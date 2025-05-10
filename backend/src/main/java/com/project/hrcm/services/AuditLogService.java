@@ -94,7 +94,6 @@ public class AuditLogService {
   }
 
   @Async
-  @Transactional
   public void saveAuditLog(
       String action, String tableName, Integer recordId, String oldValue, String newValue) {
     AuditLog auditLog =

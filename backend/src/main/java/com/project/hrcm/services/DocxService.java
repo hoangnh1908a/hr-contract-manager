@@ -1,11 +1,12 @@
 package com.project.hrcm.services;
 
+import com.project.hrcm.configs.CustomException;
 import com.project.hrcm.entities.ContractTemplate;
 import com.project.hrcm.models.requests.document.LaborContractRequest;
 import com.project.hrcm.repository.ContractTemplateRepository;
 import com.project.hrcm.utils.Utils;
-import io.micrometer.common.util.StringUtils;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,15 +14,19 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.xwpf.converter.xhtml.XHTMLConverter;
 import org.apache.poi.xwpf.usermodel.*;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.docx4j.Docx4J;
+import org.docx4j.convert.out.HTMLSettings;
+import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -76,27 +81,33 @@ public class DocxService {
 
     StringBuilder paragraphText = new StringBuilder();
     for (XWPFRun run : runs) {
-      paragraphText.append(run.getText(0));
+      String text = run.getText(0);
+      if (text != null) {
+        paragraphText.append(text);
+      }
     }
-    String replaced = paragraphText.toString();
 
-    // Replace all placeholders
+    String replacedText = paragraphText.toString();
+
+    // Thay thế placeholder
     for (Map.Entry<String, String> entry : data.entrySet()) {
-      replaced = replaced.replace("${" + entry.getKey() + "}", entry.getValue());
+      replacedText = replacedText.replace("${" + entry.getKey() + "}", entry.getValue());
     }
 
-    // If anything changed, clear and re‑write the runs
-    if (!replaced.contentEquals(paragraphText)) {
+    // Nếu có thay đổi thì ghi đè
+    if (!replacedText.contentEquals(paragraphText)) {
       for (int i = runs.size() - 1; i >= 0; i--) {
         paragraph.removeRun(i);
       }
       XWPFRun newRun = paragraph.createRun();
-      newRun.setText(replaced, 0);
+      newRun.setText(replacedText, 0);
     }
   }
 
   // get param in docx
   private List<String> extractParamsFromDocx(MultipartFile file) throws IOException {
+    log.info(" Start add params in docx");
+
     List<String> foundParams = new ArrayList<>();
     Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
 
@@ -112,62 +123,106 @@ public class DocxService {
       }
     }
 
+    log.info(" End add params in docx {} ", foundParams);
+
     return foundParams;
   }
 
   public void saveDocx(MultipartFile file, ContractTemplate contractTemplate) throws Exception {
+    log.info(" Start save docx !");
+    Path savedFilePath = null;
 
-    // Get param in docx
-    List<String> params = extractParamsFromDocx(file);
+    try {
+      if (file == null
+          || file.isEmpty()
+          || !Objects.requireNonNull(file.getOriginalFilename()).endsWith(".docx")) {
+        throw new IllegalArgumentException("File không hợp lệ hoặc không phải file .docx");
+      }
 
-    // Get the original file name
-    String originalFilename = file.getOriginalFilename();
+      String originalFilename = file.getOriginalFilename();
 
-    String baseName = originalFilename != null ? originalFilename.replaceAll("\\.docx$", "") : "document";
-    String htmlFileName = baseName + ".html";
+      // Thêm thời gian vào tên file để tránh trùng
+      assert originalFilename != null;
+      String fileExt = originalFilename.substring(originalFilename.lastIndexOf("."));
+      String nameOnly = originalFilename.substring(0, originalFilename.lastIndexOf("."));
+      originalFilename = nameOnly + "_" + LocalDateTime.now().getNano() + fileExt;
 
-    convertAndSaveHtml(file.getInputStream(), htmlFileName);
+      // Lưu file gốc
+      byte[] bytes = file.getBytes();
+      Files.createDirectories(Paths.get(pathFile));
+      Path path = Paths.get(pathFile, originalFilename);
+      Files.write(path, bytes);
 
-    // Plus date in fileName
-    if (StringUtils.isNotBlank(originalFilename)) {
-      String[] splitFileName = originalFilename.split("\\.");
-      splitFileName[0] = splitFileName[0] + LocalDateTime.now().getNano();
-      originalFilename = splitFileName[0] + "." + splitFileName[1];
+      savedFilePath = path;
+
+      // Trích xuất tham số
+      List<String> params = extractParamsFromDocx(file);
+      // Chuyển đổi HTML
+      // Tạo tên file mới
+      String baseName = originalFilename.replaceAll("\\.docx$", "");
+      String htmlFileName = baseName + ".html";
+      convertAndSaveHtml(file.getInputStream(), htmlFileName);
+
+      // Cập nhật thông tin ContractTemplate
+      contractTemplate.setParams(Utils.gson.toJson(params));
+      contractTemplate.setFilePath(path.toString());
+
+      log.info("Save docx success !");
+    } catch (Exception e) {
+      log.error("Error saving docx: ", e);
+      // Nếu có lỗi, xóa file đã lưu
+      if (savedFilePath != null) {
+        try {
+          Files.deleteIfExists(savedFilePath);
+          log.info("Successfully removed file after error: {}", savedFilePath);
+        } catch (IOException deleteException) {
+          log.error("Failed to remove file after error: {}", savedFilePath, deleteException);
+          // Có thể re-throw exception ban đầu hoặc wrap nó
+          throw new Exception("Lỗi khi lưu và dọn dẹp file docx", e);
+        }
+      }
+      throw e; // Re-throw exception để controller xử lý
     }
-
-    // Get the file content as bytes
-    byte[] bytes = file.getBytes();
-
-    // Create directory if not exists
-    Files.createDirectories(Paths.get(pathFile));
-
-    // Save the file to a specific path
-    Path path = Paths.get(pathFile + originalFilename);
-    Files.write(path, bytes);
-
-    // Set contactTemplate
-    contractTemplate.setParams(Utils.gson.toJson(params));
-    contractTemplate.setFilePath(path.toString());
   }
 
-  public void convertAndSaveHtml(InputStream docxInputStream, String outputFileName) throws Exception {
-    Path outputPath = Paths.get(pathFile, outputFileName);
+  @Async
+  public void convertAndSaveHtml(InputStream docxInputStream, String outputFileName) {
+    try {
+      log.info("Start save file html name {} ", outputFileName);
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-    // Ensure the output directory exists
-    Files.createDirectories(outputPath.getParent());
+      WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(docxInputStream);
 
-    try (XWPFDocument document = new XWPFDocument(docxInputStream);
-         OutputStream out = Files.newOutputStream(outputPath)) {
+      HTMLSettings htmlSettings = Docx4J.createHTMLSettings();
+      htmlSettings.setWmlPackage(wordMLPackage);
 
-      XHTMLConverter.getInstance().convert(document, out, null);
+      Docx4J.toHTML(htmlSettings, outputStream, Docx4J.FLAG_EXPORT_PREFER_XSL);
+      String htmlContent = outputStream.toString(StandardCharsets.UTF_8);
+
+      Path path = Paths.get(pathFile + outputFileName);
+      Files.createDirectories(path.getParent());
+      Files.write(path, htmlContent.getBytes());
+
+      log.info("End save file html !");
+    } catch (Exception e) {
+      // Log lỗi
+      throw new CustomException("Save file html error " + e.getMessage());
     }
-
   }
 
   public String convertDocxToHtml(Integer contractTemplateId) throws IOException {
+    log.info("Start get file html by id {} ", contractTemplateId);
     ContractTemplate contractTemplate =
         contractTemplateRepository.findById(contractTemplateId).orElse(null);
 
-    return contractTemplate.getFilePath();
+    if (contractTemplate == null) {
+      log.info(" CovertDocxToHtml ContractTemplate is null ");
+      return "";
+    }
+
+    String baseName = contractTemplate.getFilePath().replaceAll("\\.docx$", "");
+    String htmlFileName = baseName + ".html";
+
+    return Files.readString(Paths.get(htmlFileName));
   }
 }
