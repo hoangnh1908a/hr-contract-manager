@@ -11,5 +11,9 @@ public interface ContractStatusRepository extends JpaRepository<ContractStatus, 
 
   boolean existsByName(String name);
 
+  boolean existsByNameEn(String name);
+
   Page<ContractStatus> findByNameContainingIgnoreCase(String name, Pageable pageable);
+
+  Page<ContractStatus> findByNameEnContainingIgnoreCase(String name, Pageable pageable);
 }

@@ -11,4 +11,6 @@ public interface PositionRepository extends JpaRepository<Position, Integer> {
   boolean existsByName(String name);
 
   Page<Position> findByNameContainingIgnoreCase(String name, Pageable pageable);
+
+  Page<Position> findByNameEnContainingIgnoreCase(String name, Pageable pageable);
 }

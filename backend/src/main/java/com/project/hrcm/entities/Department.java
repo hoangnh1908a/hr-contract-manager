@@ -26,6 +26,9 @@ public class Department {
   private String name;
 
   @Column(nullable = false)
+  private String nameEn;
+
+  @Column(nullable = false)
   private Integer status;
 
   @Column(nullable = false)

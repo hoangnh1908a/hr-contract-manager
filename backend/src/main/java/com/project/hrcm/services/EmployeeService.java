@@ -10,7 +10,7 @@ import jakarta.persistence.criteria.Predicate;
 import java.time.LocalDate;
 import java.util.*;
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
+import io.micrometer.common.util.StringUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -177,9 +177,8 @@ public class EmployeeService {
   }
 
     public void deleteEmployee(Integer id, Locale locale) {
-    employeeRepository
-        .findById(id)
-        .ifPresentOrElse(
+    Optional<Employee> employee = employeeRepository.findById(id);
+        employee.ifPresentOrElse(
             employeeRepository::delete,
             () -> {
               throw new CustomException(
@@ -187,6 +186,6 @@ public class EmployeeService {
                       TABLE_NAME.toLowerCase() + Constants.NOT_FOUND, null, locale));
             });
 
-    auditLogService.saveAuditLog(Constants.DELETE, TABLE_NAME, id, "", "");
+    auditLogService.saveAuditLog(Constants.DELETE, TABLE_NAME, id, Utils.gson.toJson(employee.get()), "");
   }
 }

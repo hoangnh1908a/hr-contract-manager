@@ -41,12 +41,13 @@ public class ContactTemplateController {
   public ResponseEntity<ContractTemplate> createContactTemplate(
       @RequestParam("file") MultipartFile file,
       @RequestParam("fileName") String fileName,
+      @RequestParam("fileNameEn") String fileNameEn,
       @RequestParam("description") String description,
       @RequestParam("status") Integer status,
       Locale locale)
-      throws IOException {
+      throws Exception {
     return new ResponseEntity<>(
-        service.createContactTemplate(file, fileName, description, status, locale), HttpStatus.OK);
+        service.createContactTemplate(file, fileName, fileNameEn, description, status, locale), HttpStatus.OK);
   }
 
   @PostMapping("/update")
@@ -56,11 +57,12 @@ public class ContactTemplateController {
   public ResponseEntity<ContractTemplate> updateContractTemplate(
       @RequestParam("file") MultipartFile file,
       @RequestParam("fileName") String fileName,
+      @RequestParam("fileNameEn") String fileNameEn,
       @RequestParam("description") String description,
       @RequestParam("status") Integer status,
       Locale locale) {
     return new ResponseEntity<>(
-        service.updateContractTemplate(file, fileName, description, status, locale), HttpStatus.OK);
+        service.updateContractTemplate(file, fileName, fileNameEn, description, status, locale), HttpStatus.OK);
   }
 
   @PostMapping("/delete")

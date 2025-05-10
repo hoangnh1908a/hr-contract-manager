@@ -10,6 +10,7 @@ import com.project.hrcm.services.MailService;
 import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.InitialLoad;
 import com.project.hrcm.utils.Utils;
+import io.micrometer.common.util.StringUtils;
 import jakarta.mail.MessagingException;
 import jakarta.persistence.criteria.Predicate;
 import java.io.IOException;
@@ -20,7 +21,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -89,7 +89,7 @@ public class UserInfoService implements UserDetailsService {
     Optional<UserInfo> userInfo = userRepository.findByEmailAndStatus(email, 1);
     if (userInfo.isPresent()) {
       List<GrantedAuthority> authorities =
-          Stream.of(initialLoad.getRoleNameById(userInfo.get().getRoleId()).split(","))
+          Stream.of(initialLoad.getRoleNameEnById(userInfo.get().getRoleId()).split(","))
               .map(SimpleGrantedAuthority::new)
               .collect(Collectors.toList());
       userInfo.get().setRoles(authorities);
@@ -135,6 +135,9 @@ public class UserInfoService implements UserDetailsService {
     Optional<UserInfo> userInfo = userRepository.findById(baseRequest.getId());
     userInfo.ifPresentOrElse(
         (e -> {
+
+          UserInfo old = e;
+
           if (StringUtils.isNotBlank(baseRequest.getFullName()))
             e.setFullName(baseRequest.getFullName());
 
@@ -155,7 +158,7 @@ public class UserInfoService implements UserDetailsService {
               Constants.UPDATE,
               TABLE_NAME,
               baseRequest.getId(),
-              Utils.gson.toJson(userInfo),
+              Utils.gson.toJson(old),
               Utils.gson.toJson(save));
         }),
         () -> {

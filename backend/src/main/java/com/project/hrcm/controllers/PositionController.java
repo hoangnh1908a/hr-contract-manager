@@ -25,8 +25,8 @@ public class PositionController {
   @GetMapping()
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<Page<Position>> getPositions(
-      @RequestParam(required = false) String name, Pageable pageable) {
-    Page<Position> positions = service.getPositions(name, pageable);
+      @RequestParam(required = false) String name, Pageable pageable, Locale locale) {
+    Page<Position> positions = service.getPositions(name, pageable, locale);
     return new ResponseEntity<>(positions, HttpStatus.OK);
   }
 

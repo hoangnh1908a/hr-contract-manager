@@ -27,8 +27,8 @@ public class ContactStatusController {
   @PreAuthorize(
       "hasAnyAuthority(T(com.project.hrcm.utils.Constants).ROLE_ADMIN"
           + ", T(com.project.hrcm.utils.Constants).ROLE_HR)")
-  public ResponseEntity<Page<ContractStatus>> getContactStatus(@RequestParam(required = false) String name, Pageable pageable) {
-    Page<ContractStatus> contactStatus = service.getContactStatus(name, pageable);
+  public ResponseEntity<Page<ContractStatus>> getContactStatus(@RequestParam(required = false) String name, Pageable pageable, Locale locale) {
+    Page<ContractStatus> contactStatus = service.getContactStatus(name, pageable, locale);
     return new ResponseEntity<>(contactStatus, HttpStatus.OK);
   }
 

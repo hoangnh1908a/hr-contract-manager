@@ -24,8 +24,8 @@ public class RoleController {
 
   @GetMapping()
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<Page<Role>> getRoles(@RequestParam(required = false) String name, Pageable pageable) {
-    Page<Role> roles = service.getRoles(name, pageable);
+  public ResponseEntity<Page<Role>> getRoles(@RequestParam(required = false) String name, Pageable pageable, Locale locale) {
+    Page<Role> roles = service.getRoles(name, pageable, locale);
     return new ResponseEntity<>(roles, HttpStatus.OK);
   }
 

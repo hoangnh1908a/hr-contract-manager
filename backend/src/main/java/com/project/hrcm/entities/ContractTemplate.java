@@ -26,6 +26,9 @@ public class ContractTemplate {
   private String fileName;
 
   @Column(nullable = false)
+  private String fileNameEn;
+
+  @Column(nullable = false)
   private String filePath;
 
   @Column

@@ -26,6 +26,9 @@ public class ContractStatus {
   private String name;
 
   @Column(nullable = false)
+  private String nameEn;
+
+  @Column(nullable = false)
   private String description;
 
   @CreationTimestamp

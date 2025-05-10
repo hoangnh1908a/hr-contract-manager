@@ -26,6 +26,9 @@ public class Role {
   @Column(unique = true, length = 100, nullable = false)
   private String name;
 
+  @Column(unique = true, length = 100, nullable = false)
+  private String nameEn;
+
   @Column private Integer createdBy;
 
   @Column private Integer updatedBy;

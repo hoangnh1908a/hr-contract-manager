@@ -9,6 +9,8 @@ import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.Utils;
 import java.util.Locale;
 import java.util.Optional;
+
+import io.micrometer.common.util.StringUtils;
 import lombok.AllArgsConstructor;
 import org.apache.poi.util.StringUtil;
 import org.springframework.context.MessageSource;
@@ -26,7 +28,10 @@ public class RoleService {
   private final MessageSource messageSource;
   private final AuditLogService auditLogService;
 
-  public Page<Role> getRoles(String name, Pageable pageable) {
+  public Page<Role> getRoles(String name, Pageable pageable, Locale locale) {
+    if (Constants.EN.equalsIgnoreCase(locale.getLanguage())) {
+      return roleRepository.findByNameEnContainingIgnoreCase(name, pageable);
+    }
     return roleRepository.findByNameContainingIgnoreCase(name, pageable);
   }
 
@@ -54,7 +59,8 @@ public class RoleService {
 
     Role role =
         Role.builder()
-            .name(nameValidateRequest.getName().trim())
+            .name(nameValidateRequest.getName().toUpperCase())
+            .nameEn(nameValidateRequest.getNameEn().toUpperCase())
             .status(nameValidateRequest.getStatus())
             .build();
 
@@ -71,8 +77,11 @@ public class RoleService {
             role -> {
               String old = Utils.gson.toJson(role);
 
-              if (StringUtil.isNotBlank(baseValidateRequest.getName()))
-                role.setName(baseValidateRequest.getName().trim());
+              if (StringUtils.isNotBlank(baseValidateRequest.getName()))
+                role.setName(baseValidateRequest.getName().toUpperCase());
+
+              if (StringUtils.isNotBlank(baseValidateRequest.getNameEn()))
+                role.setNameEn(baseValidateRequest.getNameEn().toUpperCase());
 
               if (baseValidateRequest.getStatus() != null)
                 role.setStatus(baseValidateRequest.getStatus());
@@ -101,6 +110,6 @@ public class RoleService {
                   messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND));
         });
 
-    auditLogService.saveAuditLog(Constants.DELETE, TABLE_NAME, id, Utils.gson.toJson(role), "");
+    auditLogService.saveAuditLog(Constants.DELETE, TABLE_NAME, id, Utils.gson.toJson(role.get()), "");
   }
 }

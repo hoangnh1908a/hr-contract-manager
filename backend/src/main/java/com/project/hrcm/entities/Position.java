@@ -25,6 +25,9 @@ public class Position {
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
+    private String nameEn;
+
     @Builder.Default
     @Column(nullable = false)
     private Integer status = 1;

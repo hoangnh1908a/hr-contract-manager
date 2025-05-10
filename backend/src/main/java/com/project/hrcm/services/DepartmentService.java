@@ -8,9 +8,10 @@ import com.project.hrcm.repository.DepartmentRepository;
 import com.project.hrcm.services.userInfo.UserInfoService;
 import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.Utils;
+import io.micrometer.common.util.StringUtils;
 import java.util.Locale;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +27,10 @@ public class DepartmentService {
   private final MessageSource messageSource;
   private final AuditLogService auditLogService;
 
-  public Page<Department> getDepartments(String name, Pageable pageable) {
+  public Page<Department> getDepartments(String name, Pageable pageable, Locale locale) {
+    if (Constants.EN.equalsIgnoreCase(locale.getLanguage())) {
+      return departmentRepository.findByNameEnContainingIgnoreCase(name, pageable);
+    }
     return departmentRepository.findByNameContainingIgnoreCase(name, pageable);
   }
 
@@ -54,6 +58,7 @@ public class DepartmentService {
     Department department =
         Department.builder()
             .name(nameValidateRequest.getName().trim())
+            .nameEn(nameValidateRequest.getNameEn().trim())
             .createdBy(UserInfoService.getCurrentUserId())
             .status(nameValidateRequest.getStatus())
             .build();
@@ -71,6 +76,10 @@ public class DepartmentService {
               String old = Utils.gson.toJson(department);
               if (StringUtils.isNotBlank(baseValidateRequest.getName()))
                 department.setName(baseValidateRequest.getName().trim());
+
+              if (StringUtils.isNotBlank(baseValidateRequest.getNameEn()))
+                department.setNameEn(baseValidateRequest.getNameEn().trim());
+
               if (baseValidateRequest.getStatus() != null)
                 department.setStatus(baseValidateRequest.getStatus());
               department.setUpdatedBy(UserInfoService.getCurrentUserId());
@@ -93,16 +102,16 @@ public class DepartmentService {
   }
 
   public void deleteDepartment(Integer id, Locale locale) {
-    departmentRepository
-        .findById(id)
-        .ifPresentOrElse(
-            departmentRepository::delete,
-            () -> {
-              throw new CustomException(
-                  messageSource.getMessage(
-                      TABLE_NAME.toLowerCase() + Constants.NOT_FOUND, null, locale));
-            });
+    Optional<Department> department = departmentRepository.findById(id);
+    department.ifPresentOrElse(
+        departmentRepository::delete,
+        () -> {
+          throw new CustomException(
+              messageSource.getMessage(
+                  TABLE_NAME.toLowerCase() + Constants.NOT_FOUND, null, locale));
+        });
 
-    auditLogService.saveAuditLog(Constants.DELETE, TABLE_NAME, id, "", "");
+    auditLogService.saveAuditLog(
+        Constants.DELETE, TABLE_NAME, id, Utils.gson.toJson(department.get()), "");
   }
 }

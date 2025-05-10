@@ -5,10 +5,9 @@ import com.project.hrcm.services.DocxService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/docx")
@@ -34,6 +33,15 @@ public class DocxController {
     } catch (Exception e) {
       return ResponseEntity.status(500)
           .body(("Error generating document: " + e.getMessage()).getBytes());
+    }
+  }
+
+  @GetMapping("/getHtml/{contractTemplateId}")
+  public String convertDocx(@PathVariable Integer contractTemplateId) {
+    try {
+      return docxService.convertDocxToHtml(contractTemplateId);
+    } catch (IOException e) {
+      return "<html><body><h2>Error:</h2><pre>" + e.getMessage() + "</pre></body></html>";
     }
   }
 }

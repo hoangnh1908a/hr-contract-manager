@@ -7,6 +7,7 @@ public class ContractRequest {
 
   private Integer id;
   private String fileName;
+  private String fileNameEn;
   private String description;
   private String createdBy;
   private String updatedBy;

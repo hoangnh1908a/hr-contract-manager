@@ -25,8 +25,8 @@ public class DepartmentController {
   @GetMapping()
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<Page<Department>> getDepartments(
-      @RequestParam(required = false) String name, Pageable pageable) {
-    Page<Department> departments = service.getDepartments(name, pageable);
+      @RequestParam(required = false) String name, Pageable pageable, Locale locale) {
+    Page<Department> departments = service.getDepartments(name, pageable, locale);
     return new ResponseEntity<>(departments, HttpStatus.OK);
   }
 

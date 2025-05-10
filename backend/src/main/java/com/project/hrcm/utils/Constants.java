@@ -2,6 +2,8 @@ package com.project.hrcm.utils;
 
 public class Constants {
 
+  public static final String EN = "en";
+
   // RESPONSE
   public static final String SUCCESS = "success";
   public static final String ERROR = "error";

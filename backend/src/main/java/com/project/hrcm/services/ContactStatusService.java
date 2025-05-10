@@ -2,16 +2,14 @@ package com.project.hrcm.services;
 
 import com.project.hrcm.configs.CustomException;
 import com.project.hrcm.entities.ContractStatus;
-import com.project.hrcm.models.requests.NameValidateRequest;
 import com.project.hrcm.models.requests.noRequired.ContractStatusRequest;
 import com.project.hrcm.repository.ContractStatusRepository;
 import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.Utils;
 import java.util.Locale;
 import java.util.Optional;
-
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
+import io.micrometer.common.util.StringUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,20 +25,32 @@ public class ContactStatusService {
   private final MessageSource messageSource;
   private final AuditLogService auditLogService;
 
-  public Page<ContractStatus> getContactStatus(String name, Pageable pageable) {
+  public Page<ContractStatus> getContactStatus(String name, Pageable pageable, Locale locale) {
+    if (Constants.EN.equalsIgnoreCase(locale.getLanguage())) {
+      return contractStatusRepository.findByNameEnContainingIgnoreCase(name, pageable);
+    }
     return contractStatusRepository.findByNameContainingIgnoreCase(name, pageable);
   }
 
   public ContractStatus createContactStatus(
-          ContractStatusRequest contractStatusRequest, Locale locale) {
-    if (contractStatusRepository.existsByName(contractStatusRequest.getName())) {
-      throw new CustomException(
-          Utils.formatMessage(
-              messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NAME_EXISTS));
+      ContractStatusRequest contractStatusRequest, Locale locale) {
+    if (Constants.EN.equalsIgnoreCase(locale.getLanguage())) {
+      if (contractStatusRepository.existsByNameEn(contractStatusRequest.getName())) {
+        throw new CustomException(
+            Utils.formatMessage(
+                messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NAME_EXISTS));
+      }
+    } else {
+      if (contractStatusRepository.existsByName(contractStatusRequest.getName())) {
+        throw new CustomException(
+            Utils.formatMessage(
+                messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NAME_EXISTS));
+      }
     }
     ContractStatus contractStatus =
         ContractStatus.builder()
             .name(contractStatusRequest.getName())
+            .nameEn(contractStatusRequest.getNameEn())
             .description(contractStatusRequest.getDescription())
             .build();
     contractStatus = contractStatusRepository.save(contractStatus);
@@ -51,7 +61,7 @@ public class ContactStatusService {
   }
 
   public ContractStatus updateContactStatus(
-          ContractStatusRequest contractStatusRequest, Locale locale) {
+      ContractStatusRequest contractStatusRequest, Locale locale) {
     return contractStatusRepository
         .findById(contractStatusRequest.getId())
         .map(
@@ -59,6 +69,9 @@ public class ContactStatusService {
               String old = Utils.gson.toJson(contractStatus);
               if (StringUtils.isNotBlank(contractStatusRequest.getName()))
                 contractStatus.setName(contractStatusRequest.getName());
+
+              if (StringUtils.isNotBlank(contractStatusRequest.getNameEn()))
+                contractStatus.setNameEn(contractStatusRequest.getNameEn());
 
               if (StringUtils.isNotBlank(contractStatusRequest.getDescription()))
                 contractStatus.setDescription(contractStatusRequest.getDescription());
@@ -92,6 +105,6 @@ public class ContactStatusService {
         });
 
     auditLogService.saveAuditLog(
-        Constants.DELETE, TABLE_NAME, id, Utils.gson.toJson(contractStatus), "");
+        Constants.DELETE, TABLE_NAME, id, Utils.gson.toJson(contractStatus.get()), "");
   }
 }

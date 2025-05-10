@@ -25,6 +25,9 @@ public class Contract {
   @Column(nullable = false)
   private String fileName;
 
+  @Column(nullable = false)
+  private String fileNameEn;
+
   @Column
   private String description;
 

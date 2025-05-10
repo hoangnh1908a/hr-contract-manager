@@ -28,8 +28,6 @@ public class ContractApproval {
 
   @Column private LocalDateTime approvedDate;
 
-  @Column private Integer approvalStatus;
-
   @Column private Integer createdBy;
 
   @Column private Integer updatedBy;

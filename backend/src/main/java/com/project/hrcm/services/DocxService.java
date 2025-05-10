@@ -2,10 +2,10 @@ package com.project.hrcm.services;
 
 import com.project.hrcm.entities.ContractTemplate;
 import com.project.hrcm.models.requests.document.LaborContractRequest;
+import com.project.hrcm.repository.ContractTemplateRepository;
 import com.project.hrcm.utils.Utils;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import io.micrometer.common.util.StringUtils;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,17 +15,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang3.StringUtils;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.xwpf.converter.xhtml.XHTMLConverter;
 import org.apache.poi.xwpf.usermodel.*;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
+@AllArgsConstructor
 @Service
 public class DocxService {
 
   private static final String pathFile = "files/laborContract/";
+
+  private final ContractTemplateRepository contractTemplateRepository;
 
   // set param in docx
   public byte[] generateDocx(LaborContractRequest laborContractRequest) throws Exception {
@@ -108,13 +115,18 @@ public class DocxService {
     return foundParams;
   }
 
-  public void saveDocx(MultipartFile file, ContractTemplate contractTemplate) throws IOException {
+  public void saveDocx(MultipartFile file, ContractTemplate contractTemplate) throws Exception {
 
     // Get param in docx
     List<String> params = extractParamsFromDocx(file);
 
     // Get the original file name
     String originalFilename = file.getOriginalFilename();
+
+    String baseName = originalFilename != null ? originalFilename.replaceAll("\\.docx$", "") : "document";
+    String htmlFileName = baseName + ".html";
+
+    convertAndSaveHtml(file.getInputStream(), htmlFileName);
 
     // Plus date in fileName
     if (StringUtils.isNotBlank(originalFilename)) {
@@ -136,5 +148,26 @@ public class DocxService {
     // Set contactTemplate
     contractTemplate.setParams(Utils.gson.toJson(params));
     contractTemplate.setFilePath(path.toString());
+  }
+
+  public void convertAndSaveHtml(InputStream docxInputStream, String outputFileName) throws Exception {
+    Path outputPath = Paths.get(pathFile, outputFileName);
+
+    // Ensure the output directory exists
+    Files.createDirectories(outputPath.getParent());
+
+    try (XWPFDocument document = new XWPFDocument(docxInputStream);
+         OutputStream out = Files.newOutputStream(outputPath)) {
+
+      XHTMLConverter.getInstance().convert(document, out, null);
+    }
+
+  }
+
+  public String convertDocxToHtml(Integer contractTemplateId) throws IOException {
+    ContractTemplate contractTemplate =
+        contractTemplateRepository.findById(contractTemplateId).orElse(null);
+
+    return contractTemplate.getFilePath();
   }
 }

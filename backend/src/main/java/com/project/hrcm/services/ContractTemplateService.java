@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
+import io.micrometer.common.util.StringUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,19 +34,27 @@ public class ContractTemplateService {
   private final DocxService docxService;
 
   public static Specification<ContractTemplate> filterBy(
-          ContactTemplateRequest contactTemplateRequest
-  ) {
+      ContactTemplateRequest contactTemplateRequest) {
     return (root, query, cb) -> {
       List<Predicate> predicates = new ArrayList<>();
 
       if (StringUtils.isNotBlank(contactTemplateRequest.getFileName())) {
-        predicates.add(cb.like(cb.lower(root.get("fileName")), "%" + contactTemplateRequest.getFileName().toLowerCase() + "%"));
+        predicates.add(
+            cb.like(
+                cb.lower(root.get("fileName")),
+                "%" + contactTemplateRequest.getFileName().toLowerCase() + "%"));
       }
       if (StringUtils.isNotBlank(contactTemplateRequest.getParams())) {
-        predicates.add(cb.like(cb.lower(root.get("params")), "%" + contactTemplateRequest.getParams().toLowerCase() + "%"));
+        predicates.add(
+            cb.like(
+                cb.lower(root.get("params")),
+                "%" + contactTemplateRequest.getParams().toLowerCase() + "%"));
       }
       if (StringUtils.isNotBlank(contactTemplateRequest.getDescription())) {
-        predicates.add(cb.like(cb.lower(root.get("description")), "%" + contactTemplateRequest.getDescription().toLowerCase() + "%"));
+        predicates.add(
+            cb.like(
+                cb.lower(root.get("description")),
+                "%" + contactTemplateRequest.getDescription().toLowerCase() + "%"));
       }
       if (contactTemplateRequest.getStatus() != null) {
         predicates.add(cb.equal(root.get("status"), contactTemplateRequest.getStatus()));
@@ -65,15 +73,23 @@ public class ContractTemplateService {
   }
 
   public ContractTemplate createContactTemplate(
-      MultipartFile file, String fileName,  String description, Integer status, Locale locale) throws IOException {
+      MultipartFile file,
+      String fileName,
+      String fileNameEn,
+      String description,
+      Integer status,
+      Locale locale)
+      throws Exception {
     if (contractStatusRepository.existsByFileName(fileName)) {
       throw new CustomException(
           Utils.formatMessage(
               messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NAME_EXISTS));
     }
 
-    ContractTemplate contractTemplate = ContractTemplate.builder()
+    ContractTemplate contractTemplate =
+        ContractTemplate.builder()
             .fileName(fileName.trim())
+            .fileNameEn(fileNameEn.trim())
             .description(description.trim())
             .status(status)
             .createdBy(UserInfoService.getCurrentUserId())
@@ -83,32 +99,46 @@ public class ContractTemplateService {
 
     contractTemplate = contractStatusRepository.save(contractTemplate);
 
-    auditLogService.saveAuditLog(Constants.ADD, TABLE_NAME, contractTemplate.getId(), "", Utils.gson.toJson(contractTemplate));
+    auditLogService.saveAuditLog(
+        Constants.ADD,
+        TABLE_NAME,
+        contractTemplate.getId(),
+        "",
+        Utils.gson.toJson(contractTemplate));
     return contractTemplate;
   }
 
-  public ContractTemplate updateContractTemplate(MultipartFile file, String fileName,  String description, Integer status, Locale locale) {
-    return contractStatusRepository.findByFileName(fileName)
+  public ContractTemplate updateContractTemplate(
+      MultipartFile file,
+      String fileName,
+      String fileNameEn,
+      String description,
+      Integer status,
+      Locale locale) {
+    return contractStatusRepository
+        .findByFileName(fileName)
         .map(
             contractTemplate -> {
               String oldName = Utils.gson.toJson(contractTemplate);
 
-              if(StringUtils.isNotBlank(fileName))
-                contractTemplate.setFileName(fileName.trim());
+              if (StringUtils.isNotBlank(fileName)) contractTemplate.setFileName(fileName.trim());
 
-              if(StringUtils.isNotBlank(description))
-                contractTemplate.setDescription(description);
-              if(status != null)
-                contractTemplate.setStatus(status);
+              if (StringUtils.isNotBlank(fileNameEn))
+                contractTemplate.setFileName(fileNameEn.trim());
+
+              if (StringUtils.isNotBlank(description)) contractTemplate.setDescription(description);
+              if (status != null) contractTemplate.setStatus(status);
 
               contractTemplate.setCreatedBy(UserInfoService.getCurrentUserId());
 
-              if(file != null){
-                  try {
-                      docxService.saveDocx(file, contractTemplate);
-                  } catch (IOException e) {
-                      throw new RuntimeException(e);
-                  }
+              if (file != null) {
+                try {
+                  docxService.saveDocx(file, contractTemplate);
+                } catch (IOException e) {
+                  throw new RuntimeException(e);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
               }
 
               contractTemplate = contractStatusRepository.save(contractTemplate);
@@ -132,14 +162,15 @@ public class ContractTemplateService {
   public void deleteContactTemplate(Integer id, Locale locale) {
     Optional<ContractTemplate> contractTemplate = contractStatusRepository.findById(id);
     contractTemplate.ifPresentOrElse(
-            contractStatusRepository::delete,
-            () -> {
-              throw new CustomException(
-                  Utils.formatMessage(
-                      messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND));
-            });
+        contractStatusRepository::delete,
+        () -> {
+          throw new CustomException(
+              Utils.formatMessage(
+                  messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND));
+        });
 
-    auditLogService.saveAuditLog(Constants.DELETE, TABLE_NAME, contractTemplate.get().getId(), Utils.gson.toJson(contractTemplate.get()), "");
+    auditLogService.saveAuditLog(
+        Constants.DELETE, TABLE_NAME, id, Utils.gson.toJson(contractTemplate.get()), "");
   }
 
   /***

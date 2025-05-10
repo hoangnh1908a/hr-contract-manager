@@ -11,4 +11,6 @@ public interface DepartmentRepository extends JpaRepository<Department, Integer>
   boolean existsByName(String name);
 
   Page<Department> findByNameContainingIgnoreCase(String name, Pageable pageable);
+
+  Page<Department> findByNameEnContainingIgnoreCase(String name, Pageable pageable);
 }

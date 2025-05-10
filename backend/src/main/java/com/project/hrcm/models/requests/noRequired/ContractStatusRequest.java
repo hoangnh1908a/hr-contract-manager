@@ -11,6 +11,9 @@ public class ContractStatusRequest {
     @NotBlank(message = "The name is required.")
     private String name;
 
+    @NotBlank(message = "The name is required.")
+    private String nameEn;
+
     @NotBlank(message = "The description is required.")
     private String description;
 }

@@ -11,5 +11,7 @@ public class BaseValidateRequest {
 
   private String name;
 
+  private String nameEn;
+
   private Integer status;
 }

@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
+import io.micrometer.common.util.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
@@ -128,13 +128,14 @@ public class ContractService {
     Optional<Contract> contract = contractRepository.findById(id);
 
         contract.ifPresentOrElse(
-            contractRepository::delete,
-            () -> {
-              throw new CustomException(
+                c -> {
+                    String pathFile = c.getFileName();
+                },
+                () -> {throw new CustomException(
                   Utils.formatMessage(
                       messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND));
             });
 
-    auditLogService.saveAuditLog(Constants.DELETE, TABLE_NAME, id, Utils.gson.toJson(contract), "");
+    auditLogService.saveAuditLog(Constants.DELETE, TABLE_NAME, id, Utils.gson.toJson(contract.get()), "");
   }
 }
