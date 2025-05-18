@@ -30,7 +30,7 @@ public class Position {
 
     @Builder.Default
     @Column(nullable = false)
-    private Integer status = 1;
+    private final Integer status = 1;
 
     @Column
     private Integer createdBy;

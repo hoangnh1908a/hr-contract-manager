@@ -32,7 +32,7 @@ public class Contract {
   private String description;
 
   @Column
-  private String params;
+  private String filePath;
 
   @Column(updatable = false)
   private Integer createdBy;
@@ -48,6 +48,9 @@ public class Contract {
   // Key
   @Column(nullable = false)
   private Integer employeeId;
+
+  @Column(nullable = false)
+  private Integer employerId;
 
   @Column(nullable = false)
   private Integer contractTemplateId;

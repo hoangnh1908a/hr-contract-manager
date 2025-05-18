@@ -9,6 +9,10 @@ import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.Utils;
 import jakarta.persistence.criteria.Predicate;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +20,7 @@ import java.util.Locale;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import io.micrometer.common.util.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
@@ -23,6 +28,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class ContractService {
@@ -32,6 +38,7 @@ public class ContractService {
   private final ContractRepository contractRepository;
   private final MessageSource messageSource;
   private final AuditLogService auditLogService;
+  private final DocxService docxService;
 
     public static Specification<Contract> filterBy(ContractRequest contractRequest) {
         return (root, query, cb) -> {
@@ -49,12 +56,6 @@ public class ContractService {
                         cb.like(
                                 cb.lower(root.get("description")),
                                 "%" + contractRequest.getDescription().toLowerCase() + "%"));
-            }
-            if (StringUtils.isNotBlank(contractRequest.getParams())) {
-                predicates.add(
-                        cb.like(
-                                cb.lower(root.get("params")),
-                                "%" + contractRequest.getParams().toLowerCase() + "%"));
             }
 
             if (contractRequest.getFromDate() != null) {
@@ -95,33 +96,24 @@ public class ContractService {
 
     BeanUtils.copyProperties(contractRequest, contract, "id","createdAt", "updatedAt");
 
+    // covert to byte
+      try{
+    String filePath = docxService.htmlToDocxBytes(contractRequest.getHtmlContract(), contractRequest.getFileName());
+
+    contract.setFilePath(filePath);
+    contract.setCreatedBy(UserInfoService.getCurrentUserId());
+    // save html -> file docx
+          }catch (Exception ex){
+          log.info(" Error save file html : {}", ex.getMessage());
+          throw new CustomException(
+                  Utils.formatMessage(
+                          messageSource, locale, TABLE_NAME.toLowerCase(), Constants.ERROR));
+      }
+
     contract = contractRepository.save(contract);
 
     auditLogService.saveAuditLog(Constants.ADD, TABLE_NAME, contract.getId(), "", Utils.gson.toJson(contract));
     return contract;
-  }
-
-  public Contract updateContract(ContractRequest contractRequest, Locale locale) {
-    return contractRepository
-        .findById(contractRequest.getId())
-        .map(
-            contract -> {
-              String old = Utils.gson.toJson(contract);
-
-              BeanUtils.copyProperties(contractRequest, contract,"id","createdAt", "updatedAt");
-
-              contract = contractRepository.save(contract);
-
-              auditLogService.saveAuditLog(
-                  Constants.UPDATE, TABLE_NAME, contract.getId(), old, Utils.gson.toJson(contract));
-
-              return contract;
-            })
-        .orElseThrow(
-            () ->
-                new CustomException(
-                    Utils.formatMessage(
-                        messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND)));
   }
 
   public void deleteContract(Integer id, Locale locale) {
@@ -129,7 +121,16 @@ public class ContractService {
 
         contract.ifPresentOrElse(
                 c -> {
-                    String pathFile = c.getFileName();
+                    String pathFile = c.getFilePath();
+                    Path path = Paths.get(pathFile).normalize();
+                    try {
+                        Files.deleteIfExists(path);
+                    } catch (IOException e) {
+                        log.info(" deleteContract error : {}", e.getMessage());
+                        throw new CustomException(
+                                Utils.formatMessage(
+                                        messageSource, locale, TABLE_NAME.toLowerCase(), Constants.ERROR));
+                    }
                 },
                 () -> {throw new CustomException(
                   Utils.formatMessage(

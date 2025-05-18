@@ -37,14 +37,6 @@ public class ContractController {
     return new ResponseEntity<>(service.createContract(contractRequest, locale), HttpStatus.OK);
   }
 
-  @PostMapping("/update")
-  @PreAuthorize("hasAnyAuthority(T(com.project.hrcm.utils.Constants).ROLE_ADMIN" +
-          ", T(com.project.hrcm.utils.Constants).ROLE_HR)")
-  public ResponseEntity<Contract> updateContract(
-      @Valid @RequestBody ContractRequest contractRequest, Locale locale) {
-    return new ResponseEntity<>(service.updateContract(contractRequest, locale), HttpStatus.OK);
-  }
-
   @PostMapping("/delete")
   @PreAuthorize("hasAnyAuthority(T(com.project.hrcm.utils.Constants).ROLE_ADMIN" +
           ", T(com.project.hrcm.utils.Constants).ROLE_HR)")

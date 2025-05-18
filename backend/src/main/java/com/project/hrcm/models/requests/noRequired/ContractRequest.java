@@ -13,10 +13,11 @@ public class ContractRequest {
   private String updatedBy;
   private String toDate;
   private String fromDate;
-  private String params;
+  private String htmlContract;
 
   private Integer employeeId;
+  private Integer employerId;
   private Integer contractTemplateId;
   private Integer contractStatusId;
 
-};
+}

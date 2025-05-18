@@ -86,23 +86,27 @@
     CREATE TABLE `contracts` (
       `id` INT PRIMARY KEY AUTO_INCREMENT,
       `employee_id` INT NOT NULL,
+      `employer_id` INT NOT NULL,
       `contract_template_id` INT NOT NULL,
       `contract_status_id` TINYINT NOT NULL DEFAULT 1,
       `file_name` VARCHAR(255) NOT NULL,
       `file_name_en` VARCHAR(100) UNIQUE NOT NULL,
-      `params` VARCHAR(2000) NOT NULL,
-      `description` VARCHAR(2000) NOT NULL,
+      `file_path` VARCHAR(255) NOT NULL,
+      `description` VARCHAR(2000),
       `created_by` INT NOT NULL,
       `updated_by` INT,
       `created_at` TIMESTAMP,
       `updated_at` TIMESTAMP
     );
 
-    CREATE TABLE `contract_statuses` (
+    CREATE TABLE `configs` (
       `id` TINYINT PRIMARY KEY AUTO_INCREMENT,
-      `name` VARCHAR(50) UNIQUE NOT NULL,
-      `name_en` VARCHAR(50) UNIQUE NOT NULL,
+      `type` VARCHAR(50) NOT NULL,
+      `code` VARCHAR(50) NOT NULL,
+      `name` VARCHAR(255) NOT NULL,
+      `name_en` VARCHAR(255) NOT NULL,
       `description` VARCHAR(2000) NOT NULL,
+      `status` TINYINT NOT NULL DEFAULT 1,
       `created_at` TIMESTAMP,
       `updated_at` TIMESTAMP
     );
@@ -161,9 +165,9 @@
 
     ALTER TABLE `contracts` ADD FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ;
 
-    ALTER TABLE `contracts` ADD FOREIGN KEY (`contract_template_id`) REFERENCES `contract_templates` (`id`) ;
+    ALTER TABLE `contracts` ADD FOREIGN KEY (`employer_id`) REFERENCES `employees` (`id`) ;
 
-    ALTER TABLE `contracts` ADD FOREIGN KEY (`contract_status_id`) REFERENCES `contract_statuses` (`id`) ;
+    ALTER TABLE `contracts` ADD FOREIGN KEY (`contract_template_id`) REFERENCES `contract_templates` (`id`) ;
 
     ALTER TABLE `contracts` ADD FOREIGN KEY (`created_by`) REFERENCES `users` (`id`);
 
@@ -172,8 +176,6 @@
     ALTER TABLE `contract_approvals` ADD FOREIGN KEY (`contract_id`) REFERENCES `contracts` (`id`) ;
 
     ALTER TABLE `contract_approvals` ADD FOREIGN KEY (`approved_by`) REFERENCES `users` (`id`) ;
-
-    ALTER TABLE `contract_approvals` ADD FOREIGN KEY (`approval_status`) REFERENCES `contract_statuses` (`id`) ;
 
     ALTER TABLE `contract_approvals` ADD FOREIGN KEY (`created_by`) REFERENCES `users` (`id`);
 
@@ -520,14 +522,16 @@ INSERT INTO employees (full_name, number_id, date_of_birth, sex, nationality, pl
 ('Phạm Thị Thúy', '789123458', '2001-05-22', 1, 'Vietnamese', 'Hai Phong', 'Hai Phong', 'thuy.pham@gmail.com', '0934567892', 1, 2, '2024-04-01', null, null, NOW(), NOW());
 
 
-INSERT INTO contract_statuses (name, name_en, description)
-VALUES ('Bản nháp', 'Draft', 'The contract is currently being drafted.');
-INSERT INTO contract_statuses (name, name_en, description)
-VALUES ('Đã phê duyệt', 'Approved', 'The contract has been approved by all relevant parties.');
-INSERT INTO contract_statuses (name, name_en, description)
-VALUES ('Chờ ký', 'Pending Signature', 'The contract is awaiting signatures from the involved parties.');
-INSERT INTO contract_statuses (name, name_en, description, created_at, updated_at)
-VALUES ('Mới tạo', 'New', 'The contract has just been created.', NOW(), NOW());
+INSERT INTO configs (type, code, name, name_en, description)
+VALUES ('contract_status','0','Bản nháp', 'Draft', 'The contract is currently being drafted.');
+INSERT INTO configs (type, code, name, name_en, description)
+VALUES ('contract_status','1','Đã phê duyệt', 'Approved', 'The contract has been approved by all relevant parties.');
+INSERT INTO configs (type, code, name, name_en, description)
+VALUES ('contract_status','2','Chờ ký', 'Pending Signature', 'The contract is awaiting signatures from the involved parties.');
+INSERT INTO configs (type, code, name, name_en, description)
+VALUES ('contract_status','3','Mới tạo', 'New', 'The contract has just been created.');
+INSERT INTO configs (type, code, name, name_en, description)
+VALUES ('contract_status','4','Từ chối', 'Reject', 'The contract has reject.');
 
 
 

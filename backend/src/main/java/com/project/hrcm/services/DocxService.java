@@ -5,6 +5,7 @@ import com.project.hrcm.entities.ContractTemplate;
 import com.project.hrcm.models.requests.document.LaborContractRequest;
 import com.project.hrcm.repository.ContractTemplateRepository;
 import com.project.hrcm.utils.Utils;
+import io.micrometer.common.util.StringUtils;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -18,22 +19,27 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xwpf.usermodel.*;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.docx4j.Docx4J;
+import org.docx4j.convert.in.xhtml.XHTMLImporterImpl;
 import org.docx4j.convert.out.HTMLSettings;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
+import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-@Slf4j
 @AllArgsConstructor
 @Service
 public class DocxService {
+
+  private static final Logger log = LoggerFactory.getLogger(DocxService.class);
 
   private static final String pathFile = "files/laborContract/";
 
@@ -109,10 +115,10 @@ public class DocxService {
     log.info(" Start add params in docx");
 
     List<String> foundParams = new ArrayList<>();
-    Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
+    Pattern pattern = Pattern.compile("\\$\\{(.*?)}");
 
-    try (InputStream inputStream = file.getInputStream();
-        XWPFDocument document = new XWPFDocument(inputStream)) {
+    try (InputStream inputStream = file.getInputStream()) {
+      XWPFDocument document = new XWPFDocument(inputStream);
 
       for (XWPFParagraph para : document.getParagraphs()) {
         String text = para.getText();
@@ -129,6 +135,12 @@ public class DocxService {
   }
 
   public void saveDocx(MultipartFile file, ContractTemplate contractTemplate) throws Exception {
+
+    // remove file before update
+    if (StringUtils.isNotBlank(contractTemplate.getFilePath())) {
+      Files.deleteIfExists(Paths.get(contractTemplate.getFilePath()).normalize());
+    }
+
     log.info(" Start save docx !");
     Path savedFilePath = null;
 
@@ -224,5 +236,29 @@ public class DocxService {
     String htmlFileName = baseName + ".html";
 
     return Files.readString(Paths.get(htmlFileName));
+  }
+
+  @Transactional
+  public String htmlToDocxBytes(String html, String fileName) throws Exception {
+    // 1) Create a new empty Word document
+    WordprocessingMLPackage wordPkg = WordprocessingMLPackage.createPackage();
+
+    // 2) Get its MainDocumentPart
+    MainDocumentPart main = wordPkg.getMainDocumentPart();
+
+    // 3) Use the XHTML importer to parse & add your HTML
+    XHTMLImporterImpl xhtmlImporter = new XHTMLImporterImpl(wordPkg);
+    main.getContent().addAll(xhtmlImporter.convert(html, null));
+
+    // 4) Save to a byte[] and return
+    try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+      wordPkg.save(out);
+
+      Path path = Paths.get(pathFile + fileName + System.currentTimeMillis() + ".docx");
+      Files.createDirectories(path.getParent());
+      Files.write(path, out.toByteArray());
+
+      return path.toString();
+    }
   }
 }

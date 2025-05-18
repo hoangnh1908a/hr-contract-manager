@@ -20,7 +20,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,9 +37,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @AllArgsConstructor
-@Slf4j
 @Service
 public class UserInfoService implements UserDetailsService {
+
+  private static final Logger log = LoggerFactory.getLogger(UserInfoService.class);
 
   private static final String TABLE_NAME = "USERS";
   private static final String USER_NOT_FOUND = "USERS";
@@ -135,7 +137,6 @@ public class UserInfoService implements UserDetailsService {
     Optional<UserInfo> userInfo = userRepository.findById(baseRequest.getId());
     userInfo.ifPresentOrElse(
         (e -> {
-
           UserInfo old = e;
 
           if (StringUtils.isNotBlank(baseRequest.getFullName()))

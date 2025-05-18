@@ -14,13 +14,19 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "contract_statuses")
-public class ContractStatus {
+@Table(name = "configs")
+public class Config {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(nullable = false)
   private Integer id;
+
+  @Column(nullable = false)
+  private String type;
+
+  @Column(nullable = false)
+  private String code;
 
   @Column(nullable = false)
   private String name;

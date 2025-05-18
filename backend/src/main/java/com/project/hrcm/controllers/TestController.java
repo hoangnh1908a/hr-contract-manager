@@ -1,5 +1,6 @@
 package com.project.hrcm.controllers;
 
+import com.project.hrcm.services.DocxService;
 import com.project.hrcm.services.MailService;
 import jakarta.mail.MessagingException;
 import java.io.IOException;
@@ -7,13 +8,11 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Slf4j
 @RestController
 @AllArgsConstructor
 @RequestMapping("/test")

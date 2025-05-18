@@ -12,4 +12,4 @@ public class AuditLogRequest {
   private String oldValue;
   private String username;
 
-};
+}
