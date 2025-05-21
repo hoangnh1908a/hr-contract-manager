@@ -30,7 +30,7 @@ public class EmployeeRequest {
   private Integer status;
 
   // Key
-  private String departmentId;
+  private Integer departmentId;
 
-  private String positionId;
+  private Integer positionId;
 }

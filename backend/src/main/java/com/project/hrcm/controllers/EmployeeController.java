@@ -1,11 +1,13 @@
 package com.project.hrcm.controllers;
 
 import com.project.hrcm.entities.Employee;
-import com.project.hrcm.models.requests.*;
+import com.project.hrcm.models.reponse.EmployeeNameData;
+import com.project.hrcm.models.reponse.EmployeeValueData;
 import com.project.hrcm.models.requests.noRequired.EmployeeRequest;
 import com.project.hrcm.services.EmployeeService;
 import com.project.hrcm.utils.Constants;
 import jakarta.validation.Valid;
+import java.util.List;
 import java.util.Locale;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,10 +32,18 @@ public class EmployeeController {
     return new ResponseEntity<>(employees, HttpStatus.OK);
   }
 
+  @GetMapping("/allName")
+  @PreAuthorize("hasAnyAuthority(T(com.project.hrcm.utils.Constants).ROLE_ADMIN" +
+          ", T(com.project.hrcm.utils.Constants).ROLE_HR)")
+  public ResponseEntity<List<EmployeeNameData>> getAllNameEmployee() {
+    List<EmployeeNameData> employees = service.getAllNameEmployees();
+    return new ResponseEntity<>(employees, HttpStatus.OK);
+  }
+
   @PostMapping("/get")
   @PreAuthorize("hasAnyAuthority(T(com.project.hrcm.utils.Constants).ROLE_ADMIN" +
           ", T(com.project.hrcm.utils.Constants).ROLE_HR)")
-  public ResponseEntity<Employee> getEmployeeById(
+  public ResponseEntity<EmployeeValueData> getEmployeeById(
           @Valid @RequestBody String id, Locale locale) {
     return new ResponseEntity<>(service.getEmployeeById(Integer.valueOf(id), locale), HttpStatus.OK);
   }

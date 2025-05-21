@@ -14,9 +14,9 @@ public class ContractRequest {
   private String toDate;
   private String fromDate;
   private String htmlContract;
+  private String contractType;
 
   private Integer employeeId;
-  private Integer employerId;
   private Integer contractTemplateId;
   private Integer contractStatusId;
 

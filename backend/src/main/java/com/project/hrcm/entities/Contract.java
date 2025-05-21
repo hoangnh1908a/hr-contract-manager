@@ -31,6 +31,9 @@ public class Contract {
   @Column
   private String description;
 
+  @Column(nullable = false)
+  private String contractType;
+
   @Column
   private String filePath;
 
@@ -48,9 +51,6 @@ public class Contract {
   // Key
   @Column(nullable = false)
   private Integer employeeId;
-
-  @Column(nullable = false)
-  private Integer employerId;
 
   @Column(nullable = false)
   private Integer contractTemplateId;

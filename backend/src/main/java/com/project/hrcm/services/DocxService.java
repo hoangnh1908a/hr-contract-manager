@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
+import org.apache.poi.util.StringUtil;
 import org.apache.poi.xwpf.usermodel.*;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.docx4j.Docx4J;
@@ -138,7 +139,10 @@ public class DocxService {
 
     // remove file before update
     if (StringUtils.isNotBlank(contractTemplate.getFilePath())) {
-      Files.deleteIfExists(Paths.get(contractTemplate.getFilePath()).normalize());
+      Files.deleteIfExists(Paths.get(contractTemplate.getFilePath()).normalize()); // delete file docx
+      String pathHtml = contractTemplate.getFilePath().replace(".docx", ".html");
+      Files.deleteIfExists(Paths.get(pathHtml).normalize()); // delete file html
+
     }
 
     log.info(" Start save docx !");
@@ -238,8 +242,9 @@ public class DocxService {
     return Files.readString(Paths.get(htmlFileName));
   }
 
-  @Transactional
-  public String htmlToDocxBytes(String html, String fileName) throws Exception {
+  public String htmlToDocxBytes(String html, String fileName) {
+    try{
+      String filePath = pathFile + fileName + System.currentTimeMillis() + ".docx";
     // 1) Create a new empty Word document
     WordprocessingMLPackage wordPkg = WordprocessingMLPackage.createPackage();
 
@@ -254,11 +259,20 @@ public class DocxService {
     try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       wordPkg.save(out);
 
-      Path path = Paths.get(pathFile + fileName + System.currentTimeMillis() + ".docx");
+      Path path = Paths.get(filePath);
       Files.createDirectories(path.getParent());
       Files.write(path, out.toByteArray());
 
       return path.toString();
+
+    }catch (Exception e){
+      log.error("Save file to html error : {}", e.getMessage());
+      Files.deleteIfExists(Paths.get(filePath));
+      throw new CustomException("Save file to html error ");
+    }
+    }catch (Exception e){
+      log.error("Get byte to html error : {}", e.getMessage());
+      throw new CustomException("Get byte to html error ");
     }
   }
 }

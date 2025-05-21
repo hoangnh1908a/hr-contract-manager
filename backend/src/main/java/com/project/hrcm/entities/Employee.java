@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.transaction.annotation.Transactional;
 
 @Entity
 @Data
@@ -53,6 +54,12 @@ public class Employee {
   private LocalDate hireDate;
 
   @Column(nullable = false)
+  private String salary;
+
+  @Column(nullable = false)
+  private String salaryAllowance;
+
+  @Column(nullable = false)
   private Integer status;
 
   @CreationTimestamp
@@ -63,8 +70,13 @@ public class Employee {
 
   // Key
   @Column(nullable = false)
-  private String departmentId;
+  private Integer departmentId;
 
   @Column(nullable = false)
-  private String positionId;
+  private Integer positionId;
+
+  @Transient
+  private String department;
+  @Transient
+  private String position;
 }

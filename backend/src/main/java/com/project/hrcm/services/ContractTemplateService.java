@@ -9,6 +9,8 @@ import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.Utils;
 import jakarta.persistence.criteria.Predicate;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -159,33 +161,30 @@ public class ContractTemplateService {
                         messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND)));
   }
 
-  public void deleteContactTemplate(Integer id, Locale locale) {
-    Optional<ContractTemplate> contractTemplate = contractStatusRepository.findById(id);
-    contractTemplate.ifPresentOrElse(
-        contractStatusRepository::delete,
-        () -> {
-          throw new CustomException(
-              Utils.formatMessage(
-                  messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND));
-        });
+    public void deleteContactTemplate(Integer id, Locale locale) {
+        Optional<ContractTemplate> contractTemplate = contractStatusRepository.findById(id); // Changed variable name to contractTemplate
 
-    auditLogService.saveAuditLog(
-        Constants.DELETE, TABLE_NAME, id, Utils.gson.toJson(contractTemplate.get()), "");
-  }
+        contractTemplate.ifPresentOrElse(
+                template -> { // Added explicit lambda parameter name
+                    contractStatusRepository.delete(template);
+                    try {
+                        Files.deleteIfExists(Paths.get(template.getFilePath()).normalize());
+                        String pathHtml = template.getFilePath().replace(".docx", ".html");
+                        Files.deleteIfExists(Paths.get(pathHtml).normalize());
+                    } catch (IOException e) {
+                        // Handle the exception appropriately (see suggestion below)
+                        throw new CustomException(
+                                Utils.formatMessage(messageSource, locale, TABLE_NAME.toLowerCase(), "FILE_DELETE_FAILED")); //Added a new message for file deletion failure
+                    }
+                },
+                () -> {
+                    throw new CustomException(
+                            Utils.formatMessage(
+                                    messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND));
+                });
 
-  /***
-   *         String json = "[\"name\", \"address\"]";
-   *
-   *         // Convert to List
-   *         Gson gson = new Gson();
-   *         List<String> list = gson.fromJson(json, List.class);
-   *         System.out.println(list); // Output: [name, address]
-   *
-   *         // Convert to Array
-   *         String[] array = gson.fromJson(json, String[].class);
-   *         for (String item : array) {
-   *             System.out.println(item); // Output: name \n address
-   *         }
-   *     }
-   ***/
+        //Added null check
+        contractTemplate.ifPresent(template -> auditLogService.saveAuditLog(
+                Constants.DELETE, TABLE_NAME, id, Utils.gson.toJson(template), ""));
+    }
 }
