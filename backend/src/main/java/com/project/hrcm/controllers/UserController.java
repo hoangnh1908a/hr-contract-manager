@@ -1,6 +1,5 @@
 package com.project.hrcm.controllers;
 
-
 import com.project.hrcm.dto.UserInfoDetails;
 import com.project.hrcm.entities.UserInfo;
 import com.project.hrcm.models.requests.AuthValidateRequest;
@@ -10,12 +9,12 @@ import com.project.hrcm.services.JwtService;
 import com.project.hrcm.services.userInfo.UserInfoService;
 import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.Utils;
+import io.micrometer.common.util.StringUtils;
 import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import lombok.AllArgsConstructor;
-import io.micrometer.common.util.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -76,9 +75,9 @@ public class UserController {
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<String> resetPassword(@RequestBody UserRequest userRequest, Locale locale) {
 
-    if(StringUtils.isNotBlank(userRequest.getEmail())){
-        service.resetPassword(userRequest.getEmail(), userRequest.getNewPassword(), locale);
-    }else{
+    if (StringUtils.isNotBlank(userRequest.getEmail())) {
+      service.resetPassword(userRequest.getEmail(), userRequest.getNewPassword(), locale);
+    } else {
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

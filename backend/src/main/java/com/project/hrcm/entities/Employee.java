@@ -3,14 +3,12 @@ package com.project.hrcm.entities;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.transaction.annotation.Transactional;
 
 @Entity
 @Data
@@ -75,8 +73,6 @@ public class Employee {
   @Column(nullable = false)
   private Integer positionId;
 
-  @Transient
-  private String department;
-  @Transient
-  private String position;
+  @Transient private String department;
+  @Transient private String position;
 }

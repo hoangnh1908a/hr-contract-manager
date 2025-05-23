@@ -17,32 +17,24 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Table(name = "positions")
 public class Position {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
-    private Integer id;
+  @Builder.Default
+  @Column(nullable = false)
+  private final Integer status = 1;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(nullable = false)
+  private Integer id;
+  @Column(nullable = false)
+  private String name;
+  @Column(nullable = false)
+  private String nameEn;
+  @Column private Integer createdBy;
 
-    @Column(nullable = false)
-    private String name;
+  @Column private Integer updatedBy;
 
-    @Column(nullable = false)
-    private String nameEn;
+  @CreationTimestamp
+  @Column(updatable = false)
+  private LocalDateTime createdAt;
 
-    @Builder.Default
-    @Column(nullable = false)
-    private final Integer status = 1;
-
-    @Column
-    private Integer createdBy;
-
-    @Column
-    private Integer updatedBy;
-
-    @CreationTimestamp
-    @Column(updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column
-    private LocalDateTime updatedAt;
+  @UpdateTimestamp @Column private LocalDateTime updatedAt;
 }

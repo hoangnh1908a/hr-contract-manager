@@ -11,5 +11,4 @@ public class AuditLogRequest {
   private String newValue;
   private String oldValue;
   private String username;
-
 }

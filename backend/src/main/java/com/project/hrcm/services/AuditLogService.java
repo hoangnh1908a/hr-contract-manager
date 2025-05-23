@@ -6,6 +6,7 @@ import com.project.hrcm.models.requests.noRequired.AuditLogRequest;
 import com.project.hrcm.repository.AuditLogRepository;
 import com.project.hrcm.repository.UserInfoRepository;
 import com.project.hrcm.services.userInfo.UserInfoService;
+import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,13 +14,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
-import io.micrometer.common.util.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @AllArgsConstructor
 @Service

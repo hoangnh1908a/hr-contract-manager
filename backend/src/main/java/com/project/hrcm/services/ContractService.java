@@ -2,13 +2,9 @@ package com.project.hrcm.services;
 
 import com.project.hrcm.configs.CustomException;
 import com.project.hrcm.entities.Contract;
-import com.project.hrcm.entities.Employee;
-import com.project.hrcm.models.reponse.CustomContractData;
-import com.project.hrcm.models.reponse.DashboardResponseTotal;
 import com.project.hrcm.models.reponse.DownloadContractResponse;
 import com.project.hrcm.models.requests.noRequired.ContractRequest;
 import com.project.hrcm.repository.ContractRepository;
-import com.project.hrcm.repository.EmployeeRepository;
 import com.project.hrcm.services.userInfo.UserInfoService;
 import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.Utils;
@@ -23,8 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -134,16 +128,16 @@ public class ContractService {
 
     contract.ifPresentOrElse(
         c -> {
-//          String pathFile = c.getFilePath();
-//          Path path = Paths.get(pathFile).normalize();
-//          try {
-////            Files.deleteIfExists(path);
-//          } catch (IOException e) {
-//            log.info(" deleteContract error : {}", e.getMessage());
-//            throw new CustomException(
-//                Utils.formatMessage(
-//                    messageSource, locale, TABLE_NAME.toLowerCase(), Constants.ERROR));
-//          }
+          //          String pathFile = c.getFilePath();
+          //          Path path = Paths.get(pathFile).normalize();
+          //          try {
+          ////            Files.deleteIfExists(path);
+          //          } catch (IOException e) {
+          //            log.info(" deleteContract error : {}", e.getMessage());
+          //            throw new CustomException(
+          //                Utils.formatMessage(
+          //                    messageSource, locale, TABLE_NAME.toLowerCase(), Constants.ERROR));
+          //          }
           c.setContractStatusId(3);
           contractRepository.save(c);
         },

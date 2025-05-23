@@ -17,53 +17,43 @@ import org.springframework.security.core.GrantedAuthority;
 @Table(name = "users")
 public class UserInfo {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
-    private Integer id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(nullable = false)
+  private Integer id;
 
-    @Column(nullable = false)
-    private String fullName;
+  @Column(nullable = false)
+  private String fullName;
 
-    @Column(unique = true, length = 100, nullable = false)
-    private String email;
+  @Column(unique = true, length = 100, nullable = false)
+  private String email;
 
-    @Column
-    private Integer status;
+  @Column private Integer status;
 
-    @Column(nullable = false)
-    private String password;
+  @Column(nullable = false)
+  private String password;
 
-    @Column
-    private Integer passwordFailCount;
+  @Column private Integer passwordFailCount;
 
-    @Column
-    private Integer forcePasswordChangeOnLogin;
+  @Column private Integer forcePasswordChangeOnLogin;
 
-    @Column
-    private LocalDateTime passwordExpiryDate;
+  @Column private LocalDateTime passwordExpiryDate;
 
-    @Column
-    private LocalDateTime lockoutTime;
+  @Column private LocalDateTime lockoutTime;
 
-    @Column
-    private Integer createdBy;
+  @Column private Integer createdBy;
 
-    @Column
-    private Integer updatedBy;
+  @Column private Integer updatedBy;
 
-    @CreationTimestamp
-    @Column(updatable = false)
-    private LocalDateTime createdAt;
+  @CreationTimestamp
+  @Column(updatable = false)
+  private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column
-    private LocalDateTime updatedAt;
+  @UpdateTimestamp @Column private LocalDateTime updatedAt;
 
-    // Key
-    @Column(nullable = false)
-    private Integer roleId;
+  // Key
+  @Column(nullable = false)
+  private Integer roleId;
 
-    @Transient
-    private List<GrantedAuthority> roles;
+  @Transient private List<GrantedAuthority> roles;
 }

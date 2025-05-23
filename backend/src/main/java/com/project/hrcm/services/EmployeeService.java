@@ -99,8 +99,7 @@ public class EmployeeService {
     if (employeeRequest.getDepartmentId() != null)
       e.setDepartmentId(employeeRequest.getDepartmentId());
 
-    if (employeeRequest.getPositionId() != null)
-      e.setDepartmentId(employeeRequest.getPositionId());
+    if (employeeRequest.getPositionId() != null) e.setDepartmentId(employeeRequest.getPositionId());
   }
 
   public Page<Employee> getEmployees(EmployeeRequest employeeRequest, Pageable pageable) {

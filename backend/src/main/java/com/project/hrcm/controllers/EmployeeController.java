@@ -25,50 +25,57 @@ public class EmployeeController {
   private final EmployeeService service;
 
   @GetMapping()
-  @PreAuthorize("hasAnyAuthority(T(com.project.hrcm.utils.Constants).ROLE_ADMIN" +
-          ", T(com.project.hrcm.utils.Constants).ROLE_HR)")
-  public ResponseEntity<Page<Employee>> getEmployees(EmployeeRequest employeeRequest, Pageable pageable) {
+  @PreAuthorize(
+      "hasAnyAuthority(T(com.project.hrcm.utils.Constants).ROLE_ADMIN"
+          + ", T(com.project.hrcm.utils.Constants).ROLE_HR)")
+  public ResponseEntity<Page<Employee>> getEmployees(
+      EmployeeRequest employeeRequest, Pageable pageable) {
     Page<Employee> employees = service.getEmployees(employeeRequest, pageable);
     return new ResponseEntity<>(employees, HttpStatus.OK);
   }
 
   @GetMapping("/allName")
-  @PreAuthorize("hasAnyAuthority(T(com.project.hrcm.utils.Constants).ROLE_ADMIN" +
-          ", T(com.project.hrcm.utils.Constants).ROLE_HR)")
+  @PreAuthorize(
+      "hasAnyAuthority(T(com.project.hrcm.utils.Constants).ROLE_ADMIN"
+          + ", T(com.project.hrcm.utils.Constants).ROLE_HR)")
   public ResponseEntity<List<EmployeeNameData>> getAllNameEmployee() {
     List<EmployeeNameData> employees = service.getAllNameEmployees();
     return new ResponseEntity<>(employees, HttpStatus.OK);
   }
 
   @PostMapping("/get")
-  @PreAuthorize("hasAnyAuthority(T(com.project.hrcm.utils.Constants).ROLE_ADMIN" +
-          ", T(com.project.hrcm.utils.Constants).ROLE_HR)")
+  @PreAuthorize(
+      "hasAnyAuthority(T(com.project.hrcm.utils.Constants).ROLE_ADMIN"
+          + ", T(com.project.hrcm.utils.Constants).ROLE_HR)")
   public ResponseEntity<EmployeeValueData> getEmployeeById(
-          @Valid @RequestBody String id, Locale locale) {
-    return new ResponseEntity<>(service.getEmployeeById(Integer.valueOf(id), locale), HttpStatus.OK);
+      @Valid @RequestBody String id, Locale locale) {
+    return new ResponseEntity<>(
+        service.getEmployeeById(Integer.valueOf(id), locale), HttpStatus.OK);
   }
 
   @PostMapping("/create")
-  @PreAuthorize("hasAnyAuthority(T(com.project.hrcm.utils.Constants).ROLE_ADMIN" +
-          ", T(com.project.hrcm.utils.Constants).ROLE_HR)")
+  @PreAuthorize(
+      "hasAnyAuthority(T(com.project.hrcm.utils.Constants).ROLE_ADMIN"
+          + ", T(com.project.hrcm.utils.Constants).ROLE_HR)")
   public ResponseEntity<Employee> createEmployee(
-          @Valid @RequestBody EmployeeRequest employeeRequest, Locale locale) {
+      @Valid @RequestBody EmployeeRequest employeeRequest, Locale locale) {
     return new ResponseEntity<>(service.createEmployee(employeeRequest, locale), HttpStatus.OK);
   }
 
   @PostMapping("/update")
-  @PreAuthorize("hasAnyAuthority(T(com.project.hrcm.utils.Constants).ROLE_ADMIN" +
-          ", T(com.project.hrcm.utils.Constants).ROLE_HR)")
+  @PreAuthorize(
+      "hasAnyAuthority(T(com.project.hrcm.utils.Constants).ROLE_ADMIN"
+          + ", T(com.project.hrcm.utils.Constants).ROLE_HR)")
   public ResponseEntity<Employee> updateEmployee(
       @Valid @RequestBody EmployeeRequest employeeRequest, Locale locale) {
     return new ResponseEntity<>(service.updateEmployee(employeeRequest, locale), HttpStatus.OK);
   }
 
   @PostMapping("/delete")
-  @PreAuthorize("hasAnyAuthority(T(com.project.hrcm.utils.Constants).ROLE_ADMIN" +
-          ", T(com.project.hrcm.utils.Constants).ROLE_HR)")
-  public ResponseEntity<String> deleteEmployee(
-          @Valid @RequestBody String id, Locale locale) {
+  @PreAuthorize(
+      "hasAnyAuthority(T(com.project.hrcm.utils.Constants).ROLE_ADMIN"
+          + ", T(com.project.hrcm.utils.Constants).ROLE_HR)")
+  public ResponseEntity<String> deleteEmployee(@Valid @RequestBody String id, Locale locale) {
     service.deleteEmployee(Integer.valueOf(id), locale);
     return ResponseEntity.ok(Constants.SUCCESS);
   }

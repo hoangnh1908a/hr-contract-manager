@@ -23,8 +23,10 @@ public class ContactApprovalController {
 
   @GetMapping()
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<Page<ContractApproval>> getContactApprovals(ContractApprovalRequest contractApprovalRequest, Pageable pageable) {
-    Page<ContractApproval> contactApprovals = service.getContactApprovals(contractApprovalRequest, pageable);
+  public ResponseEntity<Page<ContractApproval>> getContactApprovals(
+      ContractApprovalRequest contractApprovalRequest, Pageable pageable) {
+    Page<ContractApproval> contactApprovals =
+        service.getContactApprovals(contractApprovalRequest, pageable);
     return new ResponseEntity<>(contactApprovals, HttpStatus.OK);
   }
 

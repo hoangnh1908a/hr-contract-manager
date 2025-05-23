@@ -7,6 +7,7 @@ import com.project.hrcm.repository.ContractTemplateRepository;
 import com.project.hrcm.services.userInfo.UserInfoService;
 import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.Utils;
+import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.criteria.Predicate;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,7 +17,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
-import io.micrometer.common.util.StringUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -139,7 +139,7 @@ public class ContractTemplateService {
                 } catch (IOException e) {
                   throw new RuntimeException(e);
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                  throw new RuntimeException(e);
                 }
               }
 
@@ -161,30 +161,37 @@ public class ContractTemplateService {
                         messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND)));
   }
 
-    public void deleteContactTemplate(Integer id, Locale locale) {
-        Optional<ContractTemplate> contractTemplate = contractStatusRepository.findById(id); // Changed variable name to contractTemplate
+  public void deleteContactTemplate(Integer id, Locale locale) {
+    Optional<ContractTemplate> contractTemplate =
+        contractStatusRepository.findById(id); // Changed variable name to contractTemplate
 
-        contractTemplate.ifPresentOrElse(
-                template -> { // Added explicit lambda parameter name
-                    contractStatusRepository.delete(template);
-                    try {
-                        Files.deleteIfExists(Paths.get(template.getFilePath()).normalize());
-                        String pathHtml = template.getFilePath().replace(".docx", ".html");
-                        Files.deleteIfExists(Paths.get(pathHtml).normalize());
-                    } catch (IOException e) {
-                        // Handle the exception appropriately (see suggestion below)
-                        throw new CustomException(
-                                Utils.formatMessage(messageSource, locale, TABLE_NAME.toLowerCase(), "FILE_DELETE_FAILED")); //Added a new message for file deletion failure
-                    }
-                },
-                () -> {
-                    throw new CustomException(
-                            Utils.formatMessage(
-                                    messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND));
-                });
+    contractTemplate.ifPresentOrElse(
+        template -> { // Added explicit lambda parameter name
+          contractStatusRepository.delete(template);
+          try {
+            Files.deleteIfExists(Paths.get(template.getFilePath()).normalize());
+            String pathHtml = template.getFilePath().replace(".docx", ".html");
+            Files.deleteIfExists(Paths.get(pathHtml).normalize());
+          } catch (IOException e) {
+            // Handle the exception appropriately (see suggestion below)
+            throw new CustomException(
+                Utils.formatMessage(
+                    messageSource,
+                    locale,
+                    TABLE_NAME.toLowerCase(),
+                    "FILE_DELETE_FAILED")); // Added a new message for file deletion failure
+          }
+        },
+        () -> {
+          throw new CustomException(
+              Utils.formatMessage(
+                  messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND));
+        });
 
-        //Added null check
-        contractTemplate.ifPresent(template -> auditLogService.saveAuditLog(
+    // Added null check
+    contractTemplate.ifPresent(
+        template ->
+            auditLogService.saveAuditLog(
                 Constants.DELETE, TABLE_NAME, id, Utils.gson.toJson(template), ""));
-    }
+  }
 }

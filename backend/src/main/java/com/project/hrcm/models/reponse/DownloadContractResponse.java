@@ -9,6 +9,6 @@ import lombok.Data;
 @Builder
 public class DownloadContractResponse {
 
-    private String fileName;
-    private byte[] file;
+  private String fileName;
+  private byte[] file;
 }

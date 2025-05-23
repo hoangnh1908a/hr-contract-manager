@@ -7,10 +7,9 @@ import com.project.hrcm.models.requests.NameValidateRequest;
 import com.project.hrcm.repository.PositionRepository;
 import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.Utils;
+import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
 import java.util.Locale;
 import java.util.Optional;
-
-import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
 import lombok.AllArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
@@ -26,12 +25,12 @@ public class PositionService {
   private final PositionRepository positionRepository;
   private final MessageSource messageSource;
   private final AuditLogService auditLogService;
-    private final ProcessorMetrics processorMetrics;
+  private final ProcessorMetrics processorMetrics;
 
-    public Page<Position> getPositions(String name, Pageable pageable, Locale locale) {
-      if (Constants.EN.equalsIgnoreCase(locale.getLanguage())) {
-          return positionRepository.findByNameEnContainingIgnoreCase(name, pageable);
-      }
+  public Page<Position> getPositions(String name, Pageable pageable, Locale locale) {
+    if (Constants.EN.equalsIgnoreCase(locale.getLanguage())) {
+      return positionRepository.findByNameEnContainingIgnoreCase(name, pageable);
+    }
     return positionRepository.findByNameContainingIgnoreCase(name, pageable);
   }
 
@@ -56,7 +55,8 @@ public class PositionService {
           Utils.formatMessage(
               messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NAME_EXISTS));
     }
-    Position position = Position.builder()
+    Position position =
+        Position.builder()
             .name(nameValidateRequest.getName())
             .nameEn(nameValidateRequest.getNameEn())
             .build();
@@ -99,6 +99,7 @@ public class PositionService {
                   TABLE_NAME.toLowerCase() + Constants.NOT_FOUND, null, locale));
         });
 
-    auditLogService.saveAuditLog(Constants.DELETE, TABLE_NAME, id, Utils.gson.toJson(position.get()), "");
+    auditLogService.saveAuditLog(
+        Constants.DELETE, TABLE_NAME, id, Utils.gson.toJson(position.get()), "");
   }
 }

@@ -19,7 +19,6 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
-import org.apache.poi.util.StringUtil;
 import org.apache.poi.xwpf.usermodel.*;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.docx4j.Docx4J;
@@ -33,7 +32,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @AllArgsConstructor
@@ -139,10 +137,10 @@ public class DocxService {
 
     // remove file before update
     if (StringUtils.isNotBlank(contractTemplate.getFilePath())) {
-      Files.deleteIfExists(Paths.get(contractTemplate.getFilePath()).normalize()); // delete file docx
+      Files.deleteIfExists(
+          Paths.get(contractTemplate.getFilePath()).normalize()); // delete file docx
       String pathHtml = contractTemplate.getFilePath().replace(".docx", ".html");
       Files.deleteIfExists(Paths.get(pathHtml).normalize()); // delete file html
-
     }
 
     log.info(" Start save docx !");
@@ -243,34 +241,34 @@ public class DocxService {
   }
 
   public String htmlToDocxBytes(String html, String fileName) {
-    try{
+    try {
       String filePath = pathFile + fileName + System.currentTimeMillis() + ".docx";
-    // 1) Create a new empty Word document
-    WordprocessingMLPackage wordPkg = WordprocessingMLPackage.createPackage();
+      // 1) Create a new empty Word document
+      WordprocessingMLPackage wordPkg = WordprocessingMLPackage.createPackage();
 
-    // 2) Get its MainDocumentPart
-    MainDocumentPart main = wordPkg.getMainDocumentPart();
+      // 2) Get its MainDocumentPart
+      MainDocumentPart main = wordPkg.getMainDocumentPart();
 
-    // 3) Use the XHTML importer to parse & add your HTML
-    XHTMLImporterImpl xhtmlImporter = new XHTMLImporterImpl(wordPkg);
-    main.getContent().addAll(xhtmlImporter.convert(html, null));
+      // 3) Use the XHTML importer to parse & add your HTML
+      XHTMLImporterImpl xhtmlImporter = new XHTMLImporterImpl(wordPkg);
+      main.getContent().addAll(xhtmlImporter.convert(html, null));
 
-    // 4) Save to a byte[] and return
-    try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-      wordPkg.save(out);
+      // 4) Save to a byte[] and return
+      try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+        wordPkg.save(out);
 
-      Path path = Paths.get(filePath);
-      Files.createDirectories(path.getParent());
-      Files.write(path, out.toByteArray());
+        Path path = Paths.get(filePath);
+        Files.createDirectories(path.getParent());
+        Files.write(path, out.toByteArray());
 
-      return path.toString();
+        return path.toString();
 
-    }catch (Exception e){
-      log.error("Save file to html error : {}", e.getMessage());
-      Files.deleteIfExists(Paths.get(filePath));
-      throw new CustomException("Save file to html error ");
-    }
-    }catch (Exception e){
+      } catch (Exception e) {
+        log.error("Save file to html error : {}", e.getMessage());
+        Files.deleteIfExists(Paths.get(filePath));
+        throw new CustomException("Save file to html error ");
+      }
+    } catch (Exception e) {
       log.error("Get byte to html error : {}", e.getMessage());
       throw new CustomException("Get byte to html error ");
     }

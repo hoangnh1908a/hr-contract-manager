@@ -28,14 +28,12 @@ public class Contract {
   @Column(nullable = false)
   private String fileNameEn;
 
-  @Column
-  private String description;
+  @Column private String description;
 
   @Column(nullable = false)
   private String contractType;
 
-  @Column
-  private String filePath;
+  @Column private String filePath;
 
   @Column(updatable = false)
   private Integer createdBy;

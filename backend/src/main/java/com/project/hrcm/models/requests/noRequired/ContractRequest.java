@@ -19,5 +19,4 @@ public class ContractRequest {
   private Integer employeeId;
   private Integer contractTemplateId;
   private Integer contractStatusId;
-
 }

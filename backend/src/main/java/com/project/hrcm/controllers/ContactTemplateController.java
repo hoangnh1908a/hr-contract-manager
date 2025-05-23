@@ -5,7 +5,6 @@ import com.project.hrcm.models.requests.noRequired.ContactTemplateRequest;
 import com.project.hrcm.services.ContractTemplateService;
 import com.project.hrcm.utils.Constants;
 import jakarta.validation.Valid;
-import java.io.IOException;
 import java.util.Locale;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -47,7 +46,8 @@ public class ContactTemplateController {
       Locale locale)
       throws Exception {
     return new ResponseEntity<>(
-        service.createContactTemplate(file, fileName, fileNameEn, description, status, locale), HttpStatus.OK);
+        service.createContactTemplate(file, fileName, fileNameEn, description, status, locale),
+        HttpStatus.OK);
   }
 
   @PostMapping("/update")
@@ -62,7 +62,8 @@ public class ContactTemplateController {
       @RequestParam("status") Integer status,
       Locale locale) {
     return new ResponseEntity<>(
-        service.updateContractTemplate(file, fileName, fileNameEn, description, status, locale), HttpStatus.OK);
+        service.updateContractTemplate(file, fileName, fileNameEn, description, status, locale),
+        HttpStatus.OK);
   }
 
   @PostMapping("/delete")

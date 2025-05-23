@@ -42,6 +42,5 @@ public class AuditLog {
   @Column(nullable = false)
   private Integer userId;
 
-  @Transient
-  private String fullName;
+  @Transient private String fullName;
 }

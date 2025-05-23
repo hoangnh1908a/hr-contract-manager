@@ -11,8 +11,8 @@ public class Constants {
 
   // ROLE
   /*
-  * FULL : LEAD -> MANAGER -> SOD -> HOD -> HRD -> CEO
-  * */
+   * FULL : LEAD -> MANAGER -> SOD -> HOD -> HRD -> CEO
+   * */
   public static final String ROLE_ADMIN = "ADMIN";
   public static final String ROLE_HR = "HR";
   public static final String ROLE_TEAM_LEAD = "TEAM_LEAD";
@@ -33,5 +33,4 @@ public class Constants {
   public static final String NOT_FOUND = "not_found";
   public static final String NAME_EXISTS = "name_exists";
   public static final String USER_LOCK = "user_lock";
-
 }

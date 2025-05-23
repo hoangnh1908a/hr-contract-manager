@@ -24,7 +24,8 @@ public class RoleController {
 
   @GetMapping()
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<Page<Role>> getRoles(@RequestParam(required = false) String name, Pageable pageable, Locale locale) {
+  public ResponseEntity<Page<Role>> getRoles(
+      @RequestParam(required = false) String name, Pageable pageable, Locale locale) {
     Page<Role> roles = service.getRoles(name, pageable, locale);
     return new ResponseEntity<>(roles, HttpStatus.OK);
   }
@@ -46,7 +47,7 @@ public class RoleController {
   @PostMapping("/update")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<Role> updateRole(
-          @Valid @RequestBody BaseValidateRequest baseValidateRequest, Locale locale) {
+      @Valid @RequestBody BaseValidateRequest baseValidateRequest, Locale locale) {
     return new ResponseEntity<>(service.updateRole(baseValidateRequest, locale), HttpStatus.OK);
   }
 

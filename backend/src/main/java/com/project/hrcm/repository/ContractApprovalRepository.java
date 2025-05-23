@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ContractApprovalRepository extends JpaRepository<ContractApproval, Integer>, JpaSpecificationExecutor<ContractApproval> {}
+public interface ContractApprovalRepository
+    extends JpaRepository<ContractApproval, Integer>, JpaSpecificationExecutor<ContractApproval> {}

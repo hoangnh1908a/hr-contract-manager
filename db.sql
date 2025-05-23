@@ -113,19 +113,6 @@
       `updated_at` TIMESTAMP
     );
 
-    CREATE TABLE `contract_approvals` (
-      `id` INT PRIMARY KEY AUTO_INCREMENT,
-      `contract_id` INT NOT NULL,
-      `approved_by` INT NOT NULL,
-      `approval_status` TINYINT NOT NULL DEFAULT 1,
-      `approval_date` TIMESTAMP,
-      `comments` VARCHAR(2000),
-      `created_by` INT NOT NULL,
-      `updated_by` INT,
-      `created_at` TIMESTAMP,
-      `updated_at` TIMESTAMP
-    );
-
     CREATE TABLE `audit_logs` (
       `id` INT PRIMARY KEY AUTO_INCREMENT,
       `user_id` INT NOT NULL,
@@ -172,14 +159,6 @@
     ALTER TABLE `contracts` ADD FOREIGN KEY (`created_by`) REFERENCES `users` (`id`);
 
     ALTER TABLE `contracts` ADD FOREIGN KEY (`updated_by`) REFERENCES `users` (`id`);
-
-    ALTER TABLE `contract_approvals` ADD FOREIGN KEY (`contract_id`) REFERENCES `contracts` (`id`) ;
-
-    ALTER TABLE `contract_approvals` ADD FOREIGN KEY (`approved_by`) REFERENCES `users` (`id`) ;
-
-    ALTER TABLE `contract_approvals` ADD FOREIGN KEY (`created_by`) REFERENCES `users` (`id`);
-
-    ALTER TABLE `contract_approvals` ADD FOREIGN KEY (`updated_by`) REFERENCES `users` (`id`);
 
     ALTER TABLE `audit_logs` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 

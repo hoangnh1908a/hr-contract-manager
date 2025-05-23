@@ -31,8 +31,7 @@ public class ContractTemplate {
   @Column(nullable = false)
   private String filePath;
 
-  @Column
-  private String params;
+  @Column private String params;
 
   @Column(nullable = false)
   private String description;

@@ -7,12 +7,10 @@ import com.project.hrcm.models.requests.NameValidateRequest;
 import com.project.hrcm.repository.RoleRepository;
 import com.project.hrcm.utils.Constants;
 import com.project.hrcm.utils.Utils;
+import io.micrometer.common.util.StringUtils;
 import java.util.Locale;
 import java.util.Optional;
-
-import io.micrometer.common.util.StringUtils;
 import lombok.AllArgsConstructor;
-import org.apache.poi.util.StringUtil;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -110,6 +108,7 @@ public class RoleService {
                   messageSource, locale, TABLE_NAME.toLowerCase(), Constants.NOT_FOUND));
         });
 
-    auditLogService.saveAuditLog(Constants.DELETE, TABLE_NAME, id, Utils.gson.toJson(role.get()), "");
+    auditLogService.saveAuditLog(
+        Constants.DELETE, TABLE_NAME, id, Utils.gson.toJson(role.get()), "");
   }
 }

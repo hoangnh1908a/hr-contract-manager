@@ -6,20 +6,20 @@ import lombok.Data;
 @Data
 public class ConfigsRequest {
 
-    private Integer id;
-    
-    @NotBlank(message = "The type is required.")
-    private String type;
-    
-    @NotBlank(message = "The code is required.")
-    private String code;
+  private Integer id;
 
-    @NotBlank(message = "The name is required.")
-    private String name;
+  @NotBlank(message = "The type is required.")
+  private String type;
 
-    @NotBlank(message = "The name in English is required.")
-    private String nameEn;
+  @NotBlank(message = "The code is required.")
+  private String code;
 
-    @NotBlank(message = "The description is required.")
-    private String description;
-} 
+  @NotBlank(message = "The name is required.")
+  private String name;
+
+  @NotBlank(message = "The name in English is required.")
+  private String nameEn;
+
+  @NotBlank(message = "The description is required.")
+  private String description;
+}

@@ -15,53 +15,53 @@ import org.springframework.context.MessageSource;
 
 public class Utils {
 
-  private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+  private static final DateTimeFormatter DATE_TIME_FORMATTER =
+      DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
   private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-
   public static final Gson gson =
-          new GsonBuilder()
-                  // LocalDateTime Adapter
-                  .registerTypeAdapter(
-                          LocalDateTime.class,
-                          new JsonSerializer<LocalDateTime>() {
-                            @Override
-                            public JsonElement serialize(
-                                    LocalDateTime src, Type typeOfSrc, JsonSerializationContext context) {
-                              return new JsonPrimitive(src.format(DATE_TIME_FORMATTER));
-                            }
-                          })
-                  .registerTypeAdapter(
-                          LocalDateTime.class,
-                          new JsonDeserializer<LocalDateTime>() {
-                            @Override
-                            public LocalDateTime deserialize(
-                                    JsonElement json, Type typeOfT, JsonDeserializationContext context)
-                                    throws JsonParseException {
-                              return LocalDateTime.parse(json.getAsString(), DATE_TIME_FORMATTER);
-                            }
-                          })
-                  // LocalDate Adapter
-                  .registerTypeAdapter(
-                          LocalDate.class,
-                          new JsonSerializer<LocalDate>() {
-                            @Override
-                            public JsonElement serialize(
-                                    LocalDate src, Type typeOfSrc, JsonSerializationContext context) {
-                              return new JsonPrimitive(src.format(DATE_FORMATTER));
-                            }
-                          })
-                  .registerTypeAdapter(
-                          LocalDate.class,
-                          new JsonDeserializer<LocalDate>() {
-                            @Override
-                            public LocalDate deserialize(
-                                    JsonElement json, Type typeOfT, JsonDeserializationContext context)
-                                    throws JsonParseException {
-                              return LocalDate.parse(json.getAsString(), DATE_FORMATTER);
-                            }
-                          })
-                  .create();
+      new GsonBuilder()
+          // LocalDateTime Adapter
+          .registerTypeAdapter(
+              LocalDateTime.class,
+              new JsonSerializer<LocalDateTime>() {
+                @Override
+                public JsonElement serialize(
+                    LocalDateTime src, Type typeOfSrc, JsonSerializationContext context) {
+                  return new JsonPrimitive(src.format(DATE_TIME_FORMATTER));
+                }
+              })
+          .registerTypeAdapter(
+              LocalDateTime.class,
+              new JsonDeserializer<LocalDateTime>() {
+                @Override
+                public LocalDateTime deserialize(
+                    JsonElement json, Type typeOfT, JsonDeserializationContext context)
+                    throws JsonParseException {
+                  return LocalDateTime.parse(json.getAsString(), DATE_TIME_FORMATTER);
+                }
+              })
+          // LocalDate Adapter
+          .registerTypeAdapter(
+              LocalDate.class,
+              new JsonSerializer<LocalDate>() {
+                @Override
+                public JsonElement serialize(
+                    LocalDate src, Type typeOfSrc, JsonSerializationContext context) {
+                  return new JsonPrimitive(src.format(DATE_FORMATTER));
+                }
+              })
+          .registerTypeAdapter(
+              LocalDate.class,
+              new JsonDeserializer<LocalDate>() {
+                @Override
+                public LocalDate deserialize(
+                    JsonElement json, Type typeOfT, JsonDeserializationContext context)
+                    throws JsonParseException {
+                  return LocalDate.parse(json.getAsString(), DATE_FORMATTER);
+                }
+              })
+          .create();
 
   private static final String UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   private static final String LOWER = "abcdefghijklmnopqrstuvwxyz";

@@ -3,14 +3,12 @@ package com.project.hrcm.repository;
 import com.project.hrcm.entities.Employee;
 import com.project.hrcm.models.reponse.EmployeeNameData;
 import com.project.hrcm.models.reponse.EmployeeValueData;
-import com.project.hrcm.models.reponse.TableDashboard;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface EmployeeRepository
@@ -18,13 +16,16 @@ public interface EmployeeRepository
 
   boolean existsByEmail(String email);
 
-  @Query("SELECT new com.project.hrcm.models.reponse.EmployeeNameData(e.id, e.fullName) FROM Employee e")
+  @Query(
+      "SELECT new com.project.hrcm.models.reponse.EmployeeNameData(e.id, e.fullName) FROM Employee e")
   List<EmployeeNameData> findEmployeeName();
 
-  @Query(value = "SELECT new com.project.hrcm.models.reponse.EmployeeValueData(e" +
-          ", (SELECT p.name FROM Position p WHERE p.id = e.positionId)" +
-          ", (SELECT d.name FROM Department d WHERE d.id = e.departmentId))" +
-          " FROM Employee e WHERE e.id = :id")
+  @Query(
+      value =
+          "SELECT new com.project.hrcm.models.reponse.EmployeeValueData(e"
+              + ", (SELECT p.name FROM Position p WHERE p.id = e.positionId)"
+              + ", (SELECT d.name FROM Department d WHERE d.id = e.departmentId))"
+              + " FROM Employee e WHERE e.id = :id")
   Optional<EmployeeValueData> findByIdCustom(Integer id);
 
   List<Employee> countAllById(Integer id);

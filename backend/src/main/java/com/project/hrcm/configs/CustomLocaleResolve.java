@@ -8,25 +8,24 @@ import org.springframework.web.servlet.LocaleResolver;
 
 public class CustomLocaleResolve implements LocaleResolver {
 
-    @SuppressWarnings("null")
-    @Override
-    public Locale resolveLocale(HttpServletRequest request) {
-        String lang = request.getParameter("lang");
+  @SuppressWarnings("null")
+  @Override
+  public Locale resolveLocale(HttpServletRequest request) {
+    String lang = request.getParameter("lang");
 
-        if (StringUtils.hasText(lang)) {
-            return Locale.forLanguageTag(lang);
-        }
-
-        String acceptLanguageHeader = request.getHeader("Accept-Language");
-        if (StringUtils.hasText(acceptLanguageHeader)) {
-            return request.getLocale();
-        }
-
-        return Locale.getDefault();
+    if (StringUtils.hasText(lang)) {
+      return Locale.forLanguageTag(lang);
     }
 
-    @SuppressWarnings("null")
-    @Override
-    public void setLocale(HttpServletRequest request, HttpServletResponse response, Locale locale){
+    String acceptLanguageHeader = request.getHeader("Accept-Language");
+    if (StringUtils.hasText(acceptLanguageHeader)) {
+      return request.getLocale();
     }
+
+    return Locale.getDefault();
+  }
+
+  @SuppressWarnings("null")
+  @Override
+  public void setLocale(HttpServletRequest request, HttpServletResponse response, Locale locale) {}
 }

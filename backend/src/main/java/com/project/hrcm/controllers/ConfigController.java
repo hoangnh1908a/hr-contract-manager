@@ -24,7 +24,8 @@ public class ConfigController {
 
   @GetMapping()
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<Page<Config>> getConfig(ConfigRequest configRequest, Pageable pageable, Locale locale) {
+  public ResponseEntity<Page<Config>> getConfig(
+      ConfigRequest configRequest, Pageable pageable, Locale locale) {
     Page<Config> config = service.getConfig(configRequest, pageable, locale);
     return new ResponseEntity<>(config, HttpStatus.OK);
   }
@@ -32,7 +33,7 @@ public class ConfigController {
   @PostMapping("/create")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<Config> createConfig(
-          @Valid @RequestBody ConfigsRequest configsRequest, Locale locale) {
+      @Valid @RequestBody ConfigsRequest configsRequest, Locale locale) {
     return new ResponseEntity<>(service.createConfig(configsRequest, locale), HttpStatus.OK);
   }
 
@@ -40,15 +41,14 @@ public class ConfigController {
   @PostMapping("/update")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
   public ResponseEntity<Config> updateConfig(
-          @Valid @RequestBody ConfigsRequest configsRequest, Locale locale) {
+      @Valid @RequestBody ConfigsRequest configsRequest, Locale locale) {
     return new ResponseEntity<>(service.updateConfig(configsRequest, locale), HttpStatus.OK);
   }
 
   // Delete Config
   @PostMapping("/delete")
   @PreAuthorize("hasAuthority('" + Constants.ROLE_ADMIN + "')")
-  public ResponseEntity<String> deleteConfig(
-          @Valid @RequestBody String id, Locale locale) {
+  public ResponseEntity<String> deleteConfig(@Valid @RequestBody String id, Locale locale) {
     service.deleteConfig(Integer.valueOf(id), locale);
 
     return ResponseEntity.ok(Constants.SUCCESS);

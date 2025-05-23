@@ -1,13 +1,11 @@
 package com.project.hrcm.controllers;
 
 import com.project.hrcm.entities.Contract;
-import com.project.hrcm.models.reponse.DashboardResponseTotal;
 import com.project.hrcm.models.reponse.DownloadContractResponse;
 import com.project.hrcm.models.requests.noRequired.ContractRequest;
 import com.project.hrcm.services.ContractService;
 import com.project.hrcm.utils.Constants;
 import jakarta.validation.Valid;
-
 import java.util.Locale;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -55,21 +53,21 @@ public class ContractController {
   }
 
   @PostMapping("/download")
-  public ResponseEntity<byte[]> downloadDocxFile(
-      @Valid @RequestBody Integer id, Locale locale) {
+  public ResponseEntity<byte[]> downloadDocxFile(@Valid @RequestBody Integer id, Locale locale) {
     DownloadContractResponse response = service.downloadContract(id, locale);
     // Return the file as a ResponseEntity
     return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION
-                    , "attachment; filename=\"" + response.getFileName() + "\"")
-            .contentType(MediaType.APPLICATION_OCTET_STREAM)
-            .body(response.getFile());
+        .header(
+            HttpHeaders.CONTENT_DISPOSITION,
+            "attachment; filename=\"" + response.getFileName() + "\"")
+        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+        .body(response.getFile());
   }
 
   @PostMapping("/terminated")
   @PreAuthorize(
-          "hasAnyAuthority(T(com.project.hrcm.utils.Constants).ROLE_ADMIN"
-                  + ", T(com.project.hrcm.utils.Constants).ROLE_HR)")
+      "hasAnyAuthority(T(com.project.hrcm.utils.Constants).ROLE_ADMIN"
+          + ", T(com.project.hrcm.utils.Constants).ROLE_HR)")
   public ResponseEntity<String> contractTerminated(@Valid @RequestBody String id, Locale locale) {
     service.deleteContract(Integer.valueOf(id), locale);
     return ResponseEntity.ok(Constants.SUCCESS);
