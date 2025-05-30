@@ -105,7 +105,7 @@ public class ContractService {
     try {
       String filePath =
           docxService.htmlToDocxBytes(
-              contractRequest.getHtmlContract(), contractRequest.getFileName());
+              contractRequest.getHtmlContract(), contractRequest.getFileNameEn());
 
       contract.setFilePath(filePath);
       contract.setCreatedBy(UserInfoService.getCurrentUserId());
@@ -165,10 +165,7 @@ public class ContractService {
         byte[] data = Files.readAllBytes(filePath);
         // Return the file as a ResponseEntity
         return DownloadContractResponse.builder()
-            .fileName(
-                Constants.EN.equalsIgnoreCase(locale.getLanguage())
-                    ? contract.get().getFileNameEn()
-                    : contract.get().getFileName())
+            .fileName(contract.get().getFileNameEn())
             .file(data)
             .build();
 

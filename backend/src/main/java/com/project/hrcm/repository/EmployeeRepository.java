@@ -17,7 +17,8 @@ public interface EmployeeRepository
   boolean existsByEmail(String email);
 
   @Query(
-      "SELECT new com.project.hrcm.models.reponse.EmployeeNameData(e.id, e.fullName) FROM Employee e")
+      "SELECT new com.project.hrcm.models.reponse.EmployeeNameData(e.id, e.fullName || ' (' || d.name || ')' )" +
+              " FROM Employee e LEFT JOIN Department d on d.id = e.departmentId")
   List<EmployeeNameData> findEmployeeName();
 
   @Query(
