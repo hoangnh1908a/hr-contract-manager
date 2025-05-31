@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.poi.xwpf.usermodel.*;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.docx4j.Docx4J;
@@ -242,6 +243,8 @@ public class DocxService {
 
   public String htmlToDocxBytes(String html, String fileName) {
     try {
+      String cleanHtml = validateHtml(html);
+
       String filePath = pathFile + fileName + System.currentTimeMillis() + ".docx";
       // 1) Create a new empty Word document
       WordprocessingMLPackage wordPkg = WordprocessingMLPackage.createPackage();
@@ -251,7 +254,7 @@ public class DocxService {
 
       // 3) Use the XHTML importer to parse & add your HTML
       XHTMLImporterImpl xhtmlImporter = new XHTMLImporterImpl(wordPkg);
-      main.getContent().addAll(xhtmlImporter.convert(html, null));
+      main.getContent().addAll(xhtmlImporter.convert(cleanHtml, null));
 
       // 4) Save to a byte[] and return
       try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
@@ -272,5 +275,14 @@ public class DocxService {
       log.error("Get byte to html error : {}", e.getMessage());
       throw new CustomException("Get byte to html error ");
     }
+  }
+
+  private String validateHtml(String html){
+    String cleanHtml = html.trim(); // xóa khoảng trắng đầu cuối
+
+    if (!cleanHtml.startsWith("<")) {
+      throw new RuntimeException("HTML content is malformed: starts with illegal character");
+    }
+    return cleanHtml.replaceAll("&(?!amp;|lt;|gt;|quot;|apos;|#[0-9]+;|#x[0-9a-fA-F]+;)", "&amp;");
   }
 }

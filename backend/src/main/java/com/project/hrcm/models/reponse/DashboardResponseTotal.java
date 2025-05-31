@@ -8,8 +8,8 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class DashboardResponseTotal {
-  private Long totalEmployees;
-  private Long totalApprovedContracts;
-  private Long totalPendingContracts;
-  private Long totalContractExpiring;
+  private Integer totalEmployees;
+  private Integer totalApprovedContracts;
+  private Integer totalPendingContracts;
+  private Integer totalContractExpiring;
 }

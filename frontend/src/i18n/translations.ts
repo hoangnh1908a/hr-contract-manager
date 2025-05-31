@@ -342,7 +342,7 @@ export interface Translations {
 export const translations: Record<Language, Translations> = {
   en: {
     login: {
-      title: 'Welcome to Company! 👋',
+      title: '',
       subtitle: 'Please sign in to your account and start the adventure',
       email: 'Email',
       password: 'Password',
@@ -357,8 +357,8 @@ export const translations: Record<Language, Translations> = {
       authFailed: 'Authentication failed'
     },
     register: {
-      title: 'Adventure starts here 🚀',
-      subtitle: 'Make your app management easy and fun!',
+      title: 'Adventure starts here ',
+      subtitle: '',
       username: 'Username',
       email: 'Email',
       password: 'Password',
@@ -680,8 +680,8 @@ export const translations: Record<Language, Translations> = {
   },
   vi: {
     login: {
-      title: 'Chào mừng đến với Company!👋🏻',
-      subtitle: 'Vui lòng đăng nhập vào tài khoản và bắt đầu cuộc hành trình',
+      title: 'Chào mừng đến với Company',
+      subtitle: '',
       email: 'Email',
       password: 'Mật khẩu',
       loginButton: 'Đăng nhập',
@@ -695,8 +695,8 @@ export const translations: Record<Language, Translations> = {
       authFailed: 'Xác thực thất bại'
     },
     register: {
-      title: 'Hành trình bắt đầu từ đây 🚀',
-      subtitle: 'Làm cho việc quản lý ứng dụng trở nên dễ dàng và thú vị!',
+      title: 'Hành trình bắt đầu từ đây',
+      subtitle: '',
       username: 'Tên đăng nhập',
       email: 'Email',
       password: 'Mật khẩu',

@@ -17,7 +17,9 @@ public interface EmployeeRepository
   boolean existsByEmail(String email);
 
   @Query(
-      "SELECT new com.project.hrcm.models.reponse.EmployeeNameData(e.id, e.fullName) FROM Employee e")
+      "SELECT new com.project.hrcm.models.reponse.EmployeeNameData(e.id, e.fullName || ' (' || d.name || ')' )" +
+              " FROM Employee e " +
+              "LEFT JOIN Department d on d.id = e.departmentId ")
   List<EmployeeNameData> findEmployeeName();
 
   @Query(
@@ -43,11 +45,12 @@ public interface EmployeeRepository
               + "       (select name from positions where id = e.position_id) as position,\n"
               + "       (select name from departments where id = e.department_id) as department,\n"
               + "        c.contract_type as contractType,\n"
-              + "        adddate(e.hire_date,INTERVAL c.contract_type MONTH) as contractEndDate\n"
+              + "        DATE_ADD(e.hire_date,INTERVAL c.contract_type MONTH) as contractEndDate\n"
               + "       FROM employees e\n"
               + "       LEFT JOIN contracts c ON c.employee_id = e.id and contract_status_id = 1\n"
-              + "       WHERE DATE_ADD(e.hire_date, INTERVAL c.contract_type MONTH )\n"
-              + "                   <= DATE_SUB(CURDATE(), INTERVAL :monthExpire MONTH)",
+              + "       WHERE DATE_ADD(e.hire_date, INTERVAL c.contract_type MONTH) " +
+                          "BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL :monthExpire MONTH) " +
+                  " ORDER BY contractEndDate ASC ",
       nativeQuery = true)
   List<Object[]> findTableExpiringEmployee(Integer monthExpire);
 }
