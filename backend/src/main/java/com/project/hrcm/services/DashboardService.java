@@ -5,6 +5,10 @@ import com.project.hrcm.models.reponse.DashboardResponseTotal;
 import com.project.hrcm.models.reponse.TableDashboard;
 import com.project.hrcm.repository.ContractRepository;
 import com.project.hrcm.repository.EmployeeRepository;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,20 +21,25 @@ public class DashboardService {
   private final EmployeeRepository employeeRepository;
 
   public DashboardResponseTotal getDashBoardTotal() {
+
+    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime startDateOfYear = now.with(TemporalAdjusters.firstDayOfYear());
+    LocalDateTime endDateOfYear = now.with(TemporalAdjusters.lastDayOfYear());
+
     // get contractStatusId, contractType
-    List<CustomContractData> contracts = contractRepository.findDashBoardTotal();
-    Long employees = employeeRepository.count();
+    List<CustomContractData> contracts = contractRepository.findDashBoardTotal(startDateOfYear, endDateOfYear);
+    Integer employees = employeeRepository.findTableExpiringEmployee(100).size();
 
     Long totalApprovedContracts =
         contracts.stream().filter(c -> c.getContractStatusId() == 1).count();
 
-    Integer totalContractExpiring = employeeRepository.findExpiringEmployee().size();
+    Integer totalContractExpiring = employeeRepository.findTableExpiringEmployee(12).size();
 
     return DashboardResponseTotal.builder()
-        .totalApprovedContracts(totalApprovedContracts)
-        .totalContractExpiring(totalContractExpiring.longValue())
+        .totalApprovedContracts(totalApprovedContracts.intValue())
+        .totalContractExpiring(totalContractExpiring)
         .totalEmployees(employees)
-        .totalPendingContracts((long) contracts.size() - totalApprovedContracts)
+        .totalPendingContracts((int) (contracts.size() - totalApprovedContracts))
         .build();
   }
 

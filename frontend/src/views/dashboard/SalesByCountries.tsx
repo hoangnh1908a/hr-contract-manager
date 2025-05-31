@@ -118,6 +118,7 @@ const SalesByCountries = () => {
       const today = new Date()
       const endDate = new Date(endDateString)
       const diffTime = endDate.getTime() - today.getTime()
+      if (diffTime < 0) return 0 // If the date is in the past, return 0
       return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
     } catch (e) {
       return 0
@@ -196,7 +197,7 @@ const SalesByCountries = () => {
     hireDate: language === 'vi' ? 'Ngày vào làm' : 'Hire Date',
     contractEnd: language === 'vi' ? 'Ngày hết hạn' : 'Contract Ends',
     contractType: language === 'vi' ? 'Loại hợp đồng' : 'Contract Type',
-    daysRemaining: language === 'vi' ? 'Còn lại' : 'Days Left',
+    daysRemaining: language === 'vi' ? 'Sắp hết hạn (Ngày)' : 'Overdue (Days)',
     month1: language === 'vi' ? '1 tháng tới' : 'Next Month',
     months5: language === 'vi' ? '5 tháng tới' : 'Next 5 Months',
     months12: language === 'vi' ? '12 tháng tới' : 'Next Year',
